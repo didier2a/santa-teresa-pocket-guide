@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://unpkg.com" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="v3.css" />
   <title>Santa Teresa Pocket Guide</title>
 </head>
 <body>
@@ -21,7 +22,7 @@
     <header class="topbar shell">
       <div class="brand">
         <span class="brand__mark">ST</span>
-        <div><strong>Santa Teresa</strong><small>Pocket Guide</small></div>
+        <div><strong>Santa Teresa</strong><small>Pocket Guide · V3</small></div>
       </div>
       <div class="topbar__actions">
         <span id="networkBadge" class="status-pill">● En ligne</span>
@@ -37,7 +38,7 @@
         <div class="hero__content">
           <p class="kicker">17–18 septembre 2026 · Gallura</p>
           <h1>Deux jours entre<br><em>mer & granite</em></h1>
-          <p class="hero__lead">Programme, navigation, Google Agenda, Waze et balade hors ligne dans une seule mini-app.</p>
+          <p class="hero__lead">Programme adaptable, navigation, Google Agenda, Waze et suivi GPS dans une seule mini-app.</p>
           <div class="hero__meta">
             <div><span id="countdownValue">—</span><small>avant le départ</small></div>
             <div><span>10</span><small>voyageurs</small></div>
@@ -63,18 +64,22 @@
       <section class="section section--sand" id="program">
         <div class="shell">
           <div class="section-head">
-            <div><p class="kicker">Agenda synchronisé</p><h2>Programme complet</h2></div>
+            <div><p class="kicker">Planning adaptable</p><h2>Programme complet</h2></div>
             <a class="text-link" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noreferrer">Ouvrir Agenda ↗</a>
           </div>
-          <div class="sync-note"><span>✓</span><div><strong>Instantané Google Agenda</strong><small id="syncStamp">Synchronisé</small></div></div>
+          <div class="sync-note v3-sync-note"><span>↻</span><div><strong>Horaires modifiables dans l’app</strong><small id="syncStamp">Les changements sont mémorisés sur ce téléphone. Google Agenda reste inchangé.</small></div></div>
           <div id="programDays" class="day-grid"></div>
         </div>
       </section>
 
       <section class="section shell" id="map-section">
         <div class="section-head">
-          <div><p class="kicker">Navigation</p><h2>Carte & itinéraires</h2></div>
-          <button class="small-btn" id="locateMe">◎ Autour de moi</button>
+          <div><p class="kicker">Navigation en direct</p><h2>Carte & itinéraires</h2></div>
+          <button class="small-btn gps-toggle" id="locateMe">◎ Démarrer le suivi GPS</button>
+        </div>
+        <div id="gpsStatus" class="gps-status" hidden>
+          <div><span class="gps-dot"></span><strong id="gpsStatusText">GPS actif</strong></div>
+          <small id="gpsMeta">En attente de position…</small>
         </div>
         <div class="map-tabs" role="tablist">
           <button class="map-tab is-active" data-map-mode="interactive">Carte interactive</button>
@@ -82,7 +87,7 @@
         </div>
         <div id="interactiveMapPanel" class="map-panel">
           <div id="map" class="map" aria-label="Carte de Santa Teresa et Capo Testa"></div>
-          <p class="microcopy">Les tuiles de carte nécessitent Internet. Les points GPS, le guide et la carte illustrée restent disponibles hors ligne.</p>
+          <p class="microcopy">Le suivi GPS fonctionne tant que l’application est ouverte. Les tuiles de carte nécessitent Internet ; les points GPS et le guide restent disponibles hors ligne.</p>
         </div>
         <div id="offlineMapPanel" class="map-panel" hidden>
           <figure class="offline-map"><img src="assets/photos/guide-map.svg" alt="Carte illustrée de Santa Teresa et Capo Testa" /><figcaption>Carte de repérage enregistrée dans l’application pour consultation hors connexion.</figcaption></figure>
@@ -129,6 +134,24 @@
   <dialog id="placeDialog" class="place-dialog">
     <button class="dialog-close" data-close-dialog aria-label="Fermer">×</button>
     <div id="dialogContent"></div>
+  </dialog>
+
+  <dialog id="scheduleDialog" class="place-dialog schedule-dialog">
+    <button class="dialog-close" data-close-schedule aria-label="Fermer">×</button>
+    <form id="scheduleForm" class="schedule-form" method="dialog">
+      <p class="kicker">Ajustement en direct</p>
+      <h3 id="scheduleTitle">Modifier l’horaire</h3>
+      <p id="schedulePlace" class="timeline-place"></p>
+      <div class="time-fields">
+        <label>Début<input id="scheduleStart" type="time" required /></label>
+        <label>Fin<input id="scheduleEnd" type="time" required /></label>
+      </div>
+      <label class="shift-option"><input id="shiftFollowing" type="checkbox" checked /> <span>Décaler automatiquement les étapes suivantes du même écart</span></label>
+      <div class="schedule-actions">
+        <button type="button" class="secondary-action" id="resetDay">Réinitialiser la journée</button>
+        <button type="submit" class="primary-action">Enregistrer</button>
+      </div>
+    </form>
   </dialog>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
