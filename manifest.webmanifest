@@ -1,0 +1,15 @@
+{
+  "name": "Santa Teresa Pocket Guide",
+  "short_name": "Santa Teresa",
+  "description": "Guide mobile du séjour à Santa Teresa di Gallura, 17–18 septembre 2026.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fffdf8",
+  "theme_color": "#103f4a",
+  "lang": "fr",
+  "icons": [
+    {"src":"assets/icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
