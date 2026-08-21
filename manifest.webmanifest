@@ -1,20 +1,13 @@
 {
-  "name": "Santa Teresa Pocket Guide V5.1",
-  "short_name": "Santa Teresa",
-  "description": "Compagnon de voyage intelligent : planning sécurisé, GPS, audioguide, navigation et souvenir numérique.",
-  "start_url": "./",
+  "name": "Santa Teresa Pocket Guide V6 AR",
+  "short_name": "Santa Teresa AR",
+  "description": "Compagnon de voyage en réalité augmentée : Geo-AR, navigation pédestre, planning sécurisé, GPS, audioguide et souvenir numérique.",
+  "start_url": "./?app=6.0",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#fffdf8",
+  "background_color": "#06171c",
   "theme_color": "#103f4a",
   "lang": "fr",
-  "icons": [
-    {
-      "src": "assets/icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
+  "icons": [{"src":"assets/icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }
