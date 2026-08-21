@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" role="img" aria-labelledby="title desc">
+  <title id="title">Carte de repérage Santa Teresa et Capo Testa</title>
+  <desc id="desc">Carte schématique hors ligne des principaux points du voyage.</desc>
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8f1ef"/><stop offset="1" stop-color="#8fcac7"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="14" flood-opacity=".14"/></filter>
+  </defs>
+  <rect width="900" height="1200" rx="52" fill="url(#sea)"/>
+  <text x="64" y="90" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#103f4a">SANTA TERESA · CAPO TESTA</text>
+  <text x="64" y="132" font-family="Arial, sans-serif" font-size="20" fill="#356a72">Carte de repérage hors ligne · 17–18 septembre 2026</text>
+  <path d="M90 930 C160 875 220 900 280 835 C330 780 350 720 405 690 C480 650 520 610 520 535 C520 475 485 430 500 370 C520 290 590 255 650 220 C710 185 780 180 835 155 L870 310 C815 345 790 405 748 445 C710 485 675 535 630 575 C585 618 545 685 505 735 C455 800 405 825 355 885 C300 950 260 1010 205 1060 L90 930Z" fill="#f6ead0" stroke="#d4b884" stroke-width="6" filter="url(#shadow)"/>
+  <path d="M484 530 C460 485 444 446 456 402 C475 333 540 296 610 260" fill="none" stroke="#c67855" stroke-width="8" stroke-linecap="round" stroke-dasharray="14 14"/>
+  <path d="M270 865 C335 795 405 725 484 530" fill="none" stroke="#1c7080" stroke-width="10" stroke-linecap="round"/>
+  <g font-family="Arial, sans-serif">
+    <circle cx="260" cy="875" r="16" fill="#103f4a"/><text x="286" y="884" font-size="24" font-weight="700" fill="#103f4a">Santa Teresa</text>
+    <text x="286" y="916" font-size="18" fill="#356a72">Piazza Vittorio Emanuele I</text>
+    <circle cx="230" cy="810" r="13" fill="#1c7080"/><text x="255" y="818" font-size="22" font-weight="700" fill="#103f4a">Rena Bianca</text>
+    <circle cx="315" cy="820" r="13" fill="#1c7080"/><text x="340" y="828" font-size="22" font-weight="700" fill="#103f4a">Torre di Longonsardo</text>
+    <circle cx="470" cy="545" r="15" fill="#c67855"/><text x="495" y="553" font-size="22" font-weight="700" fill="#103f4a">Isthme de Capo Testa</text>
+    <circle cx="610" cy="275" r="16" fill="#103f4a"/><text x="638" y="283" font-size="24" font-weight="700" fill="#103f4a">Faro di Capo Testa</text>
+    <circle cx="565" cy="330" r="13" fill="#c67855"/><text x="590" y="338" font-size="21" font-weight="700" fill="#103f4a">Cala Francese</text>
+    <circle cx="520" cy="395" r="13" fill="#c67855"/><text x="545" y="403" font-size="21" font-weight="700" fill="#103f4a">Valle della Luna</text>
+    <rect x="64" y="1010" width="772" height="125" rx="28" fill="#ffffff" opacity=".82"/>
+    <circle cx="105" cy="1055" r="9" fill="#1c7080"/><text x="126" y="1063" font-size="18" fill="#103f4a">Parcours centre / côte</text>
+    <circle cx="105" cy="1097" r="9" fill="#c67855"/><text x="126" y="1105" font-size="18" fill="#103f4a">Boucle pédestre Capo Testa</text>
+    <text x="500" y="1070" font-size="17" fill="#356a72">Carte schématique : utiliser Waze / carte interactive</text>
+    <text x="500" y="1097" font-size="17" fill="#356a72">pour la navigation précise sur place.</text>
+  </g>
+</svg>
