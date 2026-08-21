@@ -30,7 +30,7 @@
         <div class="hero__content">
           <p class="kicker">17–18 septembre 2026 · Gallura</p>
           <h1>Deux jours entre<br><em>mer & granite</em></h1>
-          <p class="hero__lead">Planning adaptable, photos de repérage, GPS en direct et commentaires historiques contextuels.</p>
+          <p class="hero__lead">Planning adaptable, photos touristiques, GPS en direct et commentaires historiques contextuels.</p>
           <div class="hero__meta"><div><span id="countdownValue">—</span><small>avant le départ</small></div><div><span>10</span><small>voyageurs</small></div><div><span>2</span><small>jours</small></div></div>
           <div class="hero__actions"><button class="primary-btn" data-scroll="#live">Voir ma journée</button><button class="secondary-btn" id="installApp">Ajouter à l’accueil</button></div>
         </div>
@@ -52,23 +52,21 @@
         <div class="section-head"><div><p class="kicker">Navigation en direct</p><h2>Carte & GPS</h2></div><button class="small-btn gps-toggle" id="locateMe">◎ Démarrer le suivi GPS</button></div>
         <div id="gpsStatus" class="gps-status" hidden><div><span class="gps-dot"></span><strong id="gpsStatusText">GPS actif</strong></div><small id="gpsMeta">En attente de position…</small></div>
         <div class="map-tabs" role="tablist"><button class="map-tab is-active" data-map-mode="interactive">Carte interactive</button><button class="map-tab" data-map-mode="offline">Carte hors ligne</button></div>
-        <div id="interactiveMapPanel" class="map-panel"><div id="map" class="map" aria-label="Carte de Santa Teresa et Capo Testa"></div><p class="microcopy">Le suivi GPS fonctionne tant que l’application reste active. Les photos et le guide culturel sont mis en cache pour le hors-ligne.</p></div>
+        <div id="interactiveMapPanel" class="map-panel"><div id="map" class="map" aria-label="Carte de Santa Teresa et Capo Testa"></div><p class="microcopy">Le suivi GPS fonctionne tant que l’application reste active. Les données du guide et la carte de repérage restent disponibles hors ligne ; les photos Wikimedia nécessitent une connexion.</p></div>
         <div id="offlineMapPanel" class="map-panel" hidden><figure class="offline-map"><img src="assets/photos/guide-map.svg" alt="Carte illustrée de Santa Teresa et Capo Testa" /><figcaption>Carte de repérage enregistrée dans l’application.</figcaption></figure></div>
         <div id="nearestPanel" class="nearest-panel" hidden></div>
       </section>
 
       <section class="section section--sand" id="guide"><div class="shell">
         <div class="section-head"><div><p class="kicker">Comme une réalité augmentée</p><h2>Guide augmenté</h2></div></div>
-        <div class="visual-disclaimer">Les images sont des repères photoréalistes générés pour faciliter l’orientation. Le GPS et les textes servent à identifier le lieu réel devant vous.</div>
+        <div class="visual-disclaimer">Les photographies de repérage proviennent de Wikimedia Commons et sont créditées dans leurs fiches. Active le GPS : l’application rapproche automatiquement ta position, le lieu remarquable le plus proche, son histoire et l’étape prévue au programme.</div>
         <div id="arGuidePanel" class="ar-guide-panel"><div class="around-empty">Active le GPS : le commentaire du lieu le plus proche apparaîtra ici automatiquement.</div></div>
         <h3 class="subsection-title">Autour de moi</h3><div id="aroundMePanel" class="around-panel"><div class="around-empty">Active le suivi GPS pour classer les lieux par distance.</div></div>
         <h3 class="subsection-title">Tous les repères</h3><div id="placesList" class="places"></div>
       </div></section>
 
       <section class="section section--dark" id="discover"><div class="shell"><div class="section-head"><div><p class="kicker">Carnet visuel</p><h2>À découvrir</h2></div></div><div id="discoverCards" class="discover-grid"></div></div></section>
-
       <section class="section shell" id="history-guide"><div class="section-head"><div><p class="kicker">Lecture culturelle</p><h2>Repères historiques</h2></div></div><div id="historyCards" class="history-grid"></div></section>
-
       <section class="section shell" id="music"><div class="section-head"><div><p class="kicker">Ambiance</p><h2>Playlist Santa Teresa</h2></div><span class="music-note">8 titres</span></div><div id="playlist" class="playlist"></div></section>
 
       <section class="section section--sand" id="travel"><div class="shell"><div class="section-head"><div><p class="kicker">Pratique</p><h2>Voyage</h2></div></div><div class="practical-grid">
@@ -85,5 +83,7 @@
   <dialog id="placeDialog" class="place-dialog"><button class="dialog-close" data-close-dialog aria-label="Fermer">×</button><div id="dialogContent"></div></dialog>
   <dialog id="scheduleDialog" class="place-dialog schedule-dialog"><button class="dialog-close" data-close-schedule aria-label="Fermer">×</button><form id="scheduleForm" class="schedule-form" method="dialog"><p class="kicker">Ajustement en direct</p><h3 id="scheduleTitle">Modifier l’horaire</h3><p id="schedulePlace" class="timeline-place"></p><div class="time-fields"><label>Début<input id="scheduleStart" type="time" required /></label><label>Fin<input id="scheduleEnd" type="time" required /></label></div><label class="shift-option"><input id="shiftFollowing" type="checkbox" checked /> <span>Décaler automatiquement les étapes suivantes du même écart</span></label><div class="schedule-actions"><button type="button" class="secondary-action" id="resetDay">Réinitialiser la journée</button><button type="submit" class="primary-action">Enregistrer</button></div></form></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script><script type="module" src="js/app.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="v4b-bootstrap.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body></html>
