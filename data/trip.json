@@ -1,0 +1,74 @@
+{
+  "trip": {
+    "title": "Santa Teresa Pocket Guide",
+    "start": "2026-09-17",
+    "end": "2026-09-18",
+    "timezone": "Europe/Rome",
+    "travelers": 10,
+    "sync": {
+      "mode": "calendar-snapshot",
+      "generatedAt": "2026-08-21T14:22:00+02:00",
+      "note": "Horaires copiés depuis le Google Agenda principal."
+    }
+  },
+  "days": [
+    {
+      "date": "2026-09-17",
+      "label": "Jeudi 17 septembre",
+      "subtitle": "Arrivée, village et Capo Testa",
+      "events": [
+        {"time":"11:30","end":"12:00","title":"Arrivée & installation à l’hôtel","type":"transfert","place":"Santa Teresa Gallura","placeId":"piazza","calendarUrl":"https://www.google.com/calendar/event?eid=M2dpdThrbmw4cWxwaTFzOGNwbDB2dWRzNWsgZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome"},
+        {"time":"12:00","end":"13:00","title":"Centre & Rena Bianca","type":"balade","place":"Piazza Vittorio Emanuele I → Rena Bianca","placeId":"rena","calendarUrl":"https://www.google.com/calendar/event?eid=cmw0bGcwNDM0cWhlZmthMDQwcmJ0NmRqODQgZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome"},
+        {"time":"13:00","end":"14:30","title":"Déjeuner à Santa Teresa","type":"repas","place":"Centre de Santa Teresa","placeId":"piazza","calendarUrl":"https://www.google.com/calendar/event?eid=cDA2M2ExdmhraDVkc3FqajhlczY5ZjZrcjAgZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome"},
+        {"time":"14:30","end":"15:05","title":"Marche vers Piazza Bruno Modesto","type":"marche","place":"Gare routière","placeId":"modesto","calendarUrl":"https://www.google.com/calendar/event?eid=bDNxcnB1bGZicG02ZnRicWxvMzQ2NGI2bG8gZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome"},
+        {"time":"15:10","end":"15:40","title":"Navette vers Capo Testa","type":"bus","place":"Piazza Bruno Modesto → Faro","placeId":"faro","calendarUrl":"https://www.google.com/calendar/event?eid=OTRuaGVrOGdtMW9hNGoyZHZyYW5vMnJqN2sgZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome"},
+        {"time":"15:40","end":"19:00","title":"Capo Testa · phare · Cala Francese · Valle della Luna","type":"balade","place":"Capo Testa","placeId":"faro","calendarUrl":"https://www.google.com/calendar/event?eid=NDQyaDRvcXJzc3M2ODcyYmJyZTQ5bDZ0am8gZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome","detail":"Circuit conseillé : Faro di Capo Testa → Cala Francese (environ 10 min à pied) → retour vers le phare → entrée de Cala Grande / Valle della Luna → boucle dans les rochers → retour au phare. Prévoir eau et chaussures adaptées."},
+        {"time":"19:00","end":"19:35","title":"Navette retour Santa Teresa","type":"bus","place":"Faro → Santa Teresa","placeId":"faro","calendarUrl":"https://www.google.com/calendar/event?eid=OHByMmd2Nmwzbmg5M21vMWxvYWkzYmdlaTAgZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome"},
+        {"time":"20:00","end":"22:00","title":"Dîner & soirée dans le centre","type":"repas","place":"Centre de Santa Teresa","placeId":"piazza","calendarUrl":"https://www.google.com/calendar/event?eid=azM1NmdoaTFpOWFtOGZlcHNhMGFiMWlyaWsgZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome"}
+      ]
+    },
+    {
+      "date": "2026-09-18",
+      "label": "Vendredi 18 septembre",
+      "subtitle": "Tour, plage et dolce vita",
+      "events": [
+        {"time":"08:30","end":"09:45","title":"Centre & Torre di Longonsardo","type":"balade","place":"Torre di Longonsardo","placeId":"torre","calendarUrl":"https://www.google.com/calendar/event?eid=NXI4OWJiMmw5NGU5N2tobWNqYXJuYWsxOHMgZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome","detail":"Boucle à pied : Piazza Vittorio Emanuele I → Torre di Longonsardo → belvédères sur les Bouches de Bonifacio → front de mer."},
+        {"time":"09:45","end":"10:45","title":"Promenade à Rena Bianca","type":"plage","place":"Spiaggia Rena Bianca","placeId":"rena","calendarUrl":"https://www.google.com/calendar/event?eid=MmsyMDQ0cHBpOG80dWlpZDZwaTI4cmZybWMgZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome"},
+        {"time":"10:45","end":"11:30","title":"Centre historique · café · temps libre","type":"pause","place":"Piazza Vittorio Emanuele I","placeId":"piazza","calendarUrl":"https://www.google.com/calendar/event?eid=OTlzanE0bzdtOGM0bjJ0OHI2bWhlZXBqZjggZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome"},
+        {"time":"11:30","end":"12:00","title":"Retour hôtel & bagages","type":"transfert","place":"Santa Teresa Gallura","placeId":"piazza","calendarUrl":"https://www.google.com/calendar/event?eid=YzdqNmVtdnI3MXNrOXF1dGJ2dDRwZmQ1cTggZGlkaWVyLmFvdWl6ZXJhdGVAbQ&ctz=Europe/Rome"}
+      ]
+    }
+  ],
+  "places": [
+    {"id":"piazza","name":"Piazza Vittorio Emanuele I","lat":41.24016,"lng":9.18869,"icon":"🏘️","note":"Cœur piéton de Santa Teresa, cafés et rues du centre.","detail":"Point de départ idéal pour la découverte du village. L’office de tourisme se trouve au n°24.","waze":"https://waze.com/ul?ll=41.24016%2C9.18869&navigate=yes&utm_source=santa_teresa_pocket"},
+    {"id":"rena","name":"Rena Bianca","lat":41.24417,"lng":9.18795,"icon":"🏖️","note":"Plage emblématique au pied du centre.","detail":"Plage de sable clair directement accessible depuis Santa Teresa. En saison 2026, l’accès est réglementé : vérifier la réservation avant de s’installer.","waze":"https://waze.com/ul?ll=41.24417%2C9.18795&navigate=yes&utm_source=santa_teresa_pocket"},
+    {"id":"torre","name":"Torre di Longonsardo","lat":41.24482,"lng":9.19207,"icon":"🏰","note":"Tour historique et vue sur les Bouches de Bonifacio.","detail":"Tour espagnole construite entre 1577 et 1599. Très beau point de vue vers la Corse et le port.","waze":"https://waze.com/ul?ll=41.24482%2C9.19207&navigate=yes&utm_source=santa_teresa_pocket"},
+    {"id":"modesto","name":"Piazza Bruno Modesto","lat":41.23850,"lng":9.18806,"icon":"🚌","note":"Gare routière et départ de la navette Capo Testa.","detail":"Départ prévu à 15:10 le 17 septembre. Billets Just Sardinia vendus à bord.","waze":"https://waze.com/ul?ll=41.23850%2C9.18806&navigate=yes&utm_source=santa_teresa_pocket"},
+    {"id":"faro","name":"Faro di Capo Testa","lat":41.24395,"lng":9.14545,"icon":"🌅","note":"Phare, granite et départ des sentiers.","detail":"Phare construit en 1845, sur un promontoire majeur des Bouches de Bonifacio. Base parfaite pour Cala Francese et Valle della Luna.","waze":"https://waze.com/ul?ll=41.24395%2C9.14545&navigate=yes&utm_source=santa_teresa_pocket"},
+    {"id":"francese","name":"Cala Francese","lat":41.24494,"lng":9.14280,"icon":"🌊","note":"Petite crique à environ 10 min à pied du vieux phare.","detail":"Sentier étroit depuis le phare. À privilégier si la météo et le terrain sont secs.","waze":"https://waze.com/ul?ll=41.24494%2C9.14280&navigate=yes&utm_source=santa_teresa_pocket"},
+    {"id":"luna","name":"Valle della Luna","lat":41.23990,"lng":9.14770,"icon":"🥾","note":"Rochers granitiques, vallées et criques sauvages.","detail":"Cala Grande, dite Valle della Luna. Le chemin se fait à pied : Waze sert surtout à rejoindre Capo Testa, pas à suivre le sentier.","waze":"https://waze.com/ul?ll=41.23990%2C9.14770&navigate=yes&utm_source=santa_teresa_pocket"}
+  ],
+  "routes": [
+    {"day":"2026-09-17","name":"Village & Capo Testa","points":["piazza","rena","modesto","faro","francese","luna","faro"]},
+    {"day":"2026-09-18","name":"Tour & Rena Bianca","points":["piazza","torre","rena","piazza"]}
+  ],
+  "discover": [
+    {"placeId":"faro","icon":"🌅","title":"Capo Testa & phare","text":"Granite monumental, lumière et panorama sur les Bouches de Bonifacio."},
+    {"placeId":"luna","icon":"🥾","title":"Valle della Luna","text":"La grande balade sauvage du séjour, entre rochers sculptés et criques."},
+    {"placeId":"rena","icon":"🏖️","title":"Rena Bianca","text":"La plage emblématique directement au pied du centre de Santa Teresa."},
+    {"placeId":"torre","icon":"🏰","title":"Torre di Longonsardo","text":"Patrimoine espagnol et panorama idéal pour la lumière du matin."},
+    {"placeId":"francese","icon":"🌊","title":"Cala Francese","text":"Une petite crique facilement intégrée à la balade depuis le phare."},
+    {"placeId":"piazza","icon":"☕","title":"Centre historique","text":"Piazza, ruelles, cafés et dolce vita avant le retour à Bonifacio."}
+  ],
+  "playlist": [
+    {"artist":"Paolo Conte","title":"Via con me","moment":"Traversée"},
+    {"artist":"Domenico Modugno","title":"Nel blu dipinto di blu","moment":"Arrivée"},
+    {"artist":"Gino Paoli","title":"Sapore di sale","moment":"Santa Teresa"},
+    {"artist":"Paolo Fresu","title":"Eros","moment":"Balade"},
+    {"artist":"Andrea Parodi","title":"No Potho Reposare","moment":"Capo Testa"},
+    {"artist":"Tazenda","title":"Spunta la luna dal monte","moment":"Valle della Luna"},
+    {"artist":"Ludovico Einaudi","title":"Una Mattina","moment":"Retour"},
+    {"artist":"Air","title":"La femme d'argent","moment":"Soirée"}
+  ],
+  "checklist": ["Bouteille d’eau","Chaussures de marche","Batterie externe","Lunettes de soleil","Casquette / chapeau","Maillot / serviette légère"]
+}
