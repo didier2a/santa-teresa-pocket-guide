@@ -1,4 +1,5 @@
-const CACHE='santa-teresa-v5-1';
+const APP_VERSION='5.1.1';
+const CACHE='santa-teresa-v5-1-refresh';
 const MAP_CACHE='santa-teresa-map-v5-1';
 const CORE=[
   './','./index.html','./styles.css','./v3.css','./v4b.css','./v5.css','./manifest.webmanifest',
@@ -9,15 +10,114 @@ const LEAFLET=[
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
-async function cacheExternal(cache,url,mode='cors'){try{const request=new Request(url,{mode,credentials:'omit'});const response=await fetch(request);if(response&&(response.ok||response.type==='opaque'))await cache.put(request,response.clone())}catch{}}
-async function warmExternal(){const cache=await caches.open(CACHE);await Promise.allSettled(LEAFLET.map(url=>cacheExternal(cache,url,'cors')))}
-async function trimCache(name,maxEntries){const cache=await caches.open(name),keys=await cache.keys();while(keys.length>maxEntries)await cache.delete(keys.shift())}
-self.addEventListener('install',event=>{event.waitUntil((async()=>{const cache=await caches.open(CACHE);await cache.addAll(CORE);await warmExternal();await self.skipWaiting()})())});
-self.addEventListener('activate',event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>![CACHE,MAP_CACHE].includes(k)).map(k=>caches.delete(k)));await self.clients.claim()})())});
+
+async function cacheExternal(cache,url,mode='cors'){
+  try{
+    const request=new Request(url,{mode,credentials:'omit'});
+    const response=await fetch(request);
+    if(response&&(response.ok||response.type==='opaque'))await cache.put(request,response.clone());
+  }catch{}
+}
+async function warmExternal(){
+  const cache=await caches.open(CACHE);
+  await Promise.allSettled(LEAFLET.map(url=>cacheExternal(cache,url,'cors')));
+}
+async function trimCache(name,maxEntries){
+  const cache=await caches.open(name),keys=await cache.keys();
+  while(keys.length>maxEntries)await cache.delete(keys.shift());
+}
+async function refreshOpenClients(){
+  const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+  await Promise.allSettled(clients.map(async client=>{
+    try{
+      const url=new URL(client.url);
+      if(url.origin!==self.location.origin)return;
+      url.searchParams.set('app',APP_VERSION);
+      await client.navigate(url.toString());
+    }catch{}
+  }));
+}
+
+self.addEventListener('install',event=>{
+  event.waitUntil((async()=>{
+    const cache=await caches.open(CACHE);
+    await cache.addAll(CORE);
+    await warmExternal();
+    await self.skipWaiting();
+  })());
+});
+
+self.addEventListener('activate',event=>{
+  event.waitUntil((async()=>{
+    const keys=await caches.keys();
+    await Promise.all(keys.filter(k=>![CACHE,MAP_CACHE].includes(k)).map(k=>caches.delete(k)));
+    await self.clients.claim();
+    await refreshOpenClients();
+  })());
+});
+
 self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET')return;
   const url=new URL(event.request.url);
-  if(url.origin===location.origin){event.respondWith((async()=>{const cache=await caches.open(CACHE),hit=await cache.match(event.request);if(hit)return hit;try{const response=await fetch(event.request);if(response.ok)await cache.put(event.request,response.clone());return response}catch{if(event.request.mode==='navigate')return cache.match('./index.html');return new Response('',{status:504,statusText:'Offline'})}})());return}
-  if(url.hostname==='unpkg.com'||url.hostname.includes('wikimedia.org')||url.hostname.includes('wikimediausercontent.com')){event.respondWith((async()=>{const cache=await caches.open(CACHE),hit=await cache.match(event.request);if(hit)return hit;try{const response=await fetch(event.request);if(response)await cache.put(event.request,response.clone());return response}catch{return new Response('',{status:504,statusText:'Offline'})}})());return}
-  if(url.hostname.endsWith('tile.openstreetmap.org')){event.respondWith((async()=>{const cache=await caches.open(MAP_CACHE),hit=await cache.match(event.request);if(hit)return hit;try{const response=await fetch(event.request);if(response.ok){await cache.put(event.request,response.clone());void trimCache(MAP_CACHE,180)}return response}catch{return new Response('',{status:504,statusText:'Offline'})}})())}
+
+  // Les navigations HTML sont toujours réseau d'abord. Cela empêche une ancienne
+  // version installée de rester bloquée sur index.html depuis le cache PWA.
+  if(url.origin===location.origin&&event.request.mode==='navigate'){
+    event.respondWith((async()=>{
+      const cache=await caches.open(CACHE);
+      try{
+        const request=new Request(event.request,{cache:'no-store'});
+        const response=await fetch(request);
+        if(response.ok)await cache.put('./index.html',response.clone());
+        return response;
+      }catch{
+        return (await cache.match('./index.html'))||new Response('Pocket Guide hors ligne',{status:503,statusText:'Offline'});
+      }
+    })());
+    return;
+  }
+
+  if(url.origin===location.origin){
+    event.respondWith((async()=>{
+      const cache=await caches.open(CACHE),hit=await cache.match(event.request);
+      if(hit)return hit;
+      try{
+        const response=await fetch(event.request);
+        if(response.ok)await cache.put(event.request,response.clone());
+        return response;
+      }catch{
+        return new Response('',{status:504,statusText:'Offline'});
+      }
+    })());
+    return;
+  }
+
+  if(url.hostname==='unpkg.com'||url.hostname.includes('wikimedia.org')||url.hostname.includes('wikimediausercontent.com')){
+    event.respondWith((async()=>{
+      const cache=await caches.open(CACHE),hit=await cache.match(event.request);
+      if(hit)return hit;
+      try{
+        const response=await fetch(event.request);
+        if(response)await cache.put(event.request,response.clone());
+        return response;
+      }catch{
+        return new Response('',{status:504,statusText:'Offline'});
+      }
+    })());
+    return;
+  }
+
+  if(url.hostname.endsWith('tile.openstreetmap.org')){
+    event.respondWith((async()=>{
+      const cache=await caches.open(MAP_CACHE),hit=await cache.match(event.request);
+      if(hit)return hit;
+      try{
+        const response=await fetch(event.request);
+        if(response.ok){await cache.put(event.request,response.clone());void trimCache(MAP_CACHE,180);}
+        return response;
+      }catch{
+        return new Response('',{status:504,statusText:'Offline'});
+      }
+    })());
+  }
 });
