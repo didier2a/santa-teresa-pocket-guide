@@ -4,127 +4,62 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#103f4a" />
-  <meta name="description" content="Santa Teresa Pocket Guide V5.1 — compagnon intelligent fiabilisé, audioguide GPS et carnet souvenir" />
+  <meta name="description" content="Santa Teresa Pocket Guide V6 — compagnon de voyage AR, navigation piétonne, audioguide GPS et carnet souvenir" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Santa Teresa" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
   <link rel="preconnect" href="https://unpkg.com" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="v3.css" />
   <link rel="stylesheet" href="v4b.css" />
   <link rel="stylesheet" href="v5.css" />
-  <title>Santa Teresa Pocket Guide V5.1</title>
+  <link rel="stylesheet" href="ar-v6.css" />
+  <title>Santa Teresa Pocket Guide V6 AR</title>
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar shell">
-      <div class="brand"><span class="brand__mark">ST</span><div><strong>Santa Teresa</strong><small>Pocket Guide · V5.1</small></div></div>
+      <div class="brand"><span class="brand__mark">ST</span><div><strong>Santa Teresa</strong><small>Pocket Guide · V6 AR</small></div></div>
       <div class="topbar__actions"><span id="networkBadge" class="status-pill">● En ligne</span><button id="shareTrip" class="icon-btn" aria-label="Partager le guide">↗</button></div>
     </header>
 
     <main>
-      <section class="hero shell" id="today">
-        <div class="hero__art hero__art--v4b" aria-hidden="true"></div>
-        <div class="hero__content">
-          <p class="kicker">17–18 septembre 2026 · Gallura</p>
-          <h1>Votre compagnon<br><em>intelligent</em></h1>
-          <p class="hero__lead">Planning adaptatif, GPS, audioguide géolocalisé, guide culturel et souvenir numérique du voyage.</p>
-          <div class="hero__meta"><div><span id="countdownValue">—</span><small>avant le départ</small></div><div><span>10</span><small>voyageurs</small></div><div><span>V5.1</span><small>terrain</small></div></div>
-          <div class="hero__actions"><button class="primary-btn" data-scroll="#live">Voir ma journée</button><button class="secondary-btn" id="installApp">Ajouter à l’accueil</button></div>
-        </div>
-      </section>
+      <section class="hero shell" id="today"><div class="hero__art hero__art--v4b" aria-hidden="true"></div><div class="hero__content"><p class="kicker">17–18 septembre 2026 · Gallura</p><h1>Le territoire devient<br><em>votre interface</em></h1><p class="hero__lead">Réalité augmentée géolocalisée, navigation pédestre, audioguide contextuel, planning sécurisé et souvenir numérique.</p><div class="hero__meta"><div><span id="countdownValue">—</span><small>avant le départ</small></div><div><span>10</span><small>voyageurs</small></div><div><span>V6</span><small>AR Explorer</small></div></div><div class="hero__actions"><button class="primary-btn" id="openAR">◎ Regarder autour de moi</button><button class="secondary-btn" id="installApp">Ajouter à l’accueil</button></div></div></section>
 
-      <section class="section shell" id="live">
-        <div class="section-head"><div><p class="kicker">Compagnon de route</p><h2>Maintenant</h2></div><div class="clock-wrap"><span id="localClock">--:--</span><small>heure locale</small></div></div>
-        <article id="nextCard" class="next-card"><div class="skeleton"></div></article>
-        <div class="day-switch" id="daySwitch"></div>
-        <div id="todayTimeline" class="timeline"></div>
-      </section>
+      <section class="section shell" id="live"><div class="section-head"><div><p class="kicker">Compagnon de route</p><h2>Maintenant</h2></div><div class="clock-wrap"><span id="localClock">--:--</span><small>heure locale</small></div></div><article id="nextCard" class="next-card"><div class="skeleton"></div></article><div class="day-switch" id="daySwitch"></div><div id="todayTimeline" class="timeline"></div></section>
 
-      <section class="section section--intelligent" id="companion"><div class="shell">
-        <div class="section-head"><div><p class="kicker">V5.1 · adaptation sûre</p><h2>Compagnon intelligent</h2></div><span class="smart-pill">◆ Auto</span></div>
-        <div id="companionPanel" class="companion-panel"><div class="skeleton"></div></div>
-        <div class="smart-actions">
-          <button id="startNowBtn" class="smart-action">▶ Démarrer maintenant</button>
-          <button id="plus15Btn" class="smart-action">+15 min</button>
-          <button id="plus30Btn" class="smart-action">+30 min</button>
-          <button id="recover30Btn" class="smart-action">↙ Récupérer 30 min</button>
-        </div>
-        <p class="microcopy">Les recalages ne déplacent jamais les transports verrouillés et sont automatiquement limités avant une contrainte fixe. Les changements restent locaux sur ce téléphone ; Google Agenda n’est pas modifié.</p>
-      </div></section>
+      <section class="section section--intelligent" id="companion"><div class="shell"><div class="section-head"><div><p class="kicker">V6 · adaptation sûre</p><h2>Compagnon intelligent</h2></div><span class="smart-pill">◆ Auto</span></div><div id="companionPanel" class="companion-panel"><div class="skeleton"></div></div><div class="smart-actions"><button id="startNowBtn" class="smart-action">▶ Démarrer maintenant</button><button id="plus15Btn" class="smart-action">+15 min</button><button id="plus30Btn" class="smart-action">+30 min</button><button id="recover30Btn" class="smart-action">↙ Récupérer 30 min</button></div><p class="microcopy">Les recalages ne déplacent jamais les transports verrouillés et sont automatiquement limités avant une contrainte fixe.</p></div></section>
 
-      <section class="section section--sand" id="program"><div class="shell">
-        <div class="section-head"><div><p class="kicker">Planning adaptable</p><h2>Programme complet</h2></div><a class="text-link" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noreferrer">Ouvrir Agenda ↗</a></div>
-        <div class="sync-note v3-sync-note"><span>↻</span><div><strong>Horaires modifiables dans l’app</strong><small id="syncStamp">Les changements restent mémorisés sur ce téléphone.</small></div></div>
-        <div id="programDays" class="day-grid"></div>
-      </div></section>
+      <section class="section section--sand" id="program"><div class="shell"><div class="section-head"><div><p class="kicker">Planning adaptable</p><h2>Programme complet</h2></div><a class="text-link" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noreferrer">Ouvrir Agenda ↗</a></div><div class="sync-note v3-sync-note"><span>↻</span><div><strong>Horaires modifiables dans l’app</strong><small id="syncStamp">Les changements restent mémorisés sur ce téléphone.</small></div></div><div id="programDays" class="day-grid"></div></div></section>
 
-      <section class="section shell" id="map-section">
-        <div class="section-head"><div><p class="kicker">Navigation en direct</p><h2>Carte & GPS</h2></div><button class="small-btn gps-toggle" id="locateMe">◎ Démarrer le suivi GPS</button></div>
-        <div id="gpsStatus" class="gps-status" hidden><div><span class="gps-dot"></span><strong id="gpsStatusText">GPS actif</strong></div><small id="gpsMeta">En attente de position…</small></div>
-        <div class="map-tabs" role="tablist" aria-label="Type de carte"><button class="map-tab is-active" id="tabInteractive" data-map-mode="interactive" aria-controls="interactiveMapPanel">Carte interactive</button><button class="map-tab" id="tabOffline" data-map-mode="offline" aria-controls="offlineMapPanel">Carte hors ligne</button></div>
-        <div id="interactiveMapPanel" class="map-panel" role="tabpanel" aria-labelledby="tabInteractive"><div id="map" class="map" aria-label="Carte de Santa Teresa et Capo Testa"></div><p class="microcopy">Le GPS, le carnet de visite et l’audioguide fonctionnent tant que l’application reste active. Les photos déjà consultées peuvent être remises en cache.</p></div>
-        <div id="offlineMapPanel" class="map-panel" role="tabpanel" aria-labelledby="tabOffline" hidden><figure class="offline-map"><img src="assets/photos/guide-map.svg" alt="Carte illustrée de Santa Teresa et Capo Testa" /><figcaption>Carte de repérage enregistrée dans l’application.</figcaption></figure></div>
-        <div id="nearestPanel" class="nearest-panel" hidden></div>
-      </section>
+      <section class="section shell" id="map-section"><div class="section-head"><div><p class="kicker">Navigation en direct</p><h2>Carte & GPS</h2></div><button class="small-btn gps-toggle" id="locateMe">◎ Démarrer le suivi GPS</button></div><div id="gpsStatus" class="gps-status" hidden><div><span class="gps-dot"></span><strong id="gpsStatusText">GPS actif</strong></div><small id="gpsMeta">En attente de position…</small></div><div class="map-tabs" role="tablist" aria-label="Type de carte"><button class="map-tab is-active" id="tabInteractive" data-map-mode="interactive" aria-controls="interactiveMapPanel">Carte interactive</button><button class="map-tab" id="tabOffline" data-map-mode="offline" aria-controls="offlineMapPanel">Carte hors ligne</button></div><div id="interactiveMapPanel" class="map-panel" role="tabpanel" aria-labelledby="tabInteractive"><div id="map" class="map" aria-label="Carte de Santa Teresa et Capo Testa"></div></div><div id="offlineMapPanel" class="map-panel" role="tabpanel" aria-labelledby="tabOffline" hidden><figure class="offline-map"><img src="assets/photos/guide-map.svg" alt="Carte illustrée de Santa Teresa et Capo Testa" /><figcaption>Carte de repérage enregistrée dans l’application.</figcaption></figure></div><div id="nearestPanel" class="nearest-panel" hidden></div></section>
 
-      <section class="section section--sand" id="guide"><div class="shell">
-        <div class="section-head"><div><p class="kicker">Guide culturel géolocalisé</p><h2>Audioguide & repérage</h2></div></div>
-        <div class="audio-console">
-          <div><span class="audio-icon">🎧</span><div><strong>Audioguide automatique</strong><small id="audioState">Prêt · il parlera à l’arrivée près d’un lieu</small></div></div>
-          <div class="audio-controls"><button id="audioToggle" class="audio-btn is-on">Auto ON</button><button id="audioReplay" class="audio-btn">▶ Réécouter</button><button id="audioStop" class="audio-btn">■ Stop</button></div>
-        </div>
-        <div class="visual-disclaimer">Quand le GPS vous place dans le rayon d’un monument ou d’un point remarquable, V5.1 peut lire automatiquement une présentation courte. La fiche donne ensuite l’histoire détaillée et les sources.</div>
-        <div id="arGuidePanel" class="ar-guide-panel"><div class="around-empty">Active le GPS : le commentaire du lieu le plus proche apparaîtra ici automatiquement.</div></div>
-        <h3 class="subsection-title">Autour de moi</h3><div id="aroundMePanel" class="around-panel"><div class="around-empty">Active le suivi GPS pour classer les lieux par distance.</div></div>
-        <h3 class="subsection-title">Tous les repères</h3><div id="placesList" class="places"></div>
-      </div></section>
+      <section class="section shell" id="ar-explorer"><div class="section-head"><div><p class="kicker">V6 · Geo‑AR</p><h2>AR Explorer</h2></div><span class="smart-pill" style="background:#103f4a;color:#fff">◎ Live</span></div><article class="ar-launch-card"><p class="kicker">Caméra + GPS + boussole</p><h3>Levez le téléphone et regardez autour de vous</h3><p>Les lieux apparaissent directement dans le paysage avec leur distance et leur direction. Visez un repère pour obtenir son histoire, lancer l’audioguide ou partir à pied.</p><div class="ar-launch-actions"><button class="ar-launch-btn ar-launch-btn--primary" id="openARSecondary">◎ Ouvrir la réalité augmentée</button><span class="ar-launch-btn ar-launch-btn--ghost" id="arXRStatus">Détection AR…</span></div></article></section>
+
+      <section class="section section--sand" id="guide"><div class="shell"><div class="section-head"><div><p class="kicker">Guide culturel géolocalisé</p><h2>Audioguide & repérage</h2></div></div><div class="audio-console"><div><span class="audio-icon">🎧</span><div><strong>Audioguide automatique</strong><small id="audioState">Prêt · il parlera à l’arrivée près d’un lieu</small></div></div><div class="audio-controls"><button id="audioToggle" class="audio-btn is-on">Auto ON</button><button id="audioReplay" class="audio-btn">▶ Réécouter</button><button id="audioStop" class="audio-btn">■ Stop</button></div></div><div id="arGuidePanel" class="ar-guide-panel"><div class="around-empty">Active le GPS : le commentaire du lieu le plus proche apparaîtra ici automatiquement.</div></div><h3 class="subsection-title">Autour de moi</h3><div id="aroundMePanel" class="around-panel"><div class="around-empty">Active le suivi GPS pour classer les lieux par distance.</div></div><h3 class="subsection-title">Tous les repères</h3><div id="placesList" class="places"></div></div></section>
 
       <section class="section section--dark" id="discover"><div class="shell"><div class="section-head"><div><p class="kicker">Carnet visuel</p><h2>À découvrir</h2></div></div><div id="discoverCards" class="discover-grid"></div></div></section>
       <section class="section shell" id="history-guide"><div class="section-head"><div><p class="kicker">Lecture culturelle</p><h2>Repères historiques</h2></div></div><div id="historyCards" class="history-grid"></div></section>
 
-      <section class="section section--memory" id="souvenir"><div class="shell">
-        <div class="section-head"><div><p class="kicker">Votre voyage se construit tout seul</p><h2>Souvenir numérique</h2></div><span class="memory-badge">✦ V5.1</span></div>
-        <div id="memoryStats" class="memory-stats"></div><p id="memoryStorage" class="microcopy">Stockage local actif</p>
-        <div class="memory-grid">
-          <article class="memory-card"><h3>✓ Lieux visités</h3><div id="visitedPlaces" class="visited-list"></div></article>
-          <article class="memory-card"><h3>📷 Ajouter un souvenir</h3><p>Prends une photo : V5.1 l’associe au lieu le plus proche si le GPS est actif.</p><label class="capture-btn">Ouvrir l’appareil photo<input id="memoryPhotoInput" type="file" accept="image/*" capture="environment" hidden></label><textarea id="memoryNote" rows="3" placeholder="Une phrase, une impression, un souvenir…"></textarea><button id="saveMemoryNote" class="memory-action">Enregistrer la note</button></article>
-        </div>
-        <div id="memoryTimeline" class="memory-timeline"></div>
-        <div id="memoryGallery" class="memory-gallery"></div>
-        <div class="memory-export"><button id="exportMemory" class="primary-btn memory-primary">Exporter mon carnet HTML</button><button id="shareMemory" class="secondary-btn memory-secondary">Partager le souvenir</button></div>
-        <p class="microcopy">Les photos et notes personnelles restent stockées localement sur ce téléphone jusqu’à l’export. L’export HTML est autonome et peut être conservé comme souvenir.</p>
-      </div></section>
+      <section class="section section--memory" id="souvenir"><div class="shell"><div class="section-head"><div><p class="kicker">Votre voyage se construit tout seul</p><h2>Souvenir numérique</h2></div><span class="memory-badge">✦ V6</span></div><div id="memoryStats" class="memory-stats"></div><p id="memoryStorage" class="microcopy">Stockage local actif</p><div class="memory-grid"><article class="memory-card"><h3>✓ Lieux visités</h3><div id="visitedPlaces" class="visited-list"></div></article><article class="memory-card"><h3>📷 Ajouter un souvenir</h3><p>Les photos classiques restent dans le carnet ; le mode AR peut aussi créer une photo annotée prête à partager.</p><label class="capture-btn">Ouvrir l’appareil photo<input id="memoryPhotoInput" type="file" accept="image/*" capture="environment" hidden></label><textarea id="memoryNote" rows="3" placeholder="Une phrase, une impression, un souvenir…"></textarea><button id="saveMemoryNote" class="memory-action">Enregistrer la note</button></article></div><div id="memoryTimeline" class="memory-timeline"></div><div id="memoryGallery" class="memory-gallery"></div><div class="memory-export"><button id="exportMemory" class="primary-btn memory-primary">Exporter mon carnet HTML</button><button id="shareMemory" class="secondary-btn memory-secondary">Partager le souvenir</button></div></div></section>
 
       <section class="section shell" id="music"><div class="section-head"><div><p class="kicker">Ambiance</p><h2>Playlist Santa Teresa</h2></div><span class="music-note">8 titres</span></div><div id="playlist" class="playlist"></div></section>
-
-      <section class="section section--sand" id="travel"><div class="shell"><div class="section-head"><div><p class="kicker">Pratique</p><h2>Voyage</h2></div></div><div class="practical-grid">
-        <article class="info-card info-card--accent"><span class="info-icon">🚢</span><div><h3>Retour ferry protégé</h3><p>Le circuit est verrouillé à 12:00 pour préserver une marge avant le retour au port. L’heure exacte du ferry reste à confirmer avec le billet.</p><span class="info-status">Horaire billet à confirmer</span></div></article>
-        <article class="info-card"><span class="info-icon">🏨</span><div><h3>Hôtel au centre</h3><p>Le guide peut recevoir le nom, l’adresse et le lien Waze exacts.</p><span class="info-status">À compléter</span></div></article>
-        <article class="info-card"><span class="info-icon">🚌</span><div><h3>Navette Capo Testa</h3><p>Départ prévu Piazza Bruno Modesto 15:10 → Faro 15:40 ; retour 19:00.</p></div></article>
-        <article class="info-card"><span class="info-icon">🎒</span><div><h3>Sac de journée</h3><div id="checklist" class="checklist"></div></div></article>
-        <article class="info-card info-card--diagnostic"><span class="info-icon">🧪</span><div><h3>Diagnostic terrain</h3><p>Teste en une fois le planning, la PWA, le GPS, l’audio et le stockage avant le départ.</p><button id="runDiagnostics" class="memory-action">Lancer le diagnostic</button><div id="diagnosticResults" class="diagnostic-results" aria-live="polite"></div></div></article>
-      </div><div class="contact-strip"><div><strong>Office de tourisme</strong><small>Piazza Vittorio Emanuele I, 24</small></div><a href="tel:+390789740986">+39 0789 740986</a></div></div></section>
+      <section class="section section--sand" id="travel"><div class="shell"><div class="section-head"><div><p class="kicker">Pratique</p><h2>Voyage</h2></div></div><div class="practical-grid"><article class="info-card info-card--accent"><span class="info-icon">🚢</span><div><h3>Retour ferry protégé</h3><p>Le circuit est verrouillé à 12:00 pour préserver une marge avant le retour au port.</p><span class="info-status">Horaire billet à confirmer</span></div></article><article class="info-card"><span class="info-icon">🏨</span><div><h3>Hôtel au centre</h3><p>Le guide peut recevoir le nom, l’adresse et le lien Waze exacts.</p><span class="info-status">À compléter</span></div></article><article class="info-card"><span class="info-icon">🚌</span><div><h3>Navette Capo Testa</h3><p>Départ prévu Piazza Bruno Modesto 15:10 → Faro 15:40 ; retour 19:00.</p></div></article><article class="info-card"><span class="info-icon">🎒</span><div><h3>Sac de journée</h3><div id="checklist" class="checklist"></div></div></article><article class="info-card info-card--diagnostic"><span class="info-icon">🧪</span><div><h3>Diagnostic terrain</h3><p>Teste le planning, la PWA, le GPS, l’audio et le stockage avant le départ.</p><button id="runDiagnostics" class="memory-action">Lancer le diagnostic</button><div id="diagnosticResults" class="diagnostic-results" aria-live="polite"></div></div></article></div><div class="contact-strip"><div><strong>Office de tourisme</strong><small>Piazza Vittorio Emanuele I, 24</small></div><a href="tel:+390789740986">+39 0789 740986</a></div></div></section>
     </main>
 
-    <nav class="bottom-nav bottom-nav--v5" aria-label="Navigation principale">
-      <a href="#live" class="is-active"><span>◉</span><small>Maintenant</small></a>
-      <a href="#program"><span>☷</span><small>Programme</small></a>
-      <a href="#map-section"><span>⌖</span><small>Carte</small></a>
-      <a href="#guide"><span>🎧</span><small>Guide</small></a>
-      <a href="#souvenir"><span>✦</span><small>Souvenir</small></a>
-      <a href="#travel"><span>⌂</span><small>Voyage</small></a>
-    </nav>
+    <nav class="bottom-nav bottom-nav--v5" aria-label="Navigation principale"><a href="#live" class="is-active"><span>◉</span><small>Maintenant</small></a><a href="#program"><span>☷</span><small>Programme</small></a><a href="#map-section"><span>⌖</span><small>Carte</small></a><a href="#ar-explorer"><span>◎</span><small>AR</small></a><a href="#souvenir"><span>✦</span><small>Souvenir</small></a><a href="#travel"><span>⌂</span><small>Voyage</small></a></nav>
   </div>
 
+  <section class="ar-stage" id="arStage" hidden aria-label="Réalité augmentée Santa Teresa"><video class="ar-camera" id="arCamera" playsinline muted></video><div class="ar-shade"></div><div class="ar-hud"><div class="ar-top"><button class="ar-pill ar-close" id="arClose" aria-label="Fermer la réalité augmentée">×</button><span class="ar-pill" id="arModeStatus">Geo‑AR</span><button class="ar-pill" id="arAudioToggle">🎧 Audio auto</button></div><div class="ar-compass" id="arCompass">Orientation…</div><div class="ar-labels" id="arLabels"></div><div class="ar-reticle" aria-hidden="true"></div><div class="ar-bottom"><article class="ar-focus-card" id="arFocusCard"><h3>Regardez autour de vous</h3><p>Les repères apparaissent lorsque la position et la boussole sont disponibles.</p></article><div class="ar-controls"><button class="ar-control" id="arSpeak">🎧 Écouter</button><a class="ar-control" id="arWalk" href="#">🚶 À pied</a><a class="ar-control ar-control--dark" id="arWaze" href="#">Waze</a><button class="ar-control ar-control--dark" id="arCapture">📷 Photo AR</button></div></div></div><div class="ar-permission" id="arPermission"><div class="ar-permission-card"><p class="kicker">V6 · AR Explorer</p><h2>Regardez autour de vous</h2><p id="arPermissionText">La caméra, la position et la boussole sont nécessaires pour superposer les repères au paysage.</p><button class="ar-launch-btn ar-launch-btn--primary" id="arRetry">Autoriser et démarrer</button></div></div></section>
+
   <dialog id="placeDialog" class="place-dialog"><button class="dialog-close" data-close-dialog aria-label="Fermer">×</button><div id="dialogContent"></div></dialog>
-  <dialog id="scheduleDialog" class="place-dialog schedule-dialog"><button class="dialog-close" data-close-schedule aria-label="Fermer">×</button><form id="scheduleForm" class="schedule-form" method="dialog"><p class="kicker">Ajustement en direct</p><h3 id="scheduleTitle">Modifier l’horaire</h3><p id="schedulePlace" class="timeline-place"></p><div class="time-fields"><label>Début<input id="scheduleStart" type="time" required /></label><label>Fin<input id="scheduleEnd" type="time" required /></label></div><label class="shift-option"><input id="shiftFollowing" type="checkbox" checked /> <span>Décaler automatiquement les étapes suivantes du même écart</span></label><p class="schedule-lock-note">🔒 Les transports fixes sont toujours protégés en V5.1.</p><div class="schedule-actions"><button type="button" class="secondary-action" id="resetDay">Réinitialiser la journée</button><button type="submit" class="primary-action">Enregistrer</button></div></form></dialog>
+  <dialog id="scheduleDialog" class="place-dialog schedule-dialog"><button class="dialog-close" data-close-schedule aria-label="Fermer">×</button><form id="scheduleForm" class="schedule-form" method="dialog"><p class="kicker">Ajustement en direct</p><h3 id="scheduleTitle">Modifier l’horaire</h3><p id="schedulePlace" class="timeline-place"></p><div class="time-fields"><label>Début<input id="scheduleStart" type="time" required /></label><label>Fin<input id="scheduleEnd" type="time" required /></label></div><label class="shift-option"><input id="shiftFollowing" type="checkbox" checked /> <span>Décaler automatiquement les étapes suivantes du même écart</span></label><p class="schedule-lock-note">🔒 Les transports fixes restent protégés.</p><div class="schedule-actions"><button type="button" class="secondary-action" id="resetDay">Réinitialiser la journée</button><button type="submit" class="primary-action">Enregistrer</button></div></form></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/ar-v6.js"></script>
 </body>
 </html>
