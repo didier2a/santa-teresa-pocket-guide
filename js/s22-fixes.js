@@ -30,8 +30,6 @@ function fixNestedPlaceDialog(){
     const next=e.target.closest?.('[data-go]');
     if(!next)return;
     const dialog=$('#placeDialog');
-    // openPlace() sera appelé ensuite par le gestionnaire existant. Fermer d'abord
-    // évite InvalidStateError sur Chrome Android quand showModal() est rappelé.
     if(dialog?.open)dialog.close();
   },true);
 }
@@ -45,20 +43,14 @@ function hardenInstallButton(){
   }
 }
 
-function appendS22Diagnostic(){
-  const button=$('#runDiagnostics');if(!button)return;
-  button.addEventListener('click',()=>setTimeout(()=>{
-    const host=$('#diagnosticResults');if(!host||typeof window.santaTeresaS22Audit!=='function')return;
-    const a=window.santaTeresaS22Audit();
-    const rows=[
-      ['Écran tactile',a.touchPoints>0,`${a.touchPoints||0} point(s) tactile(s) · viewport ${a.viewport}`],
-      ['Caméra AR',a.camera,a.camera?'getUserMedia disponible':'Caméra web indisponible'],
-      ['Capteurs orientation',a.orientation,a.orientation?'DeviceOrientation disponible':'Capteur orientation indisponible'],
-      ['Zones tactiles ≥ 44 px',a.tooSmallTouchTargets.length===0,a.tooSmallTouchTargets.length?`${a.tooSmallTouchTargets.length} zone(s) trop petite(s) : ${a.tooSmallTouchTargets.slice(0,3).join(' · ')}`:'Toutes les commandes visibles respectent le seuil tactile'],
-      ['Mode application',a.standalone,a.standalone?'PWA autonome':'Ouverte dans le navigateur']
-    ];
-    host.insertAdjacentHTML('beforeend',rows.map(([name,ok,detail])=>`<div class="diagnostic-row ${ok?'is-ok':'is-warn'}"><span>${ok?'✓':'!'}</span><div><strong>${name}</strong><small>${detail}</small></div></div>`).join(''));
-  },80));
+function loadIndependentDiagnostic(){
+  if(document.querySelector('script[data-s22-diagnostic]'))return;
+  const script=document.createElement('script');
+  script.src='./js/diagnostic-s22.js';
+  script.defer=true;
+  script.dataset.s22Diagnostic='6.0.4';
+  script.onerror=()=>showToast('Le moteur de diagnostic S22 n’a pas pu être chargé.');
+  document.head.append(script);
 }
 
 function hardenDialogBackButton(){
@@ -83,10 +75,10 @@ function init(){
   hardenBottomNavigation();
   fixNestedPlaceDialog();
   hardenInstallButton();
-  appendS22Diagnostic();
+  loadIndependentDiagnostic();
   hardenDialogBackButton();
   protectSilentControls();
-  document.documentElement.dataset.s22NavFix='6.0.3';
+  document.documentElement.dataset.s22NavFix='6.0.4';
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
