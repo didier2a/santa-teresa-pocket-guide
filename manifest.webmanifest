@@ -2,7 +2,7 @@
   "name": "Santa Teresa Pocket Guide V6 AR",
   "short_name": "Santa Teresa AR",
   "description": "Compagnon de voyage en réalité augmentée : Geo-AR, navigation pédestre, planning sécurisé, GPS, audioguide et souvenir numérique.",
-  "start_url": "./?app=6.0.2",
+  "start_url": "./?app=6.0.3",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",

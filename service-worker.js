@@ -1,9 +1,9 @@
-const APP_VERSION='6.0.2';
-const CACHE='santa-teresa-v6-ar-2';
+const APP_VERSION='6.0.3';
+const CACHE='santa-teresa-v6-ar-3';
 const MAP_CACHE='santa-teresa-map-v6';
 const CORE=[
   './','./index.html','./styles.css','./v3.css','./v4b.css','./v5.css','./ar-v6.css','./manifest.webmanifest',
-  './data/trip.json','./js/app.js','./js/ar-v6.js','./js/schedule-engine.js','./js/trip-config.js','./assets/icons/icon.svg',
+  './data/trip.json','./js/app.js','./js/ar-v6.js','./js/s22-fixes.js','./js/schedule-engine.js','./js/trip-config.js','./assets/icons/icon.svg',
   './assets/photos/guide-map.svg','./assets/photos/modesto.svg'
 ];
 const LEAFLET=['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'];
