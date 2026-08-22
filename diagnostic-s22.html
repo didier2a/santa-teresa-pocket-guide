@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#103f4a">
+  <title>Diagnostic S22 · Santa Teresa</title>
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#12343c;background:#f7f4ee}*{box-sizing:border-box}body{margin:0;padding:20px 14px 40px}.wrap{max-width:720px;margin:auto}.hero{background:#103f4a;color:white;border-radius:24px;padding:22px;margin-bottom:14px}.hero h1{margin:.2rem 0 .5rem;font-size:2rem}.hero p{margin:0;color:#d7ecef}.back,.run{display:inline-flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;text-decoration:none;font-weight:850;border:0}.back{padding:0 16px;background:white;color:#103f4a;margin-bottom:14px}.run{width:100%;background:#103f4a;color:white;font-size:1rem;margin:8px 0 14px}.run:disabled{opacity:.6}.status{background:white;border-radius:18px;padding:13px;margin:8px 0;border:1px solid rgba(16,63,74,.08)}.status strong,.status small{display:block}.status small{margin-top:3px;color:#64777b}.ok{border-left:6px solid #2d775b}.warn{border-left:6px solid #c57a2f}.preview{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:18px;background:#0b262d;display:none;margin-top:10px}.note{font-size:.82rem;color:#64777b;line-height:1.45}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" href="./?app=6.0.5#travel">← Retour au guide</a>
+    <section class="hero"><small>V6.0.5 · diagnostic autonome</small><h1>Diagnostic terrain S22</h1><p>Cette page fonctionne sans dépendre du moteur principal du guide.</p></section>
+    <button class="run" id="run" type="button">Lancer le diagnostic S22</button>
+    <p class="note">Android peut demander l’autorisation de localisation et de caméra. Le test caméra ouvre brièvement la caméra arrière et prend une image de contrôle locale, non envoyée sur Internet.</p>
+    <video id="preview" class="preview" playsinline muted></video>
+    <section id="results" aria-live="polite"></section>
+  </main>
+<script>
+(function(){
+  const run=document.getElementById('run'),results=document.getElementById('results'),preview=document.getElementById('preview');
+  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function add(name,ok,detail){results.insertAdjacentHTML('beforeend','<div class="status '+(ok?'ok':'warn')+'"><strong>'+(ok?'✓ ':'! ')+esc(name)+'</strong><small>'+esc(detail)+'</small></div>')}
+  function gps(){return new Promise(r=>{if(!navigator.geolocation)return r(['GPS',false,'API absente']);navigator.geolocation.getCurrentPosition(p=>r(['GPS',true,'Position obtenue · précision ±'+Math.round(p.coords.accuracy||0)+' m']),e=>r(['GPS',false,e.message||'Autorisation ou signal indisponible']),{enableHighAccuracy:true,maximumAge:0,timeout:10000})})}
+  function orientation(){return new Promise(async r=>{if(typeof DeviceOrientationEvent==='undefined')return r(['Orientation',false,'DeviceOrientation indisponible']);try{if(typeof DeviceOrientationEvent.requestPermission==='function'){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')return r(['Orientation',false,'Autorisation refusée'])}}catch(e){return r(['Orientation',false,e.message||'Autorisation impossible'])}let done=false;const finish=(ok,msg)=>{if(done)return;done=true;removeEventListener('deviceorientation',on,true);removeEventListener('deviceorientationabsolute',on,true);r(['Orientation',ok,msg])};const on=e=>{if([e.alpha,e.beta,e.gamma].some(Number.isFinite))finish(true,'Mesure capteur reçue')};addEventListener('deviceorientation',on,true);addEventListener('deviceorientationabsolute',on,true);setTimeout(()=>finish(false,'API présente mais aucune mesure reçue en 3 s'),3000)})}
+  async function camera(){let stream;try{if(!navigator.mediaDevices?.getUserMedia)return[['Caméra',false,'getUserMedia indisponible'],['Photo',false,'Test impossible']];stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});preview.srcObject=stream;preview.style.display='block';await preview.play();await new Promise(r=>setTimeout(r,500));const track=stream.getVideoTracks()[0],s=track?.getSettings?.()||{};const cam=['Caméra',true,'Caméra arrière accessible'+(s.width?' · '+s.width+'×'+s.height:'')];if(!preview.videoWidth||!preview.videoHeight)return[cam,['Photo',false,'Flux actif mais image non prête']];const c=document.createElement('canvas');c.width=Math.min(preview.videoWidth,640);c.height=Math.max(1,Math.round(c.width*preview.videoHeight/preview.videoWidth));c.getContext('2d').drawImage(preview,0,0,c.width,c.height);const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.72));return[cam,blob&&blob.size>0?['Photo',true,'Capture locale réussie · '+Math.round(blob.size/1024)+' Ko']:['Photo',false,'Capture vide']]}catch(e){return[['Caméra',false,e?.name==='NotAllowedError'?'Autorisation caméra refusée':(e.message||'Caméra inaccessible')],['Photo',false,'Test photo non exécuté']]}finally{stream?.getTracks().forEach(t=>t.stop());preview.srcObject=null;preview.style.display='none'}}
+  run.addEventListener('click',async()=>{if(run.disabled)return;run.disabled=true;run.textContent='Diagnostic en cours…';results.innerHTML='';add('Bouton diagnostic',true,'Le bouton répond correctement sur ce téléphone');add('HTTPS',location.protocol==='https:','Contexte '+location.protocol);add('Tactile',navigator.maxTouchPoints>0,(navigator.maxTouchPoints||0)+' point(s) tactile(s)');add('PWA',matchMedia('(display-mode: standalone)').matches,matchMedia('(display-mode: standalone)').matches?'Mode application autonome':'Ouvert dans Chrome');try{localStorage.setItem('st-native-diag','ok');const ok=localStorage.getItem('st-native-diag')==='ok';localStorage.removeItem('st-native-diag');add('Stockage local',ok,ok?'Lecture/écriture OK':'Échec stockage')}catch(e){add('Stockage local',false,e.message||'Indisponible')}const g=await gps();add(...g);const o=await orientation();add(...o);const cams=await camera();cams.forEach(x=>add(...x));add('Audioguide','speechSynthesis'in window,'speechSynthesis '+(('speechSynthesis'in window)?'disponible':'indisponible'));run.disabled=false;run.textContent='Relancer le diagnostic S22'});
+})();
+</script>
+</body></html>
