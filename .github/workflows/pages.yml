@@ -29,6 +29,7 @@ jobs:
       - name: Syntax checks
         run: |
           node --check js/app.js
+          node --check js/ar-v6.js
           node --check js/schedule-engine.js
           node --check js/trip-config.js
           node --check service-worker.js
