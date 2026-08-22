@@ -31,6 +31,7 @@ jobs:
           node --check js/app.js
           node --check js/ar-v6.js
           node --check js/s22-fixes.js
+          node --check js/diagnostic-s22.js
           node --check js/schedule-engine.js
           node --check js/trip-config.js
           node --check service-worker.js
