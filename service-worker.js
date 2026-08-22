@@ -1,5 +1,5 @@
-const APP_VERSION='6.0.1';
-const CACHE='santa-teresa-v6-ar-1';
+const APP_VERSION='6.0.2';
+const CACHE='santa-teresa-v6-ar-2';
 const MAP_CACHE='santa-teresa-map-v6';
 const CORE=[
   './','./index.html','./styles.css','./v3.css','./v4b.css','./v5.css','./ar-v6.css','./manifest.webmanifest',
