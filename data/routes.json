@@ -8,6 +8,13 @@
       "source": "./data/trip.json",
       "format": "legacy",
       "enabled": true
+    },
+    {
+      "id": "bonifacio-demo",
+      "title": "Bonifacio · Citadelle & falaises",
+      "source": "./data/routepacks/bonifacio-demo.json",
+      "format": "routepack",
+      "enabled": true
     }
   ]
 }
