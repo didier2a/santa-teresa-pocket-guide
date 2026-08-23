@@ -41,13 +41,13 @@ test('Engine V1.1: une route inconnue est refusée avant exécution',async()=>{
   await assert.rejects(()=>loadPocketGuideRoute({fetchImpl,locationLike:{href:'https://example.test/engine.html?route=route-inconnue'}}),/Parcours inconnu/);
 });
 
-test('Engine V1.1: l entrée générique et le service worker incluent le bootstrap',async()=>{
+test('Engine V1.1+: l entrée générique et le service worker incluent le bootstrap',async()=>{
   const html=await read('engine.html');
   const sw=await read('service-worker.js');
   const bootstrap=await read('js/route-bootstrap.js');
   assert.match(html,/route-bootstrap\.js/);
   assert.match(html,/index\.html/);
-  assert.match(sw,/pocketguide-engine-v1-1/);
+  assert.match(sw,/pocketguide-engine-v1-[12]/);
   assert.match(sw,/engine\.html/);
   assert.match(sw,/route-runtime\.js/);
   assert.match(bootstrap,/__POCKETGUIDE_ROUTE_READY__/);

@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "1.0",
+  "id": "bonifacio-demo",
+  "title": "Bonifacio · Citadelle & falaises",
+  "subtitle": "Parcours de démonstration PocketGuide Engine V1.2",
+  "timezone": "Europe/Paris",
+  "travelers": 2,
+  "start": "2026-09-20",
+  "end": "2026-09-20",
+  "days": [
+    {
+      "date": "2026-09-20",
+      "label": "Dimanche 20 septembre",
+      "subtitle": "Port, citadelle, escalier et cimetière marin",
+      "events": [
+        {
+          "id": "bonifacio-port",
+          "time": "09:30",
+          "end": "10:00",
+          "title": "Port de Bonifacio",
+          "type": "balade",
+          "place": "Quais du port",
+          "placeId": "port"
+        },
+        {
+          "id": "bonifacio-bastion",
+          "time": "10:10",
+          "end": "10:50",
+          "title": "Bastion de l’Étendard",
+          "type": "visite",
+          "place": "8 Rue du Corps de Garde",
+          "placeId": "bastion"
+        },
+        {
+          "id": "bonifacio-escalier",
+          "time": "11:05",
+          "end": "11:40",
+          "title": "Escalier du Roy d’Aragon",
+          "type": "visite",
+          "place": "7 Place Carrega",
+          "placeId": "escalier"
+        },
+        {
+          "id": "bonifacio-cimetiere",
+          "time": "11:55",
+          "end": "12:25",
+          "title": "Cimetière marin",
+          "type": "balade",
+          "place": "Quartier Saint-François",
+          "placeId": "cimetiere"
+        }
+      ]
+    }
+  ],
+  "places": [
+    {
+      "id": "port",
+      "name": "Port de Bonifacio",
+      "lat": 41.388787,
+      "lng": 9.162426,
+      "icon": "⛵",
+      "note": "Le goulet naturel au pied de la citadelle.",
+      "description": "Point d’entrée idéal pour lire la géographie de Bonifacio : le port s’enfonce dans un long abri naturel dominé par la haute ville.",
+      "historyShort": "Le port occupe un goulet naturellement protégé sous la citadelle.",
+      "historyLong": "Port de pêche, de plaisance et de commerce, il constitue depuis longtemps l’un des accès majeurs aux Bouches de Bonifacio.",
+      "repere": "Levez les yeux vers la citadelle et repérez les fortifications qui dominent les quais.",
+      "arCue": "Depuis les quais, utilisez la ligne de crête de la citadelle comme repère visuel principal.",
+      "heroImage": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Bonifacio_port.jpg?width=960",
+      "sourceLabel": "Port de Bonifacio — données publiques",
+      "sourceUrl": "https://fr.wikipedia.org/wiki/Port_de_Bonifacio"
+    },
+    {
+      "id": "bastion",
+      "name": "Bastion de l’Étendard",
+      "lat": 41.38722,
+      "lng": 9.15983,
+      "icon": "🏰",
+      "note": "Fortification majeure à l’entrée de la haute ville.",
+      "description": "Le Bastion de l’Étendard domine le port et propose une lecture spectaculaire des fortifications de Bonifacio.",
+      "historyShort": "Ses salles souterraines présentent l’histoire des fortifications de la ville.",
+      "historyLong": "Le parcours patrimonial du bastion retrace près de mille ans de fortifications et ouvre sur plusieurs points de vue vers le port, les falaises et la Sardaigne.",
+      "repere": "Repérez la masse de pierre du bastion à proximité de la porte d’accès à la citadelle.",
+      "arCue": "Depuis le bastion, observez l’alignement entre le port, la haute ville et les Bouches de Bonifacio.",
+      "heroImage": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Corse_du_Sud%2C_Bonifacio_6_le_port_et_le_Bastion_%285789019797%29.jpg?width=960",
+      "sourceLabel": "Office Municipal de Tourisme de Bonifacio",
+      "sourceUrl": "https://reservation.bonifacio.fr/visitez-le-bastion-de-letendard.html"
+    },
+    {
+      "id": "escalier",
+      "name": "Escalier du Roy d’Aragon",
+      "lat": 41.38625,
+      "lng": 9.15647,
+      "icon": "🪨",
+      "note": "Escalier spectaculaire taillé dans la falaise calcaire.",
+      "description": "Une descente emblématique à flanc de falaise, avec une vue très ouverte sur la mer et la Sardaigne.",
+      "historyShort": "L’escalier est l’un des monuments les plus connus de Bonifacio et descend directement dans la falaise.",
+      "historyLong": "La tradition locale l’associe au siège aragonais de 1420. La visite actuelle suit les marches irrégulières jusqu’au chemin aménagé au-dessus de la mer.",
+      "repere": "Cherchez l’ouverture de l’escalier sur le bord occidental de la citadelle.",
+      "arCue": "Le contraste entre la verticale de la falaise et la ligne de mer donne immédiatement l’orientation du site.",
+      "heroImage": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Escalier_du_roi_d%27Aragon_%C3%A0_Bonifacio.jpg?width=960",
+      "sourceLabel": "Office Municipal de Tourisme de Bonifacio",
+      "sourceUrl": "https://reservation.bonifacio.fr/visitez-l-escalier-du-roy-d-aragon.html"
+    },
+    {
+      "id": "cimetiere",
+      "name": "Cimetière marin de Bonifacio",
+      "lat": 41.386944,
+      "lng": 9.150278,
+      "icon": "🌊",
+      "note": "Cimetière historique posé au bord des falaises.",
+      "description": "À l’ouest de la citadelle, le cimetière marin forme un ensemble très singulier de chapelles familiales face à la mer.",
+      "historyShort": "Aussi appelé cimetière marin de Saint-François, il occupe le plateau au-dessus des falaises.",
+      "historyLong": "Son implantation à proximité de l’église Saint-François et son architecture de petits monuments funéraires en font un lieu patrimonial très identifiable.",
+      "repere": "Repérez les alignements de petites chapelles claires et la mer immédiatement au-delà du plateau.",
+      "arCue": "Le bord de falaise et l’horizon marin constituent les deux repères d’orientation les plus stables.",
+      "heroImage": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Bonifacio_cimeti%C3%A8re_marin.jpg?width=960",
+      "sourceLabel": "Cimetière marin de Bonifacio — données publiques",
+      "sourceUrl": "https://fr.wikipedia.org/wiki/Cimeti%C3%A8re_marin_de_Bonifacio"
+    }
+  ],
+  "checklist": ["Chaussures fermées", "Eau", "Téléphone chargé"],
+  "offline": {"map": false},
+  "meta": {
+    "demo": true,
+    "verifiedAt": "2026-08-23",
+    "purpose": "Second parcours réel servant à démontrer l’indépendance du moteur PocketGuide vis-à-vis de Santa Teresa."
+  }
+}
