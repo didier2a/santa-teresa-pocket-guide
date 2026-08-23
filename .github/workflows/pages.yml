@@ -34,6 +34,8 @@ jobs:
           node --check js/diagnostic-s22.js
           node --check js/schedule-engine.js
           node --check js/trip-config.js
+          node --check js/v2-guide.js
+          node --check cloudflare/pocketguide-v2-worker.js
           node --check service-worker.js
       - name: Functional regression tests
         run: node --test tests/*.test.mjs
