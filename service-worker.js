@@ -1,10 +1,10 @@
 const APP_VERSION='6.0.8';
-const CACHE='pocketguide-engine-v1-4-8b';
+const CACHE='pocketguide-engine-v1-4-9a';
 const MAP_CACHE='santa-teresa-map-v6';
 const CORE=[
-  './','./index.html','./engine.html','./studio.html','./studio-146.html','./studio-147.html','./studio-148.html','./diagnostic-s22.html','./styles.css','./v3.css','./v4b.css','./v5.css','./ar-v6.css','./ar-v148.css','./manifest.webmanifest',
+  './','./index.html','./engine.html','./studio.html','./studio-146.html','./studio-147.html','./studio-148.html','./diagnostic-s22.html','./styles.css','./v3.css','./v4b.css','./v5.css','./ar-v6.css','./ar-v148.css','./ar-v149.css','./manifest.webmanifest',
   './data/trip.json','./data/routes.json','./data/ai-config.json','./data/routepacks/bonifacio-demo.json','./engine/routepack.js','./engine/routepack-v1.schema.json','./js/route-runtime.js','./js/route-bootstrap.js','./js/studio-v1-4.js','./js/studio-v1-4-7.js','./js/studio-v1-4-7-soft.js','./js/studio-v1-4-8.js','./js/route-library.js','./js/route-media.js','./js/voice-long-v1-4-7.js',
-  './js/app.js','./js/ar-core.js','./js/ar-v148.js','./js/s22-fixes.js','./js/diagnostic-s22.js','./js/schedule-engine.js','./js/trip-config.js','./assets/icons/icon.svg','./assets/icons/icon-192.png','./assets/icons/icon-512.png',
+  './js/app.js','./js/ar-core.js','./js/ar-v148.js','./js/orientation-v149.js','./js/audio-companion-v149.js','./js/s22-fixes.js','./js/diagnostic-s22.js','./js/schedule-engine.js','./js/trip-config.js','./assets/icons/icon.svg','./assets/icons/icon-192.png','./assets/icons/icon-512.png',
   './assets/photos/guide-map.svg','./assets/photos/modesto.svg'
 ];
 const LEAFLET=['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'];
