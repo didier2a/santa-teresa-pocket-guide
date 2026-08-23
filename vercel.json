@@ -1,6 +1,7 @@
 {
   "functions": {
-    "api/plan.js": { "maxDuration": 60 },
+    "api/plan.js": { "maxDuration": 20 },
+    "api/plan-status.js": { "maxDuration": 20 },
     "api/transcribe.js": { "maxDuration": 30 }
   },
   "headers": [

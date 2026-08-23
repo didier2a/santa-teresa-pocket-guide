@@ -4,41 +4,48 @@ import {packShareUrl,routeShareUrl} from './route-runtime.js';
 const $=s=>document.querySelector(s);
 let current=null,apiBase='',recorder=null,stream=null,chunks=[],recordTimer=null,speechRec=null;
 
-function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]))}
 function setStatus(text,type=''){const el=$('#status');el.className=type;el.innerHTML=text}
 function setVoice(text,type=''){const el=$('#voiceStatus');el.className=type;el.textContent=text}
 function endpoint(path){return`${apiBase}${path}`}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 async function checkBackend(){
   if(!apiBase)return;
-  try{
-    const r=await fetch(endpoint('/api/health'),{cache:'no-store'});
-    const h=await r.json().catch(()=>({}));
-    if(!r.ok)throw new Error(`HTTP ${r.status}`);
-    if(h.openaiConfigured){$('#aiBackend').textContent=`✓ Backend V1.4.5 prêt · ${h.plannerModel||'OpenAI'}`;$('#aiBackend').className='ok'}
-    else{$('#aiBackend').textContent='Backend Vercel joignable, mais OPENAI_API_KEY n’est pas liée à ce projet.';$('#aiBackend').className='bad'}
-  }catch{$('#aiBackend').textContent=`Backend Vercel injoignable : ${apiBase}`;$('#aiBackend').className='bad'}
+  try{const r=await fetch(endpoint('/api/health'),{cache:'no-store'}),h=await r.json().catch(()=>({}));if(!r.ok)throw new Error(`HTTP ${r.status}`);if(h.openaiConfigured){$('#aiBackend').textContent=`✓ Backend V1.4.6 prêt · ${h.plannerModel||'OpenAI'}`;$('#aiBackend').className='ok'}else{$('#aiBackend').textContent='Backend Vercel joignable, mais OPENAI_API_KEY n’est pas liée à ce projet.';$('#aiBackend').className='bad'}}catch{$('#aiBackend').textContent=`Backend Vercel injoignable : ${apiBase}`;$('#aiBackend').className='bad'}
 }
 
 async function loadConfig(){
-  try{const cfg=await fetch('./data/ai-config.json?v=1.4.5',{cache:'no-store'}).then(r=>r.ok?r.json():null);apiBase=String(cfg?.apiBase||'').replace(/\/$/,'')}catch{}
+  try{const cfg=await fetch('./data/ai-config.json?v=1.4.6',{cache:'no-store'}).then(r=>r.ok?r.json():null);apiBase=String(cfg?.apiBase||'').replace(/\/$/,'')}catch{}
   const q=new URLSearchParams(location.search).get('api');if(q){apiBase=q.replace(/\/$/,'');localStorage.setItem('pg-ai-base',apiBase)}
-  if(!apiBase)apiBase=String(localStorage.getItem('pg-ai-base')||'').replace(/\/$/,'');
-  if(!apiBase&&location.hostname.endsWith('.vercel.app'))apiBase=location.origin;
-  $('#aiBackend').textContent=apiBase?`Test du backend sécurisé : ${apiBase}`:'Backend AI non relié — la dictée navigateur reste disponible.';
-  if(apiBase)await checkBackend();
+  if(!apiBase)apiBase=String(localStorage.getItem('pg-ai-base')||'').replace(/\/$/,'');if(!apiBase&&location.hostname.endsWith('.vercel.app'))apiBase=location.origin;
+  $('#aiBackend').textContent=apiBase?`Test du backend sécurisé : ${apiBase}`:'Backend AI non relié — la dictée navigateur reste disponible.';if(apiBase)await checkBackend();
 }
 
 function show(pack){current=pack;const report=validateRoutePack(pack);const lines=[`valid: ${report.valid}`,`${report.errors.length} erreur(s)`,`${report.warnings.length} avertissement(s)`,`lieux: ${(pack.places||[]).length}`,`jours: ${(pack.days||[]).length}`];for(const e of report.errors)lines.push(`ERROR ${e.code} ${e.path}: ${e.message}`);for(const w of report.warnings)lines.push(`WARN ${w.code} ${w.path}: ${w.message}`);setStatus(report.valid?'<strong>✓ RoutePack V1 validé par PocketGuide</strong>':'<strong>✕ RoutePack rejeté par le validateur</strong>',report.valid?'ok':'bad');$('#report').textContent=lines.join('\n');$('#preview').disabled=!report.valid;$('#share').disabled=!report.valid;$('#download').disabled=!report.valid;$('#shareUrl').value='';renderDraft(pack);return report}
 function renderDraft(pack){const host=$('#draft');if(!pack){host.textContent='Aucun brouillon.';return}host.innerHTML=`<h3>${esc(pack.title)}</h3><p>${esc(pack.start)} → ${esc(pack.end)} · ${pack.travelers} voyageur(s)</p>${pack.days.map(d=>`<div class="draft-day"><strong>${esc(d.label)}</strong>${d.events.map(e=>`<div><time>${esc(e.time)}</time> ${esc(e.title)} <small>· ${esc(e.place||'')}</small></div>`).join('')}<small>${esc(d.subtitle||'')}</small></div>`).join('')}<p class="notice">⚠ AI Planner prépare un itinéraire vérifié autant que possible par sources publiques, puis PocketGuide applique son validateur déterministe. Vérifiez malgré tout réservations, fermetures exceptionnelles et transports avant départ.</p>`}
 
+async function pollPlan(taskId){
+  const started=Date.now();let attempt=0;
+  while(Date.now()-started<240000){
+    attempt++;setStatus(`AI Planner travaille en arrière-plan… ${Math.round((Date.now()-started)/1000)} s`,'work');
+    const r=await fetch(endpoint(`/api/plan-status?id=${encodeURIComponent(taskId)}`),{cache:'no-store'});const payload=await r.json().catch(()=>({}));
+    if(r.status===202){await sleep(Math.min(5000,1800+attempt*180));continue}
+    if(!r.ok)throw new Error(payload.error||`Erreur ${r.status}`);
+    if(payload.pack){show(payload.pack);return}
+    await sleep(2500);
+  }
+  throw new Error('La génération prend trop de temps. Réessayez dans quelques instants.');
+}
+
 async function plan(){
   const prompt=$('#prompt').value.trim();if(prompt.length<8){setStatus('Décrivez un peu plus votre voyage.','bad');return}if(!apiBase){setStatus('Le backend AI Planner n’est pas encore relié à cette copie de PocketGuide.','bad');return}
-  $('#generate').disabled=true;setStatus('AI Planner analyse la demande et recherche les informations utiles…','work');
+  $('#generate').disabled=true;setStatus('Démarrage de la génération OpenAI…','work');
   try{
     const r=await fetch(endpoint('/api/plan'),{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify({prompt,destination:$('#destination').value.trim(),timezone:$('#timezone').value.trim()||'Europe/Paris',maxPlaces:Number($('#maxPlaces').value)||6})});
-    const payload=await r.json().catch(()=>({}));if(!r.ok)throw new Error(payload.error||`Erreur ${r.status}`);show(payload.pack)
-  }catch(err){const msg=String(err?.message||err||'Erreur inconnue');setStatus(`<strong>AI Planner indisponible :</strong> ${esc(msg==='Failed to fetch'?'appel Vercel bloqué avant réponse HTTP':msg)}`,'bad');void checkBackend()}finally{$('#generate').disabled=false}
+    const payload=await r.json().catch(()=>({}));if(!r.ok)throw new Error(payload.error||`Erreur ${r.status}`);if(!payload.taskId)throw new Error('Le backend n’a pas renvoyé d’identifiant de génération.');
+    await pollPlan(payload.taskId);
+  }catch(err){const msg=String(err?.message||err||'Erreur inconnue');setStatus(`<strong>AI Planner indisponible :</strong> ${esc(msg==='Failed to fetch'?'appel réseau interrompu avant réponse HTTP':msg)}`,'bad');void checkBackend()}finally{$('#generate').disabled=false}
 }
 
 function bestMime(){for(const x of ['audio/webm;codecs=opus','audio/webm','audio/mp4'])if(window.MediaRecorder?.isTypeSupported?.(x))return x;return''}
