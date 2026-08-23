@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "pocketguide-v2-api",
+  "name": "pocketguide-v2",
   "main": "pocketguide-v2-worker.js",
   "compatibility_date": "2026-08-23",
   "vars": {
