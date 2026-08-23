@@ -14,11 +14,13 @@ function mediaFromPage(page){
   const meta=info.extmetadata||{};
   const imageUrl=info.thumburl||info.url||'';
   if(!imageUrl)return null;
+  const title=text(page.title).replace(/^File:/i,'');
+  if(/\.(svg|pdf|djvu)$/i.test(title))return null;
   return {
     url:imageUrl,
     originalUrl:info.url||imageUrl,
     descriptionUrl:info.descriptionurl||'',
-    title:text(page.title).replace(/^File:/i,''),
+    title,
     author:htmlToText(meta.Artist?.value||''),
     license:text(meta.LicenseShortName?.value||meta.UsageTerms?.value||''),
     credit:htmlToText(meta.Credit?.value||''),
@@ -29,7 +31,7 @@ function mediaFromPage(page){
 export async function findCommonsImages(query,{limit=MAX_IMAGES_PER_PLACE,fetchImpl=fetch}={}){
   const q=text(query);if(!q)return[];
   const url=new URL(COMMONS_API);
-  const params={action:'query',format:'json',origin:'*',generator:'search',gsrnamespace:'6',gsrsearch:q,gsrlimit:String(Math.max(1,Math.min(6,limit))),prop:'imageinfo',iiprop:'url|extmetadata',iiurlwidth:'1200'};
+  const params={action:'query',format:'json',origin:'*',generator:'search',gsrnamespace:'6',gsrsearch:`${q} filetype:bitmap`,gsrlimit:String(Math.max(1,Math.min(8,limit*2))),prop:'imageinfo',iiprop:'url|extmetadata',iiurlwidth:'1200'};
   for(const [k,v] of Object.entries(params))url.searchParams.set(k,v);
   const response=await fetchImpl(url,{cache:'no-store'});
   if(!response.ok)throw new Error(`Wikimedia ${response.status}`);
