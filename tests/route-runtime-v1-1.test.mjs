@@ -54,6 +54,15 @@ test('Engine V1.1: l entrée générique et le service worker incluent le bootst
   assert.match(bootstrap,/pg:\$\{routeId\}/);
 });
 
+test('Engine V1.1: le mode moteur est visible même sur Santa Teresa',async()=>{
+  const bootstrap=await read('js/route-bootstrap.js');
+  assert.match(bootstrap,/markEngineRuntime/);
+  assert.match(bootstrap,/POCKETGUIDE ENGINE V1\.1/);
+  assert.match(bootstrap,/Engine V1\.1/);
+  assert.match(bootstrap,/RoutePack V1/);
+  assert.match(bootstrap,/engineRuntimeBadge/);
+});
+
 test('Engine V1.1: les contenus Santa Teresa sont neutralisés pour une autre route',async()=>{
   const bootstrap=await read('js/route-bootstrap.js');
   assert.match(bootstrap,/route\.id!==['"]santa-teresa['"]/);
