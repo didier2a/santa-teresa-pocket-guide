@@ -1,5 +1,5 @@
 const APP_VERSION='6.0.8';
-const CACHE='pocketguide-engine-v1-4';
+const CACHE='pocketguide-engine-v1-4-1';
 const MAP_CACHE='santa-teresa-map-v6';
 const CORE=[
   './','./index.html','./engine.html','./studio.html','./diagnostic-s22.html','./styles.css','./v3.css','./v4b.css','./v5.css','./ar-v6.css','./manifest.webmanifest',
