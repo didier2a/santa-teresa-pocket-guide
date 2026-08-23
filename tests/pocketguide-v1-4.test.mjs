@@ -23,7 +23,7 @@ test('V1.4.6: AI Planner utilise Responses background + polling',async()=>{
   const js=await read('js/studio-v1-4.js'),api=await read('api/plan.js'),status=await read('api/plan-status.js'),html=await read('studio.html');
   assert.match(api,/background:true/);assert.match(api,/store:true/);assert.match(api,/res\.status\(202\).*taskId/s);
   assert.match(js,/function pollPlan/);assert.match(js,/\/api\/plan-status\?id=/);assert.match(js,/payload\.taskId/);
-  assert.match(status,/v1\/responses\/\$\{encodeURIComponent\(id\)\}/);assert.match(status,/status==='completed'/);assert.match(status,/cleanJson/);
+  assert.match(status,/v1\/responses\/\$\{encodeURIComponent\(id\)\}/);assert.match(status,/status!=='completed'/);assert.match(status,/status:'completed'/);assert.match(status,/cleanJson/);
   assert.match(html,/studio-v1-4\.js\?v=1\.4\.6/);
 });
 
