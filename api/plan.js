@@ -39,12 +39,13 @@ export default async function handler(req,res){
     const timezone=String(body.timezone||'Europe/Paris').trim().slice(0,80);
     const maxPlaces=Math.max(3,Math.min(10,Number(body.maxPlaces)||6));
     const userInput=[prompt,destination?`Destination explicitement indiquée: ${destination}`:'',`Fuseau souhaité: ${timezone}`,`Nombre cible de repères: ${maxPlaces}`].filter(Boolean).join('\n');
+    const model=process.env.OPENAI_PLANNER_MODEL||'gpt-5.4-mini';
 
     const response=await fetch('https://api.openai.com/v1/responses',{
       method:'POST',
       headers:{Authorization:`Bearer ${process.env.OPENAI_API_KEY}`,'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:process.env.OPENAI_PLANNER_MODEL||'gpt-5.6-luna',
+        model,
         tools:[{type:'web_search'}],
         reasoning:{effort:'medium'},
         input:[
@@ -55,14 +56,19 @@ export default async function handler(req,res){
       })
     });
     const payload=await response.json().catch(()=>({}));
-    if(!response.ok)throw new Error(payload?.error?.message||`OpenAI Responses ${response.status}`);
+    if(!response.ok){
+      const code=payload?.error?.code||payload?.error?.type||'';
+      const message=payload?.error?.message||`OpenAI Responses ${response.status}`;
+      console.error('PocketGuide OpenAI',response.status,code,message);
+      return res.status(response.status).json({error:message,code});
+    }
     const text=outputText(payload);
     if(!text)throw new Error('Réponse structurée vide');
     const pack=cleanJson(text);
-    pack.meta={...pack.meta,createdBy:'PocketGuide Studio V1.4',generator:'openai-ai-planner-v1.4',prompt,sourcesCheckedAt:new Date().toISOString()};
-    res.status(200).json({pack,model:process.env.OPENAI_PLANNER_MODEL||'gpt-5.6-luna'});
+    pack.meta={...pack.meta,createdBy:'PocketGuide Studio V1.4.3',generator:'openai-ai-planner-v1.4.3',prompt,sourcesCheckedAt:new Date().toISOString()};
+    res.status(200).json({pack,model});
   }catch(error){
     console.error('PocketGuide planner',error?.message||error);
-    res.status(500).json({error:'AI Planner n’a pas pu construire le parcours. Réessayez ou simplifiez la demande.'});
+    res.status(500).json({error:error?.message||'AI Planner n’a pas pu construire le parcours.'});
   }
 }
