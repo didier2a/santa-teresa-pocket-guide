@@ -95,7 +95,7 @@ function hardenArCamera(){
 
   const video=$('#arCamera');
   if(video&&!video.dataset.s22PlayGuard){
-    video.dataset.s22PlayGuard='6.0.7';
+    video.dataset.s22PlayGuard='6.0.8';
     const nativePlay=video.play.bind(video);
     video.play=()=>Promise.race([
       nativePlay(),
@@ -125,6 +125,17 @@ function hardenArCamera(){
   },true);
 }
 
+function enforceArPermissionHidden(){
+  const panel=$('#arPermission');
+  if(!panel)return;
+  const apply=()=>{
+    if(panel.hidden)panel.style.setProperty('display','none','important');
+    else panel.style.removeProperty('display');
+  };
+  new MutationObserver(apply).observe(panel,{attributes:true,attributeFilter:['hidden']});
+  apply();
+}
+
 function hardenDialogBackButton(){
   for(const id of ['#placeDialog','#scheduleDialog']){
     const d=$(id);if(!d)return;
@@ -149,9 +160,10 @@ function init(){
   hardenInstallButton();
   loadIndependentDiagnostic();
   hardenArCamera();
+  enforceArPermissionHidden();
   hardenDialogBackButton();
   protectSilentControls();
-  document.documentElement.dataset.s22NavFix='6.0.7';
+  document.documentElement.dataset.s22NavFix='6.0.8';
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
