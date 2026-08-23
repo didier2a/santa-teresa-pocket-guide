@@ -5,40 +5,63 @@ const PHOTOS={
   modesto:{image:'assets/photos/modesto.svg',credit:null,page:null,exact:false,label:'Repère cartographique — aucune photo exacte validée'},
   faro:{image:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Capo_Testa.JPG?width=960',credit:'LPLT · Wikimedia Commons · CC BY-SA 3.0',page:'https://commons.wikimedia.org/wiki/File:Capo_Testa.JPG',exact:true,label:'Photo de Capo Testa / phare'},
   francese:{image:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Santa_Teresa_Gallura_-_Capo_Testa_%2826%29.JPG?width=960',credit:'Gianni Careddu · Wikimedia Commons',page:'https://commons.wikimedia.org/wiki/File:Santa_Teresa_Gallura_-_Capo_Testa_(26).JPG',exact:false,label:'Photo du secteur de Capo Testa — Cala Francese exacte non garantie'},
-  luna:{image:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Valle_della_Luna_in_Gallura%2C_Sardegna.jpg?width=960',credit:'Rosalena.disalvo · Wikimedia Commons',page:'https://commons.wikimedia.org/wiki/File:Valle_della_Luna_in_Gallura,_Sardegna.jpg',exact:true,label:'Photo du lieu'},
+  luna:{image:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Valle_della_Luna_in_Gallura%2C_Sardegna.jpg?width=960',credit:'Rosalena.disalvo · Wikimedia Commons · CC BY-SA 4.0',page:'https://commons.wikimedia.org/wiki/File:Valle_della_Luna_in_Gallura,_Sardegna.jpg',exact:true,label:'Photo du lieu'},
   brandali:{image:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Lu_Brandali.jpg?width=960',credit:'Photo2023 · Wikimedia Commons · CC BY 4.0',page:'https://commons.wikimedia.org/wiki/File:Lu_Brandali.jpg',exact:true,label:'Photo du lieu'},
   panorama:{image:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Capo_di_testa.jpg?width=960',credit:'Tobias Helfrich · Wikimedia Commons',page:'https://commons.wikimedia.org/wiki/File:Capo_di_testa.jpg',exact:false,label:'Photo panoramique du secteur de Capo Testa'}
 };
 
 function audioShort(place){return `Vous approchez de ${place.name}. ${place.historyShort||place.description||place.note||''} ${place.arCue||place.repere||''}`.trim()}
 function audioLong(place){return `Vous êtes à ${place.name}. ${place.description||place.note||''} ${place.historyShort||''} ${place.historyLong||place.detail||''} ${place.arCue||place.repere||''}`.trim()}
+function isSantaTeresaTrip(data){
+  const trip=data?.trip||{};
+  const routeId=String(trip.routeId||'').trim().toLowerCase();
+  if(routeId)return routeId==='santa-teresa';
+  return trip.title==='Santa Teresa Pocket Guide'&&trip.start==='2026-09-17'&&trip.end==='2026-09-18';
+}
+function defaultNavigationMode(event){
+  if(['marche','balade','plage','pause'].includes(event?.type))return'walking';
+  if(['bus','transfert'].includes(event?.type))return'driving';
+  return'mixed';
+}
 
 export function applyV51Config(data){
-  data.trip.version='V5.1';
-  data.trip.tagline='Compagnon intelligent fiabilisé terrain';
-  data.trip.constraints={
-    returnBufferEnd:'2026-09-18T12:00:00+02:00',
-    returnFerry:{status:'horaire de billet à confirmer',note:'La fin du circuit est verrouillée à 12:00 afin de préserver une marge avant le retour au port.'}
-  };
+  const santaTeresa=isSantaTeresaTrip(data);
+  data.trip=data.trip||{};
+
+  if(santaTeresa){
+    data.trip.version='V5.1';
+    data.trip.tagline='Compagnon intelligent fiabilisé terrain';
+    data.trip.constraints={
+      returnBufferEnd:'2026-09-18T12:00:00+02:00',
+      returnFerry:{status:'horaire de billet à confirmer',note:'La fin du circuit est verrouillée à 12:00 afin de préserver une marge avant le retour au port.'}
+    };
+  }
+
   for(const day of data.days||[]){
     for(const event of day.events||[]){
-      if(event.type==='bus'||/navette|ferry|bateau/i.test(event.title||'')){
+      if(santaTeresa&&(event.type==='bus'||/navette|ferry|bateau/i.test(event.title||''))){
         event.locked=true;event.lockedTime=event.time;event.lockedEnd=event.end;event.lockReason='Transport à horaire fixe';
       }
-      event.navigationMode=['marche','balade','plage','pause'].includes(event.type)?'walking':['bus','transfert'].includes(event.type)?'driving':'mixed';
+      if(!event.navigationMode)event.navigationMode=defaultNavigationMode(event);
     }
   }
-  const day2=(data.days||[]).find(d=>d.date==='2026-09-18');
-  const terminal=day2?.events?.at(-1);
-  if(terminal){terminal.locked=true;terminal.lockedTime=terminal.time;terminal.lockedEnd=terminal.end;terminal.lockReason='Fin du circuit / marge protégée avant retour au port';}
+
+  if(santaTeresa){
+    const day2=(data.days||[]).find(d=>d.date==='2026-09-18');
+    const terminal=day2?.events?.at(-1);
+    if(terminal){terminal.locked=true;terminal.lockedTime=terminal.time;terminal.lockedEnd=terminal.end;terminal.lockReason='Fin du circuit / marge protégée avant retour au port';}
+  }
+
   for(const place of data.places||[]){
-    const photo=PHOTOS[place.id];
+    const photo=santaTeresa?PHOTOS[place.id]:null;
     if(photo){place.heroImage=photo.image;place.gallery=[photo.image];place.photoCredit=photo.credit;place.photoPage=photo.page;place.photoExact=photo.exact;place.photoLabel=photo.label;}
-    place.walkingUrl=`https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}&travelmode=walking`;
-    place.audioShort=audioShort(place);place.audioLong=audioLong(place);
+    if(!place.walkingUrl)place.walkingUrl=`https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}&travelmode=walking`;
+    if(!place.waze)place.waze=`https://www.waze.com/ul?ll=${place.lat}%2C${place.lng}&navigate=yes`;
+    if(!place.audioShort)place.audioShort=audioShort(place);
+    if(!place.audioLong)place.audioLong=audioLong(place);
   }
   const by=Object.fromEntries((data.places||[]).map(p=>[p.id,p]));
-  for(const item of data.discover||[])if(by[item.placeId])item.image=by[item.placeId].heroImage;
+  for(const item of data.discover||[])if(by[item.placeId]&&!item.image)item.image=by[item.placeId].heroImage;
   return data;
 }
 
