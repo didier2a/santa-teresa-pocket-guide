@@ -1,5 +1,5 @@
 import {validateRoutePack} from '../engine/routepack.js';
-import {packShareUrl,routeShareUrl} from './route-runtime.js';
+import {packShareUrl,packHandoffUrl,routeShareUrl} from './route-runtime.js';
 
 const $=s=>document.querySelector(s);
 let current=null,apiBase='',recorder=null,stream=null,chunks=[],recordTimer=null,speechRec=null;
@@ -61,7 +61,7 @@ async function toggleVoice(){if(speechRec){try{speechRec.stop()}catch{}return}if
 
 $('#mic').onclick=toggleVoice;$('#generate').onclick=plan;
 $('#importFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{show(JSON.parse(await f.text()))}catch(err){setStatus(`<strong>JSON invalide :</strong> ${esc(err.message||err)}`,'bad')}};
-$('#preview').onclick=()=>{if(current)location.href=packShareUrl(current,location)};
+$('#preview').onclick=()=>{if(!current)return;try{location.href=packHandoffUrl(current,location,sessionStorage)}catch(err){setStatus(`<strong>Ouverture PocketGuide impossible :</strong> ${esc(err.message||err)}`,'bad')}};
 $('#share').onclick=async()=>{if(!current)return;try{const url=packShareUrl(current,location);if(url.length>12000)throw new Error('Parcours trop volumineux pour un lien autonome : téléchargez le JSON.');$('#shareUrl').value=url;await navigator.clipboard?.writeText(url);setStatus('<strong>✓ Lien copié</strong>','ok')}catch(err){$('#shareUrl').value=String(err.message||err)}};
 $('#download').onclick=()=>{if(!current)return;const blob=new Blob([JSON.stringify(current,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${current.id}.routepack.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 $('#example').onclick=()=>{$('#prompt').value='Je vais à Florence du 12 au 13 octobre 2026 avec 4 personnes. Je veux les principaux monuments, maximum 7 km de marche par jour, déjeuner vers 13 h, un rythme tranquille et des lieux photogéniques.';$('#destination').value='Florence'};
