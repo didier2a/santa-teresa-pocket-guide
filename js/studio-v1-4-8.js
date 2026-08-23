@@ -75,7 +75,7 @@ async function preparePack(pack,{enrich=true,save=true}={}){
     $('#preview').disabled=!report.valid;$('#share').disabled=!report.valid;$('#download').disabled=false;$('#shareUrl').value='';
     renderDraft(readyPack);
     if(report.valid&&save){saveRoutePack(readyPack,{source:'studio-1.4.8'});renderLibrary()}
-    if(report.valid){const photoPlaces=(readyPack.places||[]).filter(p=>p.heroImage).length;setReady('ok','✓ Parcours prêt',`${photoPlaces}/${(readyPack.places||[]).length} lieux illustrés · carte dynamique disponible · itinéraire sauvegardé.`);setStatus('<strong>✓ PocketGuide V1.4.8 prêt</strong>','ok')}
+    if(report.valid){const photoPlaces=(readyPack.places||[]).filter(p=>p.heroImage).length;setReady('ok','✓ Parcours prêt',`${photoPlaces}/${(readyPack.places||[]).length} lieux illustrés · carte dynamique disponible · itinéraire sauvegardé.`);setStatus('<strong>✓ PocketGuide V1.4.8 prêt</strong>','ok');$('#guideAI')?.classList.add('is-ready')}
   }catch(e){setReady('bad','Préparation incomplète',String(e.message||e));setStatus(`<strong>Erreur :</strong> ${esc(e.message||e)}`,'bad')}
   finally{busy=false}
 }
@@ -102,6 +102,17 @@ async function plan(){
   }catch(e){setReady('bad','Création impossible',String(e.message||e));setStatus(`<strong>AI Planner indisponible :</strong> ${esc(e.message||e)}`,'bad');void checkBackend()}finally{$('#generate').disabled=false}
 }
 
+function openGuideV2(){
+  try{
+    if(current&&currentStructuralValid){
+      sessionStorage.setItem('pg-route-handoff-v1',JSON.stringify(current));
+      const url=new URL('v2.html',location.href);url.searchParams.set('handoff','local');location.href=url.toString();return;
+    }
+    const route=new URLSearchParams(location.search).get('route')||'bonifacio-demo';
+    const url=new URL('v2.html',location.href);url.searchParams.set('route',route);location.href=url.toString();
+  }catch(e){setStatus(`<strong>Guide IA indisponible :</strong> ${esc(e.message||e)}`,'bad')}
+}
+
 $('#generate').onclick=plan;
 $('#example').onclick=()=>{$('#prompt').value='Je souhaite une balade incontournable à Porto-Vecchio cet après-midi, avec 6 lieux remarquables, peu de marche et un rythme tranquille.';$('#destination').value='Porto-Vecchio'};
 $('#importFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{await preparePack(JSON.parse(await f.text()),{enrich:true,save:true})}catch(err){setStatus(`<strong>JSON invalide :</strong> ${esc(err.message||err)}`,'bad')}};
@@ -109,5 +120,6 @@ $('#preview').onclick=()=>{if(!current||!currentStructuralValid)return;try{saveR
 $('#saveRoute').onclick=()=>{if(!current||!currentStructuralValid)return;try{saveRoutePack(current,{source:'manual'});renderLibrary();setStatus('<strong>✓ Itinéraire sauvegardé</strong>','ok')}catch(e){setStatus(`<strong>Sauvegarde impossible :</strong> ${esc(e.message||e)}`,'bad')}};
 $('#share').onclick=async()=>{if(!current||!currentStructuralValid)return;try{const url=packShareUrl(current,location);if(url.length>12000)throw new Error('Parcours trop volumineux pour un lien autonome. Utilisez Télécharger JSON.');$('#shareUrl').value=url;await navigator.clipboard?.writeText(url);setStatus('<strong>✓ Lien copié</strong>','ok')}catch(e){$('#shareUrl').value=String(e.message||e)}};
 $('#download').onclick=()=>{if(!current)return;const blob=new Blob([JSON.stringify(current,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${current.id}.routepack.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+$('#guideAI').onclick=openGuideV2;
 
 await loadConfig();renderLibrary();
