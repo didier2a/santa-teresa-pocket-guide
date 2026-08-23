@@ -1,6 +1,7 @@
 import {loadRoutePack} from '../engine/routepack.js';
 
 const ROUTE_ID=/^[a-z0-9][a-z0-9-]{2,63}$/;
+const HANDOFF_KEY='pg-route-handoff-v1';
 
 function normalizePlace(place={}){
   const p={...place};
@@ -37,13 +38,39 @@ export function encodeSharedPack(pack){return b64urlEncode(JSON.stringify(pack))
 export function decodeSharedPack(value){if(!value||value.length>24000)throw new Error('RoutePack partagé trop volumineux');return JSON.parse(b64urlDecode(value))}
 export function sharedPackFromLocation(locationLike=globalThis.location){try{const value=new URL(locationLike.href).searchParams.get('pack');return value?decodeSharedPack(value):null}catch{return null}}
 
+export function packHandoffUrl(pack,locationLike=globalThis.location,storage=globalThis.sessionStorage){
+  if(!storage?.setItem)throw new Error('Le stockage temporaire du navigateur est indisponible.');
+  try{storage.setItem(HANDOFF_KEY,JSON.stringify(pack))}catch{throw new Error('Impossible de préparer le transfert vers PocketGuide.');}
+  const url=new URL(locationLike.href);
+  url.pathname=url.pathname.replace(/[^/]*$/,'engine.html');
+  url.search='';
+  url.searchParams.set('handoff','local');
+  url.hash='';
+  return url.toString();
+}
+
+export function handoffPackFromLocation(locationLike=globalThis.location,storage=globalThis.sessionStorage){
+  let requested=false;
+  try{requested=new URL(locationLike.href).searchParams.get('handoff')==='local'}catch{return null}
+  if(!requested)return null;
+  if(!storage?.getItem)throw new Error('Transfert PocketGuide indisponible : stockage temporaire absent.');
+  const raw=storage.getItem(HANDOFF_KEY);
+  if(!raw)throw new Error('Transfert PocketGuide introuvable. Revenez au Studio et relancez « Ouvrir dans PocketGuide ».');
+  try{return JSON.parse(raw)}catch{throw new Error('Transfert PocketGuide corrompu. Revenez au Studio et relancez l’ouverture.');}
+}
+
 export async function loadRouteRegistry({fetchImpl=fetch}={}){const response=await fetchImpl('./data/routes.json',{cache:'no-store'});if(!response.ok)throw new Error(`Registre de parcours indisponible (${response.status})`);const registry=await response.json();if(!registry||registry.schemaVersion!=='1.0'||!Array.isArray(registry.routes))throw new Error('Registre de parcours invalide');return registry}
 
-export async function loadPocketGuideRoute({fetchImpl=fetch,locationLike=globalThis.location}={}){
+export async function loadPocketGuideRoute({fetchImpl=fetch,locationLike=globalThis.location,storage=globalThis.sessionStorage}={}){
+  const handoff=handoffPackFromLocation(locationLike,storage);
+  if(handoff){
+    const {pack,report}=await loadRoutePack(handoff,{fetchImpl,allowLegacy:false});
+    return {route:{id:pack.id,title:pack.title,format:'routepack',handoff:true,enabled:true},registry:null,pack,report,data:routePackToAppData(pack),requested:true,shared:false,handoff:true};
+  }
   const shared=sharedPackFromLocation(locationLike);
   if(shared){
     const {pack,report}=await loadRoutePack(shared,{fetchImpl,allowLegacy:false});
-    return {route:{id:pack.id,title:pack.title,format:'routepack',shared:true,enabled:true},registry:null,pack,report,data:routePackToAppData(pack),requested:true,shared:true};
+    return {route:{id:pack.id,title:pack.title,format:'routepack',shared:true,enabled:true},registry:null,pack,report,data:routePackToAppData(pack),requested:true,shared:true,handoff:false};
   }
   const registry=await loadRouteRegistry({fetchImpl});
   const requested=requestedRouteId(locationLike);const id=requested||registry.defaultRoute;const route=registry.routes.find(r=>r.id===id&&r.enabled!==false);
@@ -51,8 +78,8 @@ export async function loadPocketGuideRoute({fetchImpl=fetch,locationLike=globalT
   if(!route.source||typeof route.source!=='string')throw new Error(`Source absente pour le parcours ${route.id}`);
   const rawResponse=await fetchImpl(route.source,{cache:'no-store'});if(!rawResponse.ok)throw new Error(`Parcours ${route.id} indisponible (${rawResponse.status})`);const raw=await rawResponse.json();
   const {pack,report}=await loadRoutePack(raw,{fetchImpl,allowLegacy:route.format!=='routepack'});if(pack.id!==route.id&&route.format==='routepack')throw new Error(`Le RoutePack ${pack.id} ne correspond pas au registre ${route.id}`);
-  return {route,registry,pack,report,data:routePackToAppData(pack,raw,{legacy:route.format!=='routepack'}),requested:Boolean(requested),shared:false};
+  return {route,registry,pack,report,data:routePackToAppData(pack,raw,{legacy:route.format!=='routepack'}),requested:Boolean(requested),shared:false,handoff:false};
 }
 
-export function routeShareUrl(routeId,locationLike=globalThis.location){const url=new URL(locationLike.href);url.searchParams.delete('pack');url.searchParams.set('route',routeId);url.hash='';return url.toString()}
+export function routeShareUrl(routeId,locationLike=globalThis.location){const url=new URL(locationLike.href);url.searchParams.delete('pack');url.searchParams.delete('handoff');url.searchParams.set('route',routeId);url.hash='';return url.toString()}
 export function packShareUrl(pack,locationLike=globalThis.location){const url=new URL(locationLike.href);url.pathname=url.pathname.replace(/[^/]*$/,'engine.html');url.search='';url.searchParams.set('pack',encodeSharedPack(pack));url.hash='';return url.toString()}
