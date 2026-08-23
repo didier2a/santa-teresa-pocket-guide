@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "defaultRoute": "santa-teresa",
+  "routes": [
+    {
+      "id": "santa-teresa",
+      "title": "Santa Teresa Pocket Guide",
+      "source": "./data/trip.json",
+      "format": "legacy",
+      "enabled": true
+    }
+  ]
+}
