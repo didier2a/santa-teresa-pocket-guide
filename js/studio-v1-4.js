@@ -16,7 +16,7 @@ async function checkBackend(){
     const h=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(`HTTP ${r.status}`);
     if(h.openaiConfigured){
-      $('#aiBackend').textContent=`✓ Backend V1.4.3 prêt · ${h.plannerModel||'OpenAI'}`;
+      $('#aiBackend').textContent=`✓ Backend V1.4.4 prêt · ${h.plannerModel||'OpenAI'}`;
       $('#aiBackend').className='ok';
     }else{
       $('#aiBackend').textContent='Backend Vercel joignable, mais OPENAI_API_KEY n’est pas liée à ce projet.';
@@ -29,7 +29,7 @@ async function checkBackend(){
 }
 
 async function loadConfig(){
-  try{const cfg=await fetch('./data/ai-config.json?v=1.4.3',{cache:'no-store'}).then(r=>r.ok?r.json():null);apiBase=String(cfg?.apiBase||'').replace(/\/$/,'')}catch{}
+  try{const cfg=await fetch('./data/ai-config.json?v=1.4.4',{cache:'no-store'}).then(r=>r.ok?r.json():null);apiBase=String(cfg?.apiBase||'').replace(/\/$/,'')}catch{}
   const q=new URLSearchParams(location.search).get('api');if(q){apiBase=q.replace(/\/$/,'');localStorage.setItem('pg-ai-base',apiBase)}
   if(!apiBase)apiBase=String(localStorage.getItem('pg-ai-base')||'').replace(/\/$/,'');
   if(!apiBase&&location.hostname.endsWith('.vercel.app'))apiBase=location.origin;
@@ -71,7 +71,27 @@ async function transcribeBlob(blob){
   const audio=await blobToBase64(blob);const r=await fetch(endpoint('/api/transcribe'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audio,mimeType:blob.type||'audio/webm'})});
   const payload=await r.json().catch(()=>({}));if(!r.ok)throw new Error(payload.error||`Erreur ${r.status}`);return String(payload.text||'').trim();
 }
-function appendTranscript(text){const box=$('#prompt'),before=box.value.trim(),clean=String(text||'').trim();if(!clean)return;box.value=[before,clean].filter(Boolean).join(before?' ':'');box.dispatchEvent(new Event('input',{bubbles:true}));box.focus();setVoice('✓ Dictée insérée une seule fois.','ok')}
+
+function tokenKey(word=''){
+  return String(word).toLocaleLowerCase('fr-FR').normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/[^\p{L}\p{N}]+/gu,'');
+}
+function dedupeTranscript(text=''){
+  const words=String(text).trim().replace(/\s+/g,' ').split(' ').filter(Boolean);
+  if(words.length<4)return words.join(' ');
+  let changed=true,pass=0;
+  while(changed&&pass++<8){
+    changed=false;
+    outer:for(let size=Math.min(12,Math.floor(words.length/2));size>=2;size--){
+      for(let i=0;i+size*2<=words.length;i++){
+        let same=true;
+        for(let j=0;j<size;j++)if(tokenKey(words[i+j])!==tokenKey(words[i+size+j])){same=false;break}
+        if(same){words.splice(i+size,size);changed=true;break outer}
+      }
+    }
+  }
+  return words.join(' ').trim();
+}
+function appendTranscript(text){const box=$('#prompt'),before=box.value.trim(),clean=dedupeTranscript(text);if(!clean)return;box.value=[before,clean].filter(Boolean).join(before?' ':'');box.dispatchEvent(new Event('input',{bubbles:true}));box.focus();setVoice('✓ Dictée nettoyée et insérée une seule fois.','ok')}
 
 async function stopRecorder(){if(recorder&&recorder.state!=='inactive')recorder.stop()}
 async function startRecorder(){
@@ -95,12 +115,12 @@ function browserSpeech(){
     }
     if(finalCandidate)bestFinal=finalCandidate;
     if(interimCandidate)bestInterim=interimCandidate;
-    setVoice(`« ${(bestFinal||bestInterim).trim()} »`,'work');
+    setVoice(`« ${dedupeTranscript(bestFinal||bestInterim)} »`,'work');
   };
   rec.onerror=e=>{hadError=true;const msg=e.error==='not-allowed'?'Autorisation micro refusée dans Chrome.':e.error==='no-speech'?'Aucune parole détectée.':e.error==='network'?'Service de dictée Chrome indisponible.':'Dictée interrompue : '+e.error;setVoice(msg,'bad')};
   rec.onend=()=>{
     speechRec=null;$('#mic').classList.remove('recording');$('#mic').textContent='🎙️ Parler';
-    const transcript=(bestFinal||bestInterim).trim();
+    const transcript=dedupeTranscript(bestFinal||bestInterim);
     if(transcript)appendTranscript(transcript);else if(!gotSpeech&&!hadError)setVoice('Aucun texte reconnu. Appuyez sur Parler puis dictez votre demande.','bad');
   };
   rec.start();
