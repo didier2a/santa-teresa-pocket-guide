@@ -9,12 +9,32 @@ function setStatus(text,type=''){const el=$('#status');el.className=type;el.inne
 function setVoice(text,type=''){const el=$('#voiceStatus');el.className=type;el.textContent=text}
 function endpoint(path){return`${apiBase}${path}`}
 
+async function checkBackend(){
+  if(!apiBase)return;
+  try{
+    const r=await fetch(endpoint('/api/health'),{cache:'no-store'});
+    const h=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    if(h.openaiConfigured){
+      $('#aiBackend').textContent=`✓ Backend V1.4.3 prêt · ${h.plannerModel||'OpenAI'}`;
+      $('#aiBackend').className='ok';
+    }else{
+      $('#aiBackend').textContent='Backend Vercel joignable, mais OPENAI_API_KEY n’est pas liée à ce projet.';
+      $('#aiBackend').className='bad';
+    }
+  }catch(err){
+    $('#aiBackend').textContent=`Backend Vercel injoignable : ${apiBase}`;
+    $('#aiBackend').className='bad';
+  }
+}
+
 async function loadConfig(){
-  try{const cfg=await fetch('./data/ai-config.json',{cache:'no-store'}).then(r=>r.ok?r.json():null);apiBase=String(cfg?.apiBase||'').replace(/\/$/,'')}catch{}
+  try{const cfg=await fetch('./data/ai-config.json?v=1.4.3',{cache:'no-store'}).then(r=>r.ok?r.json():null);apiBase=String(cfg?.apiBase||'').replace(/\/$/,'')}catch{}
   const q=new URLSearchParams(location.search).get('api');if(q){apiBase=q.replace(/\/$/,'');localStorage.setItem('pg-ai-base',apiBase)}
   if(!apiBase)apiBase=String(localStorage.getItem('pg-ai-base')||'').replace(/\/$/,'');
   if(!apiBase&&location.hostname.endsWith('.vercel.app'))apiBase=location.origin;
-  $('#aiBackend').textContent=apiBase?`Backend sécurisé : ${apiBase}`:'Backend AI non relié — la dictée navigateur reste disponible.';
+  $('#aiBackend').textContent=apiBase?`Test du backend sécurisé : ${apiBase}`:'Backend AI non relié — la dictée navigateur reste disponible.';
+  if(apiBase)await checkBackend();
 }
 
 function show(pack){
@@ -36,8 +56,11 @@ async function plan(){
   try{
     const r=await fetch(endpoint('/api/plan'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,destination:$('#destination').value.trim(),timezone:$('#timezone').value.trim()||'Europe/Paris',maxPlaces:Number($('#maxPlaces').value)||6})});
     const payload=await r.json().catch(()=>({}));if(!r.ok)throw new Error(payload.error||`Erreur ${r.status}`);show(payload.pack);
-  }catch(err){setStatus(`<strong>AI Planner indisponible :</strong> ${esc(err.message||err)}`,'bad')}
-  finally{$('#generate').disabled=false}
+  }catch(err){
+    const msg=String(err?.message||err||'Erreur inconnue');
+    setStatus(`<strong>AI Planner indisponible :</strong> ${esc(msg==='Failed to fetch'?'backend Vercel non joignable depuis le téléphone':msg)}`,'bad');
+    void checkBackend();
+  }finally{$('#generate').disabled=false}
 }
 
 function bestMime(){for(const x of ['audio/webm;codecs=opus','audio/webm','audio/mp4'])if(window.MediaRecorder?.isTypeSupported?.(x))return x;return''}
@@ -48,7 +71,7 @@ async function transcribeBlob(blob){
   const audio=await blobToBase64(blob);const r=await fetch(endpoint('/api/transcribe'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audio,mimeType:blob.type||'audio/webm'})});
   const payload=await r.json().catch(()=>({}));if(!r.ok)throw new Error(payload.error||`Erreur ${r.status}`);return String(payload.text||'').trim();
 }
-function appendTranscript(text){const box=$('#prompt'),before=box.value.trim();box.value=[before,text].filter(Boolean).join(before?' ':'');box.dispatchEvent(new Event('input',{bubbles:true}));box.focus();setVoice('✓ Dictée ajoutée dans le champ texte.','ok')}
+function appendTranscript(text){const box=$('#prompt'),before=box.value.trim(),clean=String(text||'').trim();if(!clean)return;box.value=[before,clean].filter(Boolean).join(before?' ':'');box.dispatchEvent(new Event('input',{bubbles:true}));box.focus();setVoice('✓ Dictée insérée une seule fois.','ok')}
 
 async function stopRecorder(){if(recorder&&recorder.state!=='inactive')recorder.stop()}
 async function startRecorder(){
@@ -60,14 +83,26 @@ async function startRecorder(){
 
 function browserSpeech(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)throw new Error('Reconnaissance vocale indisponible dans ce navigateur.');
-  if(speechRec){try{speechRec.stop()}catch{}speechRec=null;return}
-  const box=$('#prompt'),seed=box.value.trim(),rec=new SR();speechRec=rec;rec.lang='fr-FR';rec.interimResults=true;rec.continuous=true;let finalText='',interim='',gotSpeech=false;
-  const render=()=>{const live=[seed,finalText.trim(),interim.trim()].filter(Boolean).join(' ');box.value=live;box.dispatchEvent(new Event('input',{bubbles:true}));if(interim.trim())setVoice(`« ${interim.trim()} »`,'work');else if(finalText.trim())setVoice(`✓ ${finalText.trim()}`,'ok')};
-  rec.onstart=()=>{$('#mic').classList.add('recording');$('#mic').textContent='■ Arrêter';setVoice('● Je vous écoute… le texte doit apparaître pendant que vous parlez.','recording')};
-  rec.onspeechstart=()=>{gotSpeech=true;setVoice('● Voix détectée…','recording')};
-  rec.onresult=e=>{const finals=[],interims=[];for(let i=0;i<e.results.length;i++){const t=String(e.results[i][0]?.transcript||'').trim();if(!t)continue;gotSpeech=true;if(e.results[i].isFinal)finals.push(t);else interims.push(t)}finalText=finals.join(' ');interim=interims.join(' ');render()};
-  rec.onerror=e=>{const msg=e.error==='not-allowed'?'Autorisation micro refusée dans Chrome.':e.error==='no-speech'?'Aucune parole détectée.':e.error==='network'?'Service de dictée Chrome indisponible.':'Dictée interrompue : '+e.error;setVoice(msg,'bad')};
-  rec.onend=()=>{speechRec=null;$('#mic').classList.remove('recording');$('#mic').textContent='🎙️ Parler';render();if((finalText||interim).trim()){setVoice('✓ Dictée insérée dans le champ texte.','ok');box.focus()}else if(!gotSpeech)setVoice('Aucun texte reconnu. Appuyez sur Parler puis dictez votre demande.','bad')};
+  if(speechRec){try{speechRec.stop()}catch{}return}
+  const rec=new SR();speechRec=rec;rec.lang='fr-FR';rec.interimResults=true;rec.continuous=false;let bestFinal='',bestInterim='',gotSpeech=false,hadError=false;
+  rec.onstart=()=>{$('#mic').classList.add('recording');$('#mic').textContent='■ Arrêter';setVoice('● Je vous écoute… la phrase sera insérée une seule fois à la fin.','recording')};
+  rec.onspeechstart=()=>{gotSpeech=true;setVoice('● Voix détectée… continuez à parler.','recording')};
+  rec.onresult=e=>{
+    let finalCandidate='',interimCandidate='';
+    for(let i=0;i<e.results.length;i++){
+      const t=String(e.results[i][0]?.transcript||'').trim();if(!t)continue;gotSpeech=true;
+      if(e.results[i].isFinal)finalCandidate=[finalCandidate,t].filter(Boolean).join(' ');else interimCandidate=t;
+    }
+    if(finalCandidate)bestFinal=finalCandidate;
+    if(interimCandidate)bestInterim=interimCandidate;
+    setVoice(`« ${(bestFinal||bestInterim).trim()} »`,'work');
+  };
+  rec.onerror=e=>{hadError=true;const msg=e.error==='not-allowed'?'Autorisation micro refusée dans Chrome.':e.error==='no-speech'?'Aucune parole détectée.':e.error==='network'?'Service de dictée Chrome indisponible.':'Dictée interrompue : '+e.error;setVoice(msg,'bad')};
+  rec.onend=()=>{
+    speechRec=null;$('#mic').classList.remove('recording');$('#mic').textContent='🎙️ Parler';
+    const transcript=(bestFinal||bestInterim).trim();
+    if(transcript)appendTranscript(transcript);else if(!gotSpeech&&!hadError)setVoice('Aucun texte reconnu. Appuyez sur Parler puis dictez votre demande.','bad');
+  };
   rec.start();
 }
 
