@@ -71,5 +71,6 @@
   <audio id="remoteAudio" autoplay playsinline></audio>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script type="module" src="js/v2-guide.js"></script>
+  <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});</script>
 </body>
 </html>
