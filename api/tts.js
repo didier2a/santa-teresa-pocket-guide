@@ -8,7 +8,7 @@ export default async function handler(req,res){
     const body=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
     const input=String(body.input||'').trim().slice(0,MAX_CHARS);
     if(!input)return res.status(400).json({error:'Texte audio absent.'});
-    const voice=String(body.voice||process.env.OPENAI_TTS_VOICE||'marin').trim().slice(0,32);
+    const voice=String(body.voice||process.env.OPENAI_TTS_VOICE||'coral').trim().slice(0,32);
     const instructions=String(body.instructions||'').trim().slice(0,1200)||'Parle en français naturel, chaleureux et fluide, comme un guide culturel local expérimenté qui accompagne un petit groupe à pied. Débit calme mais vivant, articulation claire, intonation humaine, sans emphase publicitaire. Fais de courtes respirations aux changements d’idée.';
     const model=process.env.OPENAI_TTS_MODEL||'gpt-4o-mini-tts';
     const response=await fetch('https://api.openai.com/v1/audio/speech',{
