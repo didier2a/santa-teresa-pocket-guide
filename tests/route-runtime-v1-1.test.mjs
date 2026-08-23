@@ -31,7 +31,7 @@ test('Engine: une route inconnue est refusée avant exécution',async()=>{
 
 test('Engine V1.x: l entrée générique et le service worker incluent le bootstrap',async()=>{
   const html=await read('engine.html'),sw=await read('service-worker.js'),bootstrap=await read('js/route-bootstrap.js');
-  assert.match(html,/route-bootstrap\.js/);assert.match(html,/index\.html/);assert.match(sw,/pocketguide-engine-v1-[123]/);assert.match(sw,/engine\.html/);assert.match(sw,/route-runtime\.js/);assert.match(bootstrap,/__POCKETGUIDE_ROUTE_READY__/);assert.match(bootstrap,/pg:\$\{routeId\}/);
+  assert.match(html,/route-bootstrap\.js/);assert.match(html,/index\.html/);assert.match(sw,/pocketguide-engine-v1-[1234]/);assert.match(sw,/engine\.html/);assert.match(sw,/route-runtime\.js/);assert.match(bootstrap,/__POCKETGUIDE_ROUTE_READY__/);assert.match(bootstrap,/pg:\$\{routeId\}/);
 });
 
 test('Engine V1.3: le mode moteur est visible même sur Santa Teresa',async()=>{

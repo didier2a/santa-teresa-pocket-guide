@@ -29,21 +29,23 @@ test('Engine V1.2+: un RoutePack peut toujours être encodé dans une URL puis r
   assert.equal(runtime.report.valid,true);
 });
 
-test('Engine V1.3: le Studio conserve import validation partage export et ajoute le prompt',async()=>{
-  const html=await read('studio.html'),js=await read('js/studio-v1-3.js');
-  assert.match(html,/PocketGuide Studio V1\.3/);
-  for(const id of ['prompt','generate','importFile','preview','share','download'])assert.match(html,new RegExp(`id="${id}"`));
+test('Engine V1.4: Studio conserve import validation partage export et ajoute voix + AI Planner',async()=>{
+  const html=await read('studio.html'),js=await read('js/studio-v1-4.js');
+  assert.match(html,/PocketGuide Studio V1\.4/);
+  for(const id of ['prompt','mic','generate','importFile','preview','share','download'])assert.match(html,new RegExp(`id="${id}"`));
   assert.match(js,/validateRoutePack/);
   assert.match(js,/packShareUrl/);
   assert.match(js,/routeShareUrl/);
-  assert.match(js,/application\/json/);
-  assert.match(js,/compilePrompt/);
+  assert.match(js,/MediaRecorder/);
+  assert.match(js,/\/api\/transcribe/);
+  assert.match(js,/\/api\/plan/);
 });
 
-test('Engine V1.3: le cache offline contient Studio, compilateur et Bonifacio',async()=>{
+test('Engine V1.4: le cache offline contient Studio vocal, config AI et Bonifacio',async()=>{
   const sw=await read('service-worker.js');
-  assert.match(sw,/pocketguide-engine-v1-3/);
+  assert.match(sw,/pocketguide-engine-v1-4/);
   assert.match(sw,/studio\.html/);
-  assert.match(sw,/studio-v1-3\.js/);
+  assert.match(sw,/studio-v1-4\.js/);
+  assert.match(sw,/ai-config\.json/);
   assert.match(sw,/bonifacio-demo\.json/);
 });
