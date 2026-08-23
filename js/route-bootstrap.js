@@ -8,6 +8,17 @@
   let resolved=null;
   let storageScoped=false;
 
+  if(window.L?.map&&!window.L.map.__pocketGuideWrapped){
+    const nativeMap=window.L.map.bind(window.L);
+    const wrapped=(...args)=>{
+      const instance=nativeMap(...args);
+      window.__POCKETGUIDE_LEAFLET_MAP__=instance;
+      return instance;
+    };
+    wrapped.__pocketGuideWrapped=true;
+    window.L.map=wrapped;
+  }
+
   function scopeStorage(routeId){
     if(storageScoped)return;
     storageScoped=true;
@@ -19,22 +30,52 @@
 
   function setText(selector,text){const el=document.querySelector(selector);if(el)el.textContent=text}
 
+  function routePointsForDay(pack,date){
+    const byId=Object.fromEntries((pack.places||[]).map(p=>[p.id,p]));
+    const day=(pack.days||[]).find(d=>d.date===date)||(pack.days||[])[0];
+    return (day?.events||[]).map(e=>byId[e.placeId]).filter(p=>p&&Number.isFinite(p.lat)&&Number.isFinite(p.lng));
+  }
+
+  function repairGenericMap(runtime){
+    const {pack}=runtime;
+    if(!window.L)return;
+    let tries=0;
+    const apply=()=>{
+      const map=window.__POCKETGUIDE_LEAFLET_MAP__;
+      if(!map){if(tries++<80)setTimeout(apply,75);return}
+      const places=(pack.places||[]).filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lng));
+      if(!places.length)return;
+      map.invalidateSize?.();
+      const bounds=window.L.latLngBounds(places.map(p=>[p.lat,p.lng]));
+      if(bounds.isValid())map.fitBounds(bounds.pad(.18),{maxZoom:16});
+      const selected=document.querySelector('#daySwitch .is-active')?.dataset.day||pack.days?.[0]?.date;
+      const points=routePointsForDay(pack,selected);
+      if(points.length>1){
+        window.__POCKETGUIDE_GENERIC_ROUTE__?.remove?.();
+        window.__POCKETGUIDE_GENERIC_ROUTE__=window.L.polyline(points.map(p=>[p.lat,p.lng]),{weight:4,opacity:.72,dashArray:'10,7'}).addTo(map);
+      }
+      document.documentElement.dataset.mapRoutePack='ready';
+    };
+    apply();
+    document.querySelector('#daySwitch')?.addEventListener('click',()=>setTimeout(apply,80));
+  }
+
   function markEngineRuntime(runtime){
     const {pack,route}=runtime;
-    setText('#today .hero__meta > div:nth-child(3) span','Engine V1.1');
+    setText('#today .hero__meta > div:nth-child(3) span','Engine V1.3');
     setText('#today .hero__meta > div:nth-child(3) small','RoutePack V1');
     const hero=document.querySelector('#today .hero__content');
     if(hero&&!document.querySelector('#engineRuntimeBadge')){
       const badge=document.createElement('div');
       badge.id='engineRuntimeBadge';
       badge.setAttribute('role','status');
-      badge.textContent=`POCKETGUIDE ENGINE V1.1 · ${route.id}`;
+      badge.textContent=`POCKETGUIDE ENGINE V1.3 · ${route.id}`;
       badge.style.cssText='display:inline-flex;align-items:center;max-width:100%;margin:0 0 14px;padding:8px 12px;border-radius:999px;background:#103f4a;color:#fff;font:800 .72rem/1.1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 8px 24px rgba(6,23,28,.18)';
       hero.prepend(badge);
     }
     const arStatus=document.querySelector('#arXRStatus');
-    if(arStatus)arStatus.title='Moteur AR terrain V6.0.8 exécuté dans PocketGuide Engine V1.1';
-    document.documentElement.dataset.engineVersion='1.1';
+    if(arStatus)arStatus.title='Moteur AR terrain V6.0.8 exécuté dans PocketGuide Engine V1.3';
+    document.documentElement.dataset.engineVersion='1.3';
     document.documentElement.dataset.routePackVersion=pack.schemaVersion;
   }
 
@@ -56,20 +97,21 @@
     const travel=document.querySelector('#travel .practical-grid');
     if(travel)travel.innerHTML=`<article class="info-card info-card--accent"><span class="info-icon">🧭</span><div><h3>Parcours chargé</h3><p>${pack.title}</p><span class="info-status">RoutePack ${pack.schemaVersion} validé</span></div></article><article class="info-card"><span class="info-icon">🕒</span><div><h3>Fuseau horaire</h3><p>${pack.timezone}</p></div></article><article class="info-card"><span class="info-icon">👥</span><div><h3>Voyageurs</h3><p>${pack.travelers||1}</p></div></article><article class="info-card"><span class="info-icon">📍</span><div><h3>Repères</h3><p>${(pack.places||[]).length} lieu${(pack.places||[]).length>1?'x':''} · ${(pack.days||[]).length} jour${(pack.days||[]).length>1?'s':''}</p></div></article>`;
     const contact=document.querySelector('#travel .contact-strip');if(contact)contact.hidden=true;
+    repairGenericMap(runtime);
   }
 
   function decorate(runtime){
     const {pack,route}=runtime;
-    document.documentElement.dataset.pocketGuideEngine='1.1';
+    document.documentElement.dataset.pocketGuideEngine='1.3';
     document.documentElement.dataset.routeId=route.id;
-    document.title=`${pack.title} · PocketGuide Engine V1.1`;
+    document.title=`${pack.title} · PocketGuide Engine V1.3`;
     const brand=document.querySelector('.brand');
     if(brand){
       const strong=brand.querySelector('strong');
       const small=brand.querySelector('small');
       const mark=brand.querySelector('.brand__mark');
       if(strong)strong.textContent=pack.title;
-      if(small)small.textContent='PocketGuide Engine · V1.1';
+      if(small)small.textContent='PocketGuide Engine · V1.3';
       if(mark)mark.textContent=(pack.title.match(/[A-Za-zÀ-ÿ0-9]/g)||['P','G']).slice(0,2).join('').toUpperCase();
     }
     const arStage=document.querySelector('#arStage');
