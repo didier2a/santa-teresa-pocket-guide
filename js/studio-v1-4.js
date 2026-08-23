@@ -61,13 +61,13 @@ async function startRecorder(){
 function browserSpeech(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)throw new Error('Reconnaissance vocale indisponible dans ce navigateur.');
   if(speechRec){try{speechRec.stop()}catch{}speechRec=null;return}
-  const box=$('#prompt'),seed=box.value.trim(),rec=new SR();speechRec=rec;rec.lang='fr-FR';rec.interimResults=true;rec.continuous=true;let committed='',interim='',gotSpeech=false;
-  const render=()=>{const live=[seed,committed.trim(),interim.trim()].filter(Boolean).join(' ');box.value=live;box.dispatchEvent(new Event('input',{bubbles:true}));if(interim.trim())setVoice(`« ${interim.trim()} »`,'work');else if(committed.trim())setVoice(`✓ ${committed.trim()}`,'ok')};
+  const box=$('#prompt'),seed=box.value.trim(),rec=new SR();speechRec=rec;rec.lang='fr-FR';rec.interimResults=true;rec.continuous=true;let finalText='',interim='',gotSpeech=false;
+  const render=()=>{const live=[seed,finalText.trim(),interim.trim()].filter(Boolean).join(' ');box.value=live;box.dispatchEvent(new Event('input',{bubbles:true}));if(interim.trim())setVoice(`« ${interim.trim()} »`,'work');else if(finalText.trim())setVoice(`✓ ${finalText.trim()}`,'ok')};
   rec.onstart=()=>{$('#mic').classList.add('recording');$('#mic').textContent='■ Arrêter';setVoice('● Je vous écoute… le texte doit apparaître pendant que vous parlez.','recording')};
   rec.onspeechstart=()=>{gotSpeech=true;setVoice('● Voix détectée…','recording')};
-  rec.onresult=e=>{interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=String(e.results[i][0]?.transcript||'').trim();if(!t)continue;gotSpeech=true;if(e.results[i].isFinal)committed+=`${committed?' ':''}${t}`;else interim+=`${interim?' ':''}${t}`}render()};
+  rec.onresult=e=>{const finals=[],interims=[];for(let i=0;i<e.results.length;i++){const t=String(e.results[i][0]?.transcript||'').trim();if(!t)continue;gotSpeech=true;if(e.results[i].isFinal)finals.push(t);else interims.push(t)}finalText=finals.join(' ');interim=interims.join(' ');render()};
   rec.onerror=e=>{const msg=e.error==='not-allowed'?'Autorisation micro refusée dans Chrome.':e.error==='no-speech'?'Aucune parole détectée.':e.error==='network'?'Service de dictée Chrome indisponible.':'Dictée interrompue : '+e.error;setVoice(msg,'bad')};
-  rec.onend=()=>{speechRec=null;$('#mic').classList.remove('recording');$('#mic').textContent='🎙️ Parler';render();if((committed||interim).trim()){setVoice('✓ Dictée insérée dans le champ texte.','ok');box.focus()}else if(!gotSpeech)setVoice('Aucun texte reconnu. Appuyez sur Parler puis dictez votre demande.','bad')};
+  rec.onend=()=>{speechRec=null;$('#mic').classList.remove('recording');$('#mic').textContent='🎙️ Parler';render();if((finalText||interim).trim()){setVoice('✓ Dictée insérée dans le champ texte.','ok');box.focus()}else if(!gotSpeech)setVoice('Aucun texte reconnu. Appuyez sur Parler puis dictez votre demande.','bad')};
   rec.start();
 }
 

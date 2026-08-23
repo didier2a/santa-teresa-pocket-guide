@@ -10,6 +10,13 @@ test('V1.4: le Studio propose texte et micro sur la même demande',async()=>{
   assert.match(js,/appendTranscript/);assert.match(js,/\/api\/transcribe/);
 });
 
+test('V1.4.2: la dictée Chrome reconstruit les résultats sans accumuler les doublons',async()=>{
+  const js=await read('js/studio-v1-4.js');
+  assert.match(js,/for\(let i=0;i<e\.results\.length;i\+\+\)/);
+  assert.match(js,/finalText=finals\.join\(' '\)/);
+  assert.doesNotMatch(js,/committed\+=/);
+});
+
 test('V1.4: AI Planner passe par le backend puis par le validateur déterministe',async()=>{
   const js=await read('js/studio-v1-4.js'),api=await read('api/plan.js');
   assert.match(js,/\/api\/plan/);assert.match(js,/validateRoutePack/);assert.match(api,/v1\/responses/);assert.match(api,/web_search/);assert.match(api,/json_schema/);assert.match(api,/gpt-5\.6-luna/);
