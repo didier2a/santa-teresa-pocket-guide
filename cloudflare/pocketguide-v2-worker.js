@@ -1,3 +1,4 @@
+// PocketGuide V2 Cloudflare Worker — Git deployment trigger 2026-08-23
 const ALLOWED_ORIGINS=new Set(['https://didier2a.github.io']);
 
 function cors(origin){
