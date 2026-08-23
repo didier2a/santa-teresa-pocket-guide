@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07181d">
+  <title>PocketGuide V2 · Guide touristique IA</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="v2.css">
+</head>
+<body>
+  <main class="v2-shell">
+    <header class="v2-topbar">
+      <div class="v2-brand"><span>PG</span><div><strong>PocketGuide V2</strong><small id="routeTitle">Guide touristique IA</small></div></div>
+      <div class="v2-statuses"><span id="networkState" class="chip">● En ligne</span><span id="sessionState" class="chip chip--muted">IA inactive</span></div>
+    </header>
+
+    <section class="guide-stage" aria-label="Guide touristique vocal">
+      <div class="guide-visual" id="guideVisual">
+        <div class="guide-sky"></div>
+        <div class="guide-radar" id="guideRadar"></div>
+        <div class="guide-focus" id="guideFocus">
+          <span class="eyebrow">Votre guide</span>
+          <h1 id="guideHeadline">Parlez-moi comme à un guide touristique.</h1>
+          <p id="guideAnswer">Je connais le parcours, les lieux, votre position et le temps disponible.</p>
+        </div>
+      </div>
+
+      <div class="voice-dock">
+        <button id="voiceMain" class="voice-orb" type="button" aria-label="Démarrer ou interrompre le guide"><span class="voice-ring"></span><span class="voice-icon">🎙️</span></button>
+        <div class="voice-copy"><strong id="voiceLabel">Appuyez pour parler</strong><small id="voiceHint">« Où en sommes-nous ? », « Change la prochaine étape », « Qu’est-ce que je regarde ? »</small></div>
+        <div class="voice-actions">
+          <button id="interruptBtn" type="button">Interrompre</button>
+          <button id="simulateBtn" type="button">🧪 Simulation</button>
+          <button id="orientationBtn" type="button">▭ 16:9</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="context-grid">
+      <article class="context-card context-card--now"><span class="eyebrow">Maintenant</span><h2 id="nowTitle">Chargement…</h2><p id="nowMeta">—</p><div class="context-actions"><button data-ask="where">Où en sommes-nous ?</button><button data-ask="next">Qu’est-ce qu’on fait ensuite ?</button></div></article>
+      <article class="context-card"><span class="eyebrow">Vision AR</span><h2 id="arTarget">Aucune cible</h2><p id="arMeta">Ouvrez l’AR pour identifier les repères dans votre champ de vision.</p><div class="context-actions"><button id="openARV2">◎ Ouvrir l’AR</button><button data-ask="look">Qu’est-ce que je regarde ?</button></div></article>
+      <article class="context-card"><span class="eyebrow">Parcours</span><h2 id="remainingTitle">—</h2><p id="remainingMeta">—</p><div class="context-actions"><button data-ask="shorten">Raccourcis la balade</button><button data-ask="change">Change la prochaine étape</button></div></article>
+    </section>
+
+    <section class="map-section">
+      <div class="section-head"><div><span class="eyebrow">Carte vivante</span><h2>Le guide sait exactement où vous êtes</h2></div><button id="gpsBtn">◎ Activer le GPS</button></div>
+      <div id="v2Map" class="v2-map"></div>
+    </section>
+
+    <section class="conversation-section">
+      <div class="section-head"><div><span class="eyebrow">Conversation</span><h2>Journal du guide</h2></div><button id="clearLog">Effacer</button></div>
+      <div id="conversationLog" class="conversation-log" aria-live="polite"></div>
+      <form id="textForm" class="text-command"><input id="textCommand" autocomplete="off" placeholder="Ou écrivez au guide…"><button>Envoyer</button></form>
+    </section>
+
+    <section class="tool-section">
+      <div class="section-head"><div><span class="eyebrow">Actions rapides</span><h2>Modifier la balade par la voix</h2></div></div>
+      <div class="tool-grid">
+        <button data-command="Je suis fatigué, raccourcis la balade sans supprimer les incontournables.">Je suis fatigué</button>
+        <button data-command="Nous avons une heure de moins. Réorganise le parcours.">Une heure de moins</button>
+        <button data-command="Saute la prochaine étape et continue intelligemment.">Sauter l’étape</button>
+        <button data-command="Trouve-moi le meilleur prochain point d’intérêt parmi ceux du parcours.">Meilleur prochain lieu</button>
+        <button data-command="Explique-moi le lieu où je suis comme un excellent guide touristique.">Raconte ce lieu</button>
+        <button data-command="Donne-moi un résumé clair de la suite de la balade.">Résumé de la suite</button>
+      </div>
+    </section>
+  </main>
+
+  <audio id="remoteAudio" autoplay playsinline></audio>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script type="module" src="js/v2-guide.js"></script>
+</body>
+</html>
