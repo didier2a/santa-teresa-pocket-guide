@@ -53,3 +53,13 @@ test('Engine V1.1: l entrée générique et le service worker incluent le bootst
   assert.match(bootstrap,/__POCKETGUIDE_ROUTE_READY__/);
   assert.match(bootstrap,/pg:\$\{routeId\}/);
 });
+
+test('Engine V1.1: les contenus Santa Teresa sont neutralisés pour une autre route',async()=>{
+  const bootstrap=await read('js/route-bootstrap.js');
+  assert.match(bootstrap,/route\.id!==['"]santa-teresa['"]/);
+  assert.match(bootstrap,/Playlist du parcours/);
+  assert.match(bootstrap,/RoutePack V1/);
+  assert.match(bootstrap,/Parcours chargé/);
+  assert.match(bootstrap,/offlineTab\.hidden=true/);
+  assert.match(bootstrap,/contact\.hidden=true/);
+});
