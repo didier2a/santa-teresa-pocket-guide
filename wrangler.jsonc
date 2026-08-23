@@ -5,5 +5,8 @@
   "compatibility_date": "2026-08-23",
   "vars": {
     "OPENAI_REALTIME_MODEL": "gpt-realtime-2.1"
+  },
+  "secrets": {
+    "required": ["OPENAI_API_KEY"]
   }
 }
