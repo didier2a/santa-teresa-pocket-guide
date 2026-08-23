@@ -19,13 +19,30 @@
 
   function setText(selector,text){const el=document.querySelector(selector);if(el)el.textContent=text}
 
+  function markEngineRuntime(runtime){
+    const {pack,route}=runtime;
+    setText('#today .hero__meta > div:nth-child(3) span','Engine V1.1');
+    setText('#today .hero__meta > div:nth-child(3) small','RoutePack V1');
+    const hero=document.querySelector('#today .hero__content');
+    if(hero&&!document.querySelector('#engineRuntimeBadge')){
+      const badge=document.createElement('div');
+      badge.id='engineRuntimeBadge';
+      badge.setAttribute('role','status');
+      badge.textContent=`POCKETGUIDE ENGINE V1.1 · ${route.id}`;
+      badge.style.cssText='display:inline-flex;align-items:center;max-width:100%;margin:0 0 14px;padding:8px 12px;border-radius:999px;background:#103f4a;color:#fff;font:800 .72rem/1.1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 8px 24px rgba(6,23,28,.18)';
+      hero.prepend(badge);
+    }
+    const arStatus=document.querySelector('#arXRStatus');
+    if(arStatus)arStatus.title='Moteur AR terrain V6.0.8 exécuté dans PocketGuide Engine V1.1';
+    document.documentElement.dataset.engineVersion='1.1';
+    document.documentElement.dataset.routePackVersion=pack.schemaVersion;
+  }
+
   function decorateGeneric(runtime){
     const {pack,data}=runtime;
     const heroKicker=document.querySelector('#today .hero__content > .kicker');
     if(heroKicker)heroKicker.textContent=[pack.start&&pack.end?`${pack.start} → ${pack.end}`:pack.days?.[0]?.date,pack.timezone].filter(Boolean).join(' · ');
     setText('#today .hero__meta > div:nth-child(2) span',String(pack.travelers||1));
-    setText('#today .hero__meta > div:nth-child(3) span','Engine V1.1');
-    setText('#today .hero__meta > div:nth-child(3) small','RoutePack V1');
     const map=document.querySelector('#map');if(map)map.setAttribute('aria-label',`Carte du parcours ${pack.title}`);
     const offlineTab=document.querySelector('#tabOffline');
     const offlinePanel=document.querySelector('#offlineMapPanel');
@@ -45,7 +62,7 @@
     const {pack,route}=runtime;
     document.documentElement.dataset.pocketGuideEngine='1.1';
     document.documentElement.dataset.routeId=route.id;
-    document.title=`${pack.title} · PocketGuide`;
+    document.title=`${pack.title} · PocketGuide Engine V1.1`;
     const brand=document.querySelector('.brand');
     if(brand){
       const strong=brand.querySelector('strong');
@@ -59,6 +76,7 @@
     if(arStage)arStage.setAttribute('aria-label',`Réalité augmentée · ${pack.title}`);
     const share=document.querySelector('#shareTrip');
     if(share)share.title=`Partager ${pack.title}`;
+    markEngineRuntime(runtime);
     if(route.id!=='santa-teresa')decorateGeneric(runtime);
     window.dispatchEvent(new CustomEvent('pocketguiderouteloaded',{detail:{id:route.id,title:pack.title}}));
   }
