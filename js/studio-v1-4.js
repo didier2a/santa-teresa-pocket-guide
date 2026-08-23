@@ -2,7 +2,7 @@ import {validateRoutePack} from '../engine/routepack.js';
 import {packShareUrl,routeShareUrl} from './route-runtime.js';
 
 const $=s=>document.querySelector(s);
-let current=null,apiBase='',recorder=null,stream=null,chunks=[],recordTimer=null;
+let current=null,apiBase='',recorder=null,stream=null,chunks=[],recordTimer=null,speechRec=null;
 
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function setStatus(text,type=''){const el=$('#status');el.className=type;el.innerHTML=text}
@@ -48,7 +48,7 @@ async function transcribeBlob(blob){
   const audio=await blobToBase64(blob);const r=await fetch(endpoint('/api/transcribe'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audio,mimeType:blob.type||'audio/webm'})});
   const payload=await r.json().catch(()=>({}));if(!r.ok)throw new Error(payload.error||`Erreur ${r.status}`);return String(payload.text||'').trim();
 }
-function appendTranscript(text){const box=$('#prompt'),before=box.value.trim();box.value=[before,text].filter(Boolean).join(before?' ':'');box.focus();setVoice('✓ Dictée ajoutée dans le champ texte.','ok')}
+function appendTranscript(text){const box=$('#prompt'),before=box.value.trim();box.value=[before,text].filter(Boolean).join(before?' ':'');box.dispatchEvent(new Event('input',{bubbles:true}));box.focus();setVoice('✓ Dictée ajoutée dans le champ texte.','ok')}
 
 async function stopRecorder(){if(recorder&&recorder.state!=='inactive')recorder.stop()}
 async function startRecorder(){
@@ -57,16 +57,29 @@ async function startRecorder(){
   recorder.onstop=async()=>{clearTimeout(recordTimer);$('#mic').classList.remove('recording');$('#mic').textContent='🎙️ Parler';stream?.getTracks().forEach(t=>t.stop());try{const blob=new Blob(chunks,{type:recorder.mimeType||'audio/webm'});if(blob.size<500)throw new Error('Enregistrement trop court');appendTranscript(await transcribeBlob(blob))}catch(err){setVoice(err.message||'Transcription impossible','bad')}};
   recorder.start(250);$('#mic').classList.add('recording');$('#mic').textContent='■ Arrêter';setVoice('● Écoute en cours… Parlez naturellement.','recording');recordTimer=setTimeout(stopRecorder,90000);
 }
+
 function browserSpeech(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)throw new Error('Reconnaissance vocale indisponible dans ce navigateur.');
-  const rec=new SR();rec.lang='fr-FR';rec.interimResults=true;rec.continuous=false;let final='';
-  rec.onstart=()=>{$('#mic').classList.add('recording');$('#mic').textContent='■ Écoute';setVoice('● Dictée navigateur en cours…','recording')};
-  rec.onresult=e=>{final='';for(let i=e.resultIndex;i<e.results.length;i++)final+=e.results[i][0].transcript;if(final)setVoice(`« ${final} »`,'work')};
-  rec.onerror=e=>setVoice(`Dictée interrompue : ${e.error}`,'bad');rec.onend=()=>{$('#mic').classList.remove('recording');$('#mic').textContent='🎙️ Parler';if(final)appendTranscript(final)};rec.start();
+  if(speechRec){try{speechRec.stop()}catch{}speechRec=null;return}
+  const box=$('#prompt'),seed=box.value.trim(),rec=new SR();speechRec=rec;rec.lang='fr-FR';rec.interimResults=true;rec.continuous=true;let committed='',interim='',gotSpeech=false;
+  const render=()=>{const live=[seed,committed.trim(),interim.trim()].filter(Boolean).join(' ');box.value=live;box.dispatchEvent(new Event('input',{bubbles:true}));if(interim.trim())setVoice(`« ${interim.trim()} »`,'work');else if(committed.trim())setVoice(`✓ ${committed.trim()}`,'ok')};
+  rec.onstart=()=>{$('#mic').classList.add('recording');$('#mic').textContent='■ Arrêter';setVoice('● Je vous écoute… le texte doit apparaître pendant que vous parlez.','recording')};
+  rec.onspeechstart=()=>{gotSpeech=true;setVoice('● Voix détectée…','recording')};
+  rec.onresult=e=>{interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=String(e.results[i][0]?.transcript||'').trim();if(!t)continue;gotSpeech=true;if(e.results[i].isFinal)committed+=`${committed?' ':''}${t}`;else interim+=`${interim?' ':''}${t}`}render()};
+  rec.onerror=e=>{const msg=e.error==='not-allowed'?'Autorisation micro refusée dans Chrome.':e.error==='no-speech'?'Aucune parole détectée.':e.error==='network'?'Service de dictée Chrome indisponible.':'Dictée interrompue : '+e.error;setVoice(msg,'bad')};
+  rec.onend=()=>{speechRec=null;$('#mic').classList.remove('recording');$('#mic').textContent='🎙️ Parler';render();if((committed||interim).trim()){setVoice('✓ Dictée insérée dans le champ texte.','ok');box.focus()}else if(!gotSpeech)setVoice('Aucun texte reconnu. Appuyez sur Parler puis dictez votre demande.','bad')};
+  rec.start();
 }
+
 async function toggleVoice(){
+  if(speechRec){try{speechRec.stop()}catch{}return}
   if(recorder?.state==='recording'){await stopRecorder();return}
-  try{if(apiBase&&navigator.mediaDevices?.getUserMedia&&window.MediaRecorder)await startRecorder();else browserSpeech()}catch(err){setVoice(err.message||'Micro indisponible','bad')}
+  try{
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(SR){browserSpeech();return}
+    if(apiBase&&navigator.mediaDevices?.getUserMedia&&window.MediaRecorder){await startRecorder();return}
+    throw new Error('Aucun moteur de dictée compatible n’est disponible dans ce navigateur.');
+  }catch(err){setVoice(err.message||'Micro indisponible','bad')}
 }
 
 $('#mic').onclick=toggleVoice;$('#generate').onclick=plan;
