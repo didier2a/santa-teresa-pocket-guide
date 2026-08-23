@@ -37,3 +37,10 @@ export function simulatedPositionForPlace(place,{northMeters=35,westMeters=20}={
   const lngOffset=westMeters/(111320*lngScale);
   return {lat:place.lat+latOffset,lng:place.lng-lngOffset,accuracy:3,simulated:true};
 }
+
+if(typeof window!=='undefined'){
+  const css=document.createElement('link');
+  if(!document.querySelector('link[data-pg-v149]')){css.rel='stylesheet';css.href='./ar-v149.css?v=1.4.9';css.dataset.pgV149='1';document.head.append(css)}
+  import('./orientation-v149.js?v=1.4.9').catch(error=>console.warn('PocketGuide orientation',error));
+  import('./audio-companion-v149.js?v=1.4.9').catch(error=>console.warn('PocketGuide audio companion',error));
+}
