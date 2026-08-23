@@ -39,6 +39,8 @@ export function simulatedPositionForPlace(place,{northMeters=35,westMeters=20}={
 }
 
 if(typeof window!=='undefined'){
+  const version=document.querySelector('#today .hero__meta > div:nth-child(3) span');if(version)version.textContent='V1.4.9';
+  const label=document.querySelector('#today .hero__meta > div:nth-child(3) small');if(label)label.textContent='16:9 + Audio';
   const css=document.createElement('link');
   if(!document.querySelector('link[data-pg-v149]')){css.rel='stylesheet';css.href='./ar-v149.css?v=1.4.9';css.dataset.pgV149='1';document.head.append(css)}
   import('./orientation-v149.js?v=1.4.9').catch(error=>console.warn('PocketGuide orientation',error));
