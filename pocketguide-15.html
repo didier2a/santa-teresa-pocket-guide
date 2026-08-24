@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07191e">
+  <meta name="description" content="PocketGuide 1.5 — guide touristique vocal intelligent avec GPS, carte, RoutePack et réalité augmentée géolocalisée.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PocketGuide 1.5">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="v15.css?v=1.5.0">
+  <title>PocketGuide 1.5 · Guide IA & Geo-AR</title>
+</head>
+<body>
+  <main class="pg15" id="pg15App">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">PG</span><div><strong>PocketGuide <b>1.5</b></strong><small id="routeTitle">Guide touristique IA</small></div></div>
+      <div class="status-row"><span id="networkState" class="status is-ok">● Réseau</span><span id="gpsState" class="status">GPS</span><span id="sessionState" class="status">IA</span></div>
+    </header>
+
+    <section class="terrain" id="terrain">
+      <div class="terrain-media" id="terrainMedia">
+        <video id="arCamera" class="ar-camera" playsinline muted hidden></video>
+        <div class="terrain-gradient"></div>
+        <div class="ar-compass" id="arCompass" hidden>—</div>
+        <div class="ar-labels" id="arLabels" hidden></div>
+        <div class="ar-reticle" id="arReticle" hidden></div>
+        <div class="terrain-topline">
+          <span id="modeBadge" class="mode-badge">GUIDE</span>
+          <button id="arToggle" class="glass-action" type="button">◎ AR</button>
+        </div>
+        <article class="focus-card">
+          <span class="eyebrow" id="focusEyebrow">Maintenant</span>
+          <h1 id="focusTitle">Chargement du parcours…</h1>
+          <p id="guideAnswer">Je me prépare à vous accompagner.</p>
+          <div class="focus-meta"><span id="focusDistance">—</span><span id="focusDirection">—</span><span id="focusTime">—</span></div>
+        </article>
+      </div>
+
+      <div class="voice-console">
+        <button id="voiceMain" class="voice-orb" type="button" aria-label="Parler au guide"><span class="voice-pulse"></span><span>🎙️</span></button>
+        <div class="voice-copy"><strong id="voiceLabel">Parlez à votre guide</strong><small id="voiceHint">« Qu’est-ce que je regarde ? » · « Et ensuite ? » · « Raccourcis »</small></div>
+        <button id="interruptBtn" class="voice-mini" type="button">■</button>
+      </div>
+    </section>
+
+    <section class="now-strip" aria-label="Contexte de visite">
+      <button class="now-card" data-ask="where"><small>Vous êtes ici</small><strong id="nowPlace">—</strong><span id="nowDistance">Localisation en attente</span></button>
+      <button class="now-card" data-ask="next"><small>Ensuite</small><strong id="nextTitle">—</strong><span id="nextMeta">—</span></button>
+      <button class="now-card" data-ask="remaining"><small>Parcours</small><strong id="remainingTitle">—</strong><span id="remainingMeta">—</span></button>
+    </section>
+
+    <section class="panel-stack">
+      <section class="panel is-active" data-panel="guide">
+        <div class="panel-head"><div><span class="eyebrow">Conversation terrain</span><h2>Votre guide</h2></div><button id="clearLog" class="ghost">Effacer</button></div>
+        <div class="quick-grid">
+          <button data-command="Explique-moi précisément ce que je peux observer ici, comme un excellent guide touristique.">Raconte ce lieu</button>
+          <button data-command="Qu'est-ce que je regarde actuellement ? Utilise ma position, mon cap et la cible AR.">Ce que je regarde</button>
+          <button data-command="Je veux continuer. Quelle est la meilleure prochaine étape et pourquoi ?">Continuer</button>
+          <button data-command="J'ai moins de temps. Raccourcis intelligemment sans perdre les incontournables.">Raccourcir</button>
+        </div>
+        <div id="conversationLog" class="conversation-log" aria-live="polite"></div>
+        <form id="textForm" class="text-command"><input id="textCommand" autocomplete="off" placeholder="Écrivez au guide si nécessaire…"><button>Envoyer</button></form>
+      </section>
+
+      <section class="panel" data-panel="map">
+        <div class="panel-head"><div><span class="eyebrow">Navigation vivante</span><h2>Carte & GPS</h2></div><button id="gpsBtn" class="ghost">◎ GPS</button></div>
+        <div id="map" class="map"></div>
+        <div id="nearbyList" class="nearby-list"></div>
+      </section>
+
+      <section class="panel" data-panel="route">
+        <div class="panel-head"><div><span class="eyebrow">Parcours adaptable</span><h2>Votre journée</h2></div><button id="routeReset" class="ghost">Réinitialiser</button></div>
+        <div id="timeline" class="timeline"></div>
+      </section>
+
+      <section class="panel" data-panel="create">
+        <div class="panel-head"><div><span class="eyebrow">Studio intégré</span><h2>Créer ou changer de balade</h2></div><span class="version-pill">1.5</span></div>
+        <div class="creator-grid">
+          <article class="creator-card">
+            <label>Décrivez la visite souhaitée<textarea id="planPrompt" rows="5" placeholder="Ex. Balade incontournable à Bonifacio aujourd’hui, 5 lieux, 2 h 30, rythme tranquille, priorité histoire et beaux points de vue."></textarea></label>
+            <div class="creator-fields"><label>Destination<input id="planDestination" placeholder="Bonifacio"></label><label>Repères<input id="planPlaces" type="number" min="3" max="10" value="5"></label></div>
+            <button id="planBtn" class="primary">✨ Créer avec AI Planner</button>
+            <p id="planStatus" class="microcopy">Le Planner utilise le Worker sécurisé PocketGuide.</p>
+          </article>
+          <article class="creator-card">
+            <h3>Importer</h3><p>Chargez un RoutePack JSON existant.</p>
+            <label class="import-btn">Importer un RoutePack<input id="importFile" type="file" accept="application/json" hidden></label>
+            <h3>Mes itinéraires</h3><div id="libraryList" class="library-list"></div>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <nav class="bottom-nav" aria-label="Navigation principale">
+      <button class="is-active" data-tab="guide"><span>🎙️</span><small>Guide</small></button>
+      <button data-tab="map"><span>⌖</span><small>Carte</small></button>
+      <button data-tab="route"><span>☷</span><small>Parcours</small></button>
+      <button data-tab="create"><span>＋</span><small>Créer</small></button>
+    </nav>
+  </main>
+
+  <div id="permissionSheet" class="permission-sheet" hidden>
+    <div class="permission-card"><span class="eyebrow">Activation terrain</span><h2>Votre guide a besoin de vous situer</h2><p>Le micro et le GPS servent au dialogue et au contexte. La caméra n’est activée que lorsque vous ouvrez l’AR.</p><div class="permission-actions"><button id="startGuide" class="primary">Démarrer le guide</button><button id="startDemo" class="ghost">Mode démo</button></div></div>
+  </div>
+
+  <audio id="remoteAudio" autoplay playsinline></audio>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script type="module" src="js/pocketguide-v1-5.js?v=1.5.0"></script>
+  <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});</script>
+</body>
+</html>
