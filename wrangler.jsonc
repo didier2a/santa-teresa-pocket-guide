@@ -4,7 +4,8 @@
   "main": "cloudflare/pocketguide-v2-worker.js",
   "compatibility_date": "2026-08-23",
   "vars": {
-    "OPENAI_REALTIME_MODEL": "gpt-realtime-2.1"
+    "OPENAI_REALTIME_MODEL": "gpt-realtime-2.1",
+    "OPENAI_PLANNER_MODEL": "gpt-5.6-terra"
   },
   "secrets": {
     "required": ["OPENAI_API_KEY"]
