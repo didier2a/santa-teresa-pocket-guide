@@ -62,17 +62,19 @@ test('Cloudflare bridge protects the permanent OpenAI key',()=>{
   assert.doesNotMatch(html,/OPENAI_API_KEY/);
 });
 
-test('PWA installs into V2 and caches V2 assets',()=>{
-  assert.equal(manifest.start_url,'./v2.html?app=6.1.0');
+test('PWA promotes V1.5 while retaining V2 offline assets',()=>{
+  assert.equal(manifest.start_url,'./pocketguide-15.html?app=7.0.0');
   assert.equal(manifest.orientation,'any');
-  assert.match(sw,/pocketguide-v2-voice-ar-a/);
+  assert.match(sw,/pocketguide-v15-voice-geoar-a/);
+  assert.match(sw,/\.\/pocketguide-15\.html/);
   assert.match(sw,/\.\/v2\.html/);
   assert.match(sw,/\.\/v2\.css/);
   assert.match(sw,/\.\/js\/v2-guide\.js/);
   assert.match(sw,/\.\/data\/v2-config\.json/);
 });
 
-test('V1 entrypoints remain present alongside V2',()=>{
+test('Legacy entrypoints remain present alongside V1.5 and V2',()=>{
+  assert.ok(fs.existsSync('pocketguide-15.html'));
   assert.ok(fs.existsSync('index.html'));
   assert.ok(fs.existsSync('engine.html'));
   assert.ok(fs.existsSync('studio-148.html'));
