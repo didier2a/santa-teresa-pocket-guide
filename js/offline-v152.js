@@ -2,6 +2,7 @@
   const PACK_KEY='pg152-offline-pack';
   const MAP_KEY='pg152-offline-map';
   const META_KEY='pg152-offline-meta';
+  const HANDOFF_KEY='pg-route-handoff-v1';
 
   function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
   function bounds(places){const pts=places.filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lng));if(!pts.length)return null;return{minLat:Math.min(...pts.map(p=>p.lat)),maxLat:Math.max(...pts.map(p=>p.lat)),minLng:Math.min(...pts.map(p=>p.lng)),maxLng:Math.max(...pts.map(p=>p.lng))}}
@@ -19,49 +20,41 @@
   async function cacheAssets(pack){
     if(!('caches'in window))return 0;
     const cache=await caches.open('pocketguide-v152-route-download');
-    const urls=['./pocketguide-15.html','./v15.css','./manifest.webmanifest','./data/v2-config.json','./js/pocketguide-v1-5.js','./js/pocketguide-v1-5-proactive.js','./js/planner-voice-v151.js','./js/platform-v152.js','./js/offline-v152.js','./js/ar-core.js','./js/route-runtime.js','./js/route-library.js','./engine/routepack.js'];
+    const urls=['./pocketguide-15.html','./v15.css','./v152.css','./manifest.webmanifest','./data/v2-config.json','./js/pocketguide-v1-5.js','./js/pocketguide-v1-5-proactive.js','./js/planner-voice-v151.js','./js/platform-v152.js','./js/offline-v152.js','./js/ar-core.js','./js/route-runtime.js','./js/route-library.js','./engine/routepack.js'];
     for(const p of pack?.places||[]){if(/^https:\/\//.test(p.heroImage||''))urls.push(p.heroImage)}
     let ok=0;
     await Promise.allSettled(urls.map(async url=>{try{const r=await fetch(url,{cache:'no-cache',mode:url.startsWith('http')?'cors':'same-origin'});if(r.ok){await cache.put(url,r.clone());ok++}}catch{}}));
     return ok;
   }
 
+  async function persistInLibrary(pack){try{const mod=await import('./route-library.js');mod.saveRoutePack?.(pack,{source:'offline-v1.5.2'});return true}catch{return false}}
+
   async function downloadCurrentRoute(){
     const app=window.__POCKETGUIDE_15__,pack=app?.pack;if(!pack)throw new Error('Parcours indisponible');
     const svg=makeSvg(pack);localStorage.setItem(PACK_KEY,JSON.stringify(pack));localStorage.setItem(MAP_KEY,svg);localStorage.setItem(META_KEY,JSON.stringify({id:pack.id,title:pack.title,downloadedAt:new Date().toISOString()}));
+    await persistInLibrary(pack);
     const assets=await cacheAssets(pack);
     return{pack,svg,assets};
   }
 
-  function offlinePanel(){
-    let box=document.querySelector('#offlineRouteMap');
-    if(box)return box;
-    const map=document.querySelector('#map');if(!map)return null;
-    box=document.createElement('div');box.id='offlineRouteMap';box.hidden=true;box.style.marginTop='10px';box.style.border='1px solid #24474d';box.style.borderRadius='20px';box.style.overflow='hidden';box.style.background='#0b2429';
-    map.parentNode.insertBefore(box,map.nextSibling);return box;
-  }
+  function loadOfflinePack(){try{return JSON.parse(localStorage.getItem(PACK_KEY)||'null')}catch{return null}}
+  function openOfflinePack(){const pack=loadOfflinePack();if(!pack)throw new Error('Aucun parcours hors ligne enregistré');sessionStorage.setItem(HANDOFF_KEY,JSON.stringify(pack));const url=new URL('./pocketguide-15.html',location.href);url.searchParams.set('handoff','local');location.href=url.toString()}
 
-  function renderOfflineMap(force=false){
-    const box=offlinePanel();if(!box)return;
-    const svg=localStorage.getItem(MAP_KEY)||'';
-    const should=force||!navigator.onLine;
-    box.hidden=!(should&&svg);
-    if(should&&svg)box.innerHTML=svg;
-    const map=document.querySelector('#map');if(map)map.style.display=should&&svg?'none':'';
-  }
+  function offlinePanel(){let box=document.querySelector('#offlineRouteMap');if(box)return box;const map=document.querySelector('#map');if(!map)return null;box=document.createElement('div');box.id='offlineRouteMap';box.hidden=true;box.style.marginTop='10px';box.style.border='1px solid #24474d';box.style.borderRadius='20px';box.style.overflow='hidden';box.style.background='#0b2429';map.parentNode.insertBefore(box,map.nextSibling);return box}
+
+  function renderOfflineMap(force=false){const box=offlinePanel();if(!box)return;const svg=localStorage.getItem(MAP_KEY)||'';const should=force||!navigator.onLine;box.hidden=!(should&&svg);if(should&&svg)box.innerHTML=svg;const map=document.querySelector('#map');if(map)map.style.display=should&&svg?'none':''}
 
   function injectButton(){
     const panel=document.querySelector('[data-panel="route"] .panel-head');if(!panel||document.querySelector('#downloadOfflineBtn'))return;
     const btn=document.createElement('button');btn.id='downloadOfflineBtn';btn.type='button';btn.className='ghost';btn.textContent='↓ Télécharger hors ligne';panel.append(btn);
+    const open=document.createElement('button');open.id='openOfflineBtn';open.type='button';open.className='ghost';open.textContent='↗ Ouvrir le parcours hors ligne';open.hidden=!loadOfflinePack();panel.append(open);
     const status=document.createElement('p');status.id='offlineDownloadStatus';status.className='microcopy';status.style.margin='8px 0 0';panel.parentNode.insertBefore(status,panel.nextSibling);
-    btn.addEventListener('click',async()=>{
-      btn.disabled=true;status.textContent='Préparation du parcours hors ligne…';
-      try{const r=await downloadCurrentRoute();status.textContent=`Parcours disponible hors ligne · ${r.assets} ressource(s) mise(s) en cache.`;renderOfflineMap(!navigator.onLine)}catch(e){status.textContent=`Téléchargement hors ligne impossible : ${e.message||e}`}finally{btn.disabled=false}
-    });
+    btn.addEventListener('click',async()=>{btn.disabled=true;status.textContent='Préparation du parcours hors ligne…';try{const r=await downloadCurrentRoute();status.textContent=`Parcours disponible hors ligne · ${r.assets} ressource(s) mise(s) en cache.`;open.hidden=false;renderOfflineMap(!navigator.onLine)}catch(e){status.textContent=`Téléchargement hors ligne impossible : ${e.message||e}`}finally{btn.disabled=false}});
+    open.addEventListener('click',()=>{try{openOfflinePack()}catch(e){status.textContent=e.message||String(e)}});
     try{const meta=JSON.parse(localStorage.getItem(META_KEY)||'null');if(meta)status.textContent=`Hors ligne prêt : ${meta.title}` }catch{}
   }
 
-  function boot(){injectButton();renderOfflineMap();window.addEventListener('offline',()=>renderOfflineMap(true));window.addEventListener('online',()=>renderOfflineMap(false));}
-  window.__POCKETGUIDE_OFFLINE__={downloadCurrentRoute,renderOfflineMap,makeSvg,keys:{PACK_KEY,MAP_KEY,META_KEY}};
+  function boot(){injectButton();renderOfflineMap();window.addEventListener('offline',()=>renderOfflineMap(true));window.addEventListener('online',()=>renderOfflineMap(false))}
+  window.__POCKETGUIDE_OFFLINE__={downloadCurrentRoute,openOfflinePack,loadOfflinePack,renderOfflineMap,makeSvg,keys:{PACK_KEY,MAP_KEY,META_KEY,HANDOFF_KEY}};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
