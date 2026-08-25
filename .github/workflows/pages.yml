@@ -32,12 +32,15 @@ jobs:
           node --check js/pocketguide-v1-5.js
           node --check js/pocketguide-v1-5-proactive.js
           node --check js/planner-voice-v151.js
+          node --check js/platform-v152.js
+          node --check js/offline-v152.js
+          node --check js/diagnostic-v152.js
           node --check js/route-runtime.js
           node --check js/route-library.js
           node --check engine/routepack.js
           node --check cloudflare/pocketguide-v2-worker.js
           node --check service-worker.js
-      - name: V1.5.1 stability regression tests
+      - name: V1.5.2 cross-platform regression tests
         run: |
           node --test tests/v1-5-unified-guide.test.mjs
           node --test tests/routepack-v1.test.mjs
