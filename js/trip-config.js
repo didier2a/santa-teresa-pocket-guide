@@ -1,4 +1,4 @@
-const PHOTOS={
+export const V51_PHOTO_MAP={
   piazza:{image:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Santa_Teresa_di_Gallura%2C_piazza_Vittorio_Emanuele_I.jpg?width=960',credit:'Basilicofresco · Wikimedia Commons · CC BY-SA 4.0',page:'https://commons.wikimedia.org/wiki/File:Santa_Teresa_di_Gallura,_piazza_Vittorio_Emanuele_I.jpg',exact:true,label:'Photo du lieu'},
   rena:{image:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Rena_Bianca_Beach%2C_Santa_Teresa_Gallura.jpg?width=960',credit:'Or kriminal · Wikimedia Commons · CC BY-SA 3.0',page:'https://commons.wikimedia.org/wiki/File:Rena_Bianca_Beach,_Santa_Teresa_Gallura.jpg',exact:true,label:'Photo du lieu'},
   torre:{image:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Torre_di_Longonsardo%2C_Santa_Teresa_di_Gallura.jpg?width=960',credit:'Basilicofresco · Wikimedia Commons · CC BY-SA 4.0',page:'https://commons.wikimedia.org/wiki/File:Torre_di_Longonsardo,_Santa_Teresa_di_Gallura.jpg',exact:true,label:'Photo du lieu'},
@@ -53,7 +53,7 @@ export function applyV51Config(data){
   }
 
   for(const place of data.places||[]){
-    const photo=santaTeresa?PHOTOS[place.id]:null;
+    const photo=santaTeresa?V51_PHOTO_MAP[place.id]:null;
     if(photo){place.heroImage=photo.image;place.gallery=[photo.image];place.photoCredit=photo.credit;place.photoPage=photo.page;place.photoExact=photo.exact;place.photoLabel=photo.label;}
     if(!place.walkingUrl)place.walkingUrl=`https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}&travelmode=walking`;
     if(!place.waze)place.waze=`https://www.waze.com/ul?ll=${place.lat}%2C${place.lng}&navigate=yes`;
@@ -65,4 +65,4 @@ export function applyV51Config(data){
   return data;
 }
 
-export const V51_PHOTO_URLS=Object.values(PHOTOS).map(p=>p.image).filter(x=>/^https:\/\//.test(x));
+export const V51_PHOTO_URLS=Object.values(V51_PHOTO_MAP).map(p=>p.image).filter(x=>/^https:\/\//.test(x));

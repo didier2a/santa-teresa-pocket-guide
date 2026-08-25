@@ -1,8 +1,8 @@
-const APP_VERSION='8.0.1';
+const APP_VERSION='8.0.2';
 const CACHE='pocketguide-v15-2-multiplatform-a';
 const PG16_CACHE='pocketguide-v16-rc1-planner-hotfix1';
 const PG17_CACHE='pocketguide-v17-rc1-audiovisual6';
-const PG18_CACHE='pocketguide-v18-rc1-local-journal2';
+const PG18_CACHE='pocketguide-v18-rc1-local-journal3';
 const PG18_MEDIA_CACHE='pocketguide-v18-route-media';
 const MAP_CACHE='santa-teresa-map-v6';
 const REQUIRED=[
