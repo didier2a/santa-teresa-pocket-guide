@@ -48,6 +48,7 @@ jobs:
           node --check js/pg16/core/transaction-manager.js
           node --check js/pg16/core/proposal-manager.js
           node --check js/pg16/memory/memory-store.js
+          node --check js/pg16/memory/route-memory.js
           node --check js/pg16/route/route-adapter-v15.js
           node --check js/pg16/route/route-actions.js
           node --check js/pg16/planner/planner-client.js
@@ -60,6 +61,7 @@ jobs:
           node --check js/pg16/guide/human-guide.js
           node --check js/pg16/guide/voice-controller.js
           node --check js/pg16/guide/realtime-session.js
+          node --check js/pg16/bootstrap/app-rc-entry.js
           node --check js/pg16/bootstrap/app-rc-bootstrap.js
       - name: V1.5.2 cross-platform regression tests
         run: |
