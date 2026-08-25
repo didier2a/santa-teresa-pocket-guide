@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
 import {pocketGuideState} from '../js/pg16/core/pocketguide-state.js';
 import {humanContextEngine} from '../js/pg16/core/context-engine.js';
 import {actionRegistry} from '../js/pg16/core/action-registry.js';
@@ -38,53 +37,29 @@ function load(p=pack()){
   pocketGuideState.patch({session:{id:'sim',startedAt:'2026-08-25T10:00:00Z'},trip:{active:true,startedAt:'2026-08-25T10:00:00Z'},route:{activeId:p.id,title:p.title,pack:p,currentEventId:'e1',nextEventId:'e2',completedEventIds:[],skippedEventIds:[],remainingMinutes:60},device:{online:true,platform:'android'},connectivity:{online:true},perception:{gps:'ready',orientation:'ready'},location:{lat:41.387,lng:9.159,accuracy:4,heading:0,updatedAt:new Date().toISOString()}},{source:'sim'});
 }
 
-// 1
 test('G14.1 fresh launch with route exposes named current and next places',()=>{load();const c=humanContextEngine.build();assert.equal(c.route.current.name,'Citadelle');assert.equal(c.route.next.name,'Ruelle');});
-// 2
 test('G14.2 launch without route remains truthful',async()=>{pocketGuideState.reset({source:'sim'});registerUiActions();registerRouteActions();const r=await humanGuide.handleText('Où en sommes-nous ?');assert.match(r.text,/Aucun parcours/);});
-// 3
 test('G14.3 short interruption restores route progress',()=>{load();advanceRoute();saveStateSnapshot();pocketGuideState.reset({source:'sim'});restoreStateSnapshot();assert.equal(pocketGuideState.select('route.currentEventId'),'e2');});
-// 4
 test('G14.4 multi-hour interruption restores state and marks trip resumed',()=>{load();saveStateSnapshot();const raw=JSON.parse(localStorage.getItem(STORAGE_KEY));raw.savedAt=new Date(Date.now()-3*60*60*1000).toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(raw));pocketGuideState.reset({source:'sim'});restoreStateSnapshot();assert.ok(pocketGuideState.select('trip.resumedAt'));assert.equal(pocketGuideState.select('route.currentEventId'),'e1');});
-// 5
 test('G14.5 explain current place uses RoutePack facts',async()=>{load();const r=await humanGuide.handleText('Raconte ce lieu');assert.match(r.text,/Citadelle/);assert.match(r.text,/histoire fiable/);});
-// 6
 test('G14.6 map voice and button share ActionRegistry path',async()=>{load();await humanGuide.handleText('Montre-moi la carte');assert.equal(pocketGuideState.select('ui.panel'),'map');await actionRegistry.execute('ui.open_guide',{}, {source:'test'});await actionRegistry.execute('ui.open_map',{}, {source:'button'});assert.equal(pocketGuideState.select('ui.panel'),'map');});
-// 7
 test('G14.7 continue advances exactly one step',async()=>{load();await humanGuide.handleText('Continue');assert.equal(pocketGuideState.select('route.currentEventId'),'e2');assert.deepEqual(pocketGuideState.select('route.completedEventIds'),['e1']);});
-// 8
 test('G14.8 skip yes changes route only after confirmation',async()=>{load();await humanGuide.handleText('Saute cette étape');assert.equal(pocketGuideState.select('route.currentEventId'),'e1');await humanGuide.confirmPending(true);assert.equal(pocketGuideState.select('route.currentEventId'),'e2');});
-// 9
 test('G14.9 skip no leaves route untouched',async()=>{load();await humanGuide.handleText('Saute cette étape');await humanGuide.confirmPending(false);assert.equal(pocketGuideState.select('route.currentEventId'),'e1');});
-// 10
 test('G14.10 shorten route preserves must-see',async()=>{load();const r=await humanGuide.handleText('Raccourcis, j’ai une heure de moins');assert.equal(r.type,'ASK');await humanGuide.confirmPending(true);const ids=pocketGuideState.select('route.pack.days.0.events').map(e=>e.id);assert.ok(ids.includes('e1'));assert.ok(ids.includes('e3'));assert.ok(!ids.includes('e2'));});
-// 11
 test('G14.11 Planner replacement creates proposal then commits on confirmation',async()=>{load();const previousFetch=globalThis.fetch;globalThis.fetch=async url=>String(url).includes('v2-config')?new Response(JSON.stringify({apiBase:'https://worker.test',plannerModel:'test'}),{status:200,headers:{'Content-Type':'application/json'}}):new Response(JSON.stringify({ok:true,pack:pack('planner-new'),plannerModel:'test',verificationSources:[]}),{status:200,headers:{'Content-Type':'application/json'}});try{const result=await plannerEngine.proposeReplacement({prompt:'Nouvelle balade historique de trois lieux',destination:'Bonifacio',maxPlaces:3});assert.equal(result.proposal.action,'route.replace');assert.equal(pocketGuideState.select('route.activeId'),'bonifacio-sim');await humanGuide.confirmPending(true);assert.equal(pocketGuideState.select('route.activeId'),'planner-new');}finally{globalThis.fetch=previousFetch;}});
-// 12
 test('G14.12 rejected Planner-style replacement preserves active route',()=>{load();proposalManager.create({action:'route.replace',args:{pack:pack('reject-new')},reason:'nouvelle balade'});proposalManager.reject();assert.equal(pocketGuideState.select('route.activeId'),'bonifacio-sim');});
-// 13
 test('G14.13 undo restores previous structural route state',async()=>{load();proposalManager.create({action:'route.replace',args:{pack:pack('undo-new')},reason:'test'});await proposalManager.confirm();assert.equal(pocketGuideState.select('route.activeId'),'undo-new');const r=await humanGuide.handleText('Remets comme avant');assert.match(r.text,/revenu comme avant/);assert.equal(pocketGuideState.select('route.activeId'),'bonifacio-sim');});
-// 14
 test('G14.14 temporary preference stays in session scope',async()=>{load();const r=await humanGuide.handleText("Aujourd'hui je préfère les panoramas");assert.match(r.text,/seulement pour aujourd’hui/);assert.equal(memoryStore.recall('preference.today')?.scope,'session');});
-// 15
 test('G14.15 persistent preference can be inspected and forgotten',async()=>{load();await humanGuide.handleText("Retiens que j'aime l'histoire");const seen=await humanGuide.handleText('Qu’est-ce que tu sais de mes préférences ?');assert.match(seen.text,/histoire/);await humanGuide.handleText('Oublie ma préférence');assert.equal(memoryStore.recall('preference.interest'),null);});
-// 16
 test('G14.16 off-route condition produces suggestion without route mutation',()=>{load();pocketGuideState.patch({location:{lat:41.42,lng:9.20,accuracy:5},perception:{gps:'ready'}},{source:'sim'});const engine=new ProactiveEngine({globalCooldownMs:0,offRouteMeters:300});let suggestion=null;engine.onSuggestion=p=>suggestion=p;const before=pocketGuideState.select('route.currentEventId');engine.onGps();assert.equal(suggestion?.type,'off_route');assert.equal(pocketGuideState.select('route.currentEventId'),before);});
-// 17
 test('G14.17 degraded GPS refuses precise guidance proactively',()=>{load();pocketGuideState.patch({location:{accuracy:150},perception:{gps:'ready'}},{source:'sim'});const engine=new ProactiveEngine({globalCooldownMs:0,gpsAccuracyBad:80});let suggestion=null;engine.onSuggestion=p=>suggestion=p;engine.onGps();assert.equal(suggestion?.type,'gps_degraded');assert.match(suggestion.text,/imprécis/);});
-// 18
 test('G14.18 offline state keeps route truth intact',()=>{load();const id=pocketGuideState.select('route.activeId');pocketGuideState.patch({device:{online:false},connectivity:{online:false,realtime:false}},{source:'sim',event:'network.offline'});assert.equal(pocketGuideState.select('route.activeId'),id);assert.equal(pocketGuideState.select('device.online'),false);});
-// 19
 test('G14.19 restored network changes connectivity without route mutation',()=>{load();const id=pocketGuideState.select('route.activeId');pocketGuideState.patch({device:{online:false}},{source:'sim'});pocketGuideState.patch({device:{online:true},connectivity:{online:true}},{source:'sim',event:'network.online'});assert.equal(pocketGuideState.select('route.activeId'),id);assert.equal(pocketGuideState.select('device.online'),true);});
-// 20
 test('G14.20 OpenAI unavailable degrades Realtime to local mode',async()=>{load();const previousFetch=globalThis.fetch,previousRTC=globalThis.RTCPeerConnection;globalThis.fetch=async()=>new Response(JSON.stringify({apiBase:'https://worker.test'}),{status:200,headers:{'Content-Type':'application/json'}});globalThis.RTCPeerConnection=undefined;try{const session=new RealtimeSession();const ok=await session.connect();assert.equal(ok,false);assert.equal(session.connected,false);}finally{globalThis.fetch=previousFetch;globalThis.RTCPeerConnection=previousRTC;}});
-// 21
-test('G14.21 camera denial is represented as degraded capability, not route failure',async()=>{const source=await readFile(new URL('../js/pg16/perception/perception-engine.js',import.meta.url),'utf8');assert.match(source,/NotAllowedError/);assert.match(source,/camera:'denied'/);assert.match(source,/return null/);});
-// 22
+test('G14.21 camera denial is represented as degraded capability, not route failure',async()=>{load();const originalDescriptor=Object.getOwnPropertyDescriptor(globalThis,'navigator');const beforeRoute=pocketGuideState.select('route.activeId');const denied=new Error('permission denied');denied.name='NotAllowedError';Object.defineProperty(globalThis,'navigator',{value:{mediaDevices:{getUserMedia:async()=>{throw denied;}}},configurable:true});try{const engine=new PerceptionEngine();const result=await engine.openCamera(null);assert.equal(result,null);assert.equal(pocketGuideState.select('perception.camera'),'denied');assert.equal(pocketGuideState.select('route.activeId'),beforeRoute);}finally{if(originalDescriptor)Object.defineProperty(globalThis,'navigator',originalDescriptor);else delete globalThis.navigator;}});
 test('G14.22 microphone listening can be interrupted and recovered deterministically',()=>{load();const session=new RealtimeSession(),track={enabled:false};session.connected=true;session.stream={getAudioTracks:()=>[track]};session.beginListening();assert.equal(track.enabled,true);session.interrupt();assert.equal(track.enabled,false);session.beginListening();assert.equal(track.enabled,true);});
-// 23
 test('G14.23 route completion emits completion and zero remaining time',()=>{load();advanceRoute();advanceRoute();let completed=false;const off=eventBus.on('route.completed',()=>{completed=true});advanceRoute();off();assert.equal(pocketGuideState.select('route.currentEventId'),null);assert.equal(pocketGuideState.select('route.remainingMinutes'),0);assert.equal(completed,true);});
-// 24
 test('G14.24 close and reopen preserves progress',()=>{load();advanceRoute();advanceRoute({skip:true});saveStateSnapshot();pocketGuideState.reset({source:'sim'});const restored=restoreStateSnapshot();assert.ok(restored);assert.equal(pocketGuideState.select('route.currentEventId'),'e3');assert.deepEqual(pocketGuideState.select('route.completedEventIds'),['e1']);assert.deepEqual(pocketGuideState.select('route.skippedEventIds'),['e2']);});
 
 test('Geo-AR simulation and real providers share the same deterministic projection engine',()=>{load();const p=new PerceptionEngine();p.setMode('simulation');assert.equal(p.simulateAtCurrent({heading:90}),true);const projections=geoAREngine.project();assert.ok(projections.length>0);assert.equal(typeof projections[0].visible,'boolean');});
