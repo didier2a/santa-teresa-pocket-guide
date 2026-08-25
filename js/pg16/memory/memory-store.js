@@ -6,7 +6,13 @@ const VALID_SCOPE=new Set(['working','session','trip','persistent']);
 function now(){return new Date().toISOString();}
 function cleanKey(key){const value=String(key||'').trim();if(!/^[a-z][a-z0-9_.-]{1,80}$/i.test(value))throw new Error('Clé mémoire invalide');return value;}
 function memoryPath(scope){if(scope==='persistent')return 'preferences.persistent';if(scope==='session')return 'memory.session';if(scope==='trip')return 'memory.trip';return 'memory.working';}
-function getAt(obj,path){return path.split('.').reduce((v,k)=>v?.[k],obj);}
+function setContainer(state,scope,value){
+  if(scope==='persistent')state.preferences={...(state.preferences||{}),persistent:value};
+  else if(scope==='session')state.memory={...(state.memory||{}),session:value};
+  else if(scope==='trip')state.memory={...(state.memory||{}),trip:value};
+  else state.memory={...(state.memory||{}),working:value};
+  return state;
+}
 
 export class MemoryStore {
   remember(key,value,{scope='session',source='user',confidence=1}={}){
@@ -20,13 +26,25 @@ export class MemoryStore {
 
   recall(key,{scope}={}){
     key=cleanKey(key);const scopes=scope?[scope]:['working','session','trip','persistent'];
-    for(const candidate of scopes){if(!VALID_SCOPE.has(candidate))continue;const path=memoryPath(candidate);const current=pocketGuideState.select(path)||{};const entry=current[key];if(entry){entry.lastUsedAt=now();return {...entry};}}
+    for(const candidate of scopes){
+      if(!VALID_SCOPE.has(candidate))continue;
+      const path=memoryPath(candidate);const current=pocketGuideState.select(path)||{};const entry=current[key];
+      if(entry)return {...entry,lastUsedAt:now()};
+    }
     return null;
   }
 
   forget(key,{scope}={}){
     key=cleanKey(key);const targets=scope?[scope]:['working','session','trip','persistent'];let removed=false;
-    for(const candidate of targets){if(!VALID_SCOPE.has(candidate))continue;const path=memoryPath(candidate);const current={...(pocketGuideState.select(path)||{})};if(!(key in current))continue;delete current[key];const root=path.split('.')[0],leaf=path.split('.')[1];pocketGuideState.patch({[root]:{[leaf]:current}},{source:'memory-store',event:'memory.forgotten'});removed=true;}
+    for(const candidate of targets){
+      if(!VALID_SCOPE.has(candidate))continue;
+      const current={...(pocketGuideState.select(memoryPath(candidate))||{})};
+      if(!(key in current))continue;
+      delete current[key];
+      const next=pocketGuideState.get();setContainer(next,candidate,current);
+      pocketGuideState.replace(next,{source:'memory-store'});
+      eventBus.emit('memory.forgotten',{key,scope:candidate});removed=true;
+    }
     return removed;
   }
 
