@@ -6,8 +6,9 @@ const MAX_AGE_MS=1000*60*60*24*30;
 
 function storage(){try{return globalThis.localStorage||null}catch{return null}}
 function safeParse(raw){try{return JSON.parse(raw)}catch{return null}}
+function clone(value){return typeof globalThis.structuredClone==='function'?globalThis.structuredClone(value):JSON.parse(JSON.stringify(value));}
 function persistable(state){
-  const copy=structuredClone?structuredClone(state):JSON.parse(JSON.stringify(state));
+  const copy=clone(state);
   if(copy?.conversation){copy.conversation.status='idle';}
   if(copy?.proposals){copy.proposals.pending=null;}
   if(copy?.perception){copy.perception.camera='unknown';copy.perception.microphone='unknown';copy.perception.orientation='unknown';}
@@ -31,9 +32,10 @@ export function restoreStateSnapshot(){
 export function clearStateSnapshot(){const target=storage();if(!target)return false;target.removeItem(STORAGE_KEY);eventBus.emit('state.persist.cleared',{});return true;}
 
 export function installAutoPersistence(){
-  if(typeof addEventListener!=='function')return ()=>{};
+  if(typeof globalThis.addEventListener!=='function')return ()=>{};
   const save=()=>saveStateSnapshot();
-  addEventListener('pagehide',save);addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')save();});
+  globalThis.addEventListener('pagehide',save);
+  globalThis.addEventListener('visibilitychange',()=>{if(globalThis.document?.visibilityState==='hidden')save();});
   const off=eventBus.on('*',event=>{if(/^(route\.|preference\.|memory\.|proposal\.|transaction\.)/.test(event.type))save();});
   return ()=>off?.();
 }
