@@ -1,7 +1,7 @@
 const APP_VERSION='7.3.0';
 const CACHE='pocketguide-v15-2-multiplatform-a';
 const PG16_CACHE='pocketguide-v16-rc1-planner-hotfix1';
-const PG17_CACHE='pocketguide-v17-rc1-audiovisual4';
+const PG17_CACHE='pocketguide-v17-rc1-audiovisual5';
 const MAP_CACHE='santa-teresa-map-v6';
 const REQUIRED=[
   './pocketguide-15.html','./v15.css','./v152.css','./manifest.webmanifest','./data/v2-config.json','./data/routes.json','./data/trip.json','./data/routepacks/bonifacio-demo.json',
