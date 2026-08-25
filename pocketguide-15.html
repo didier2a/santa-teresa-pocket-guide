@@ -83,6 +83,8 @@
         <div class="creator-grid">
           <article class="creator-card">
             <label>Décrivez la visite souhaitée<textarea id="planPrompt" rows="5" placeholder="Ex. Balade incontournable à Bonifacio aujourd’hui, 5 lieux, 2 h 30, rythme tranquille, priorité histoire et beaux points de vue."></textarea></label>
+            <button id="planVoiceBtn" class="ghost" type="button" aria-pressed="false">🎙️ Décrire par la voix</button>
+            <p id="planVoiceStatus" class="microcopy">Dictée vocale prête · vous pouvez parler aussi longtemps que nécessaire.</p>
             <div class="creator-fields"><label>Destination<input id="planDestination" placeholder="Bonifacio"></label><label>Repères<input id="planPlaces" type="number" min="3" max="10" value="5"></label></div>
             <button id="planBtn" class="primary">✨ Créer avec AI Planner</button>
             <p id="planStatus" class="microcopy">Le Planner utilise le Worker sécurisé PocketGuide.</p>
@@ -112,6 +114,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script type="module" src="js/pocketguide-v1-5.js?v=1.5.1"></script>
   <script type="module" src="js/pocketguide-v1-5-proactive.js?v=1.5.1"></script>
+  <script type="module" src="js/planner-voice-v151.js?v=1.5.1a"></script>
   <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});</script>
 </body>
 </html>
