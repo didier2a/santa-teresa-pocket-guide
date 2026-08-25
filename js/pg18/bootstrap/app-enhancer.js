@@ -3,7 +3,7 @@ import {eventBus} from '../../pg16/core/event-bus.js';
 import {actionRegistry} from '../../pg16/core/action-registry.js';
 import {voiceController} from '../../pg16/guide/voice-controller.js';
 import {enrichRoutePackMedia} from '../../route-media.js';
-import {V51_PHOTO_MAP} from '../../trip-config.js';
+import {V51_PHOTO_MAP} from '../../trip-config.js?v=1.8.0rc4';
 import {itineraryStore} from '../storage/itinerary-store.js';
 import {itineraryManager} from '../itineraries/itinerary-manager.js';
 import {createPortableBackupBlob,backupFilename,downloadPortableBackup,importPortableBundle} from '../backup/portable-backup.js';
