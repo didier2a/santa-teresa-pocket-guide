@@ -7,6 +7,7 @@ const rootHtml=fs.readFileSync('index.html','utf8');
 const engineHtml=fs.readFileSync('engine.html','utf8');
 const css=fs.readFileSync('v15.css','utf8');
 const js=fs.readFileSync('js/pocketguide-v1-5.js','utf8');
+const plannerVoice=fs.readFileSync('js/planner-voice-v151.js','utf8');
 const proactive=fs.readFileSync('js/pocketguide-v1-5-proactive.js','utf8');
 const worker=fs.readFileSync('cloudflare/pocketguide-v2-worker.js','utf8');
 const wrangler=fs.readFileSync('wrangler.jsonc','utf8');
@@ -17,12 +18,25 @@ const cfg=JSON.parse(fs.readFileSync('data/v2-config.json','utf8'));
 
 test('V1.5 is a single field-guide application and design shell is unchanged',()=>{
   assert.match(html,/PocketGuide 1\.5/);
-  for(const id of ['voiceMain','arToggle','map','timeline','planPrompt','libraryList'])assert.match(html,new RegExp(`id="${id}"`));
+  for(const id of ['voiceMain','arToggle','map','timeline','planPrompt','planVoiceBtn','libraryList'])assert.match(html,new RegExp(`id="${id}"`));
   assert.match(html,/Conversation terrain/);
   assert.match(html,/Studio intégré/);
   assert.match(css,/\.voice-console/);
   assert.match(css,/\.bottom-nav/);
   assert.match(css,/\.ar-label/);
+});
+
+test('V1.5.1 Planner accepts long interactive voice description',()=>{
+  assert.match(html,/🎙️ Décrire par la voix/);
+  assert.match(html,/planner-voice-v151\.js/);
+  assert.match(plannerVoice,/SpeechRecognition\|\|window\.webkitSpeechRecognition/);
+  assert.match(plannerVoice,/continuous=true/);
+  assert.match(plannerVoice,/interimResults=true/);
+  assert.match(plannerVoice,/dedupeTranscript/);
+  assert.match(plannerVoice,/Arrêter la dictée/);
+  assert.match(plannerVoice,/suspendRealtimeMic/);
+  assert.match(plannerVoice,/track\.enabled=false/);
+  assert.match(plannerVoice,/planButton\?\.addEventListener\('click'/);
 });
 
 test('P0: root promotes V1.5.1 without breaking legacy engine',()=>{
@@ -140,9 +154,10 @@ test('P2: map follows GPS, can recenter, demo has a marker and nearby cards are 
 });
 
 test('P2: PWA install is resilient and updates do not force navigation reloads',()=>{
-  assert.equal(manifest.start_url,'./pocketguide-15.html?app=7.1.0');
+  assert.equal(manifest.start_url,'./pocketguide-15.html?app=7.1.1');
   assert.equal(manifest.orientation,'any');
-  assert.match(sw,/pocketguide-v15-1-voice-geoar/);
+  assert.match(sw,/pocketguide-v15-1-voice-geoar-b/);
+  assert.match(sw,/planner-voice-v151\.js/);
   assert.doesNotMatch(sw,/modesto\.svg/);
   assert.doesNotMatch(sw,/client\.navigate/);
   assert.match(sw,/POCKETGUIDE_UPDATE_READY/);
@@ -154,5 +169,6 @@ test('V1.5.1 assets are cache-busted for Android PWA updates',()=>{
   assert.match(html,/v15\.css\?v=1\.5\.1/);
   assert.match(html,/pocketguide-v1-5\.js\?v=1\.5\.1/);
   assert.match(html,/pocketguide-v1-5-proactive\.js\?v=1\.5\.1/);
+  assert.match(html,/planner-voice-v151\.js\?v=1\.5\.1a/);
   assert.equal(cfg.version,'1.5.1');
 });
