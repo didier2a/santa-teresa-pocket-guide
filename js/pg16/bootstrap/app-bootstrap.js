@@ -32,9 +32,7 @@ function distanceLabel(m){if(!Number.isFinite(m))return 'Localisation en attente
 function appendLog(role,text){
   const value=String(text||'').trim();if(!value)return;
   const log=$('#conversationLog');if(!log)return;
-  const row=document.createElement('div');row.className=`log-row ${role==='user'?'is-user':'is-guide'}`;
-  const who=document.createElement('strong');who.textContent=role==='user'?'Vous':'PocketGuide';
-  const body=document.createElement('span');body.textContent=value;row.append(who,body);log.append(row);log.scrollTop=log.scrollHeight;
+  const row=document.createElement('div');row.className=`turn ${role==='user'?'turn--user':'turn--assistant'}`;row.textContent=value;log.append(row);log.scrollTop=log.scrollHeight;
   if(role==='guide'){lastGuideText=value;setText('#guideAnswer',value);}
 }
 
@@ -50,7 +48,7 @@ function renderTimeline(state){
   for(const event of events()){
     const place=placeById(event.placeId);const item=document.createElement('article');
     item.className='timeline-item pg16-event';item.classList.toggle('is-current',event.id===state.route.currentEventId);item.classList.toggle('is-done',done.has(event.id));item.classList.toggle('is-skipped',skipped.has(event.id));
-    item.innerHTML=`<div class="timeline-dot"></div><div><small>${esc(event.startTime||event.time||'Étape')}</small><strong>${esc(place?.name||event.title||event.name||event.id)}</strong><p>${esc(place?.description||place?.note||event.note||'')}</p></div>`;
+    item.innerHTML=`<div class="timeline-time">${esc(event.startTime||event.time||'•')}</div><div><strong>${esc(place?.name||event.title||event.name||event.id)}</strong><small>${esc(place?.description||place?.note||event.note||'')}</small></div>`;
     target.append(item);
   }
 }
@@ -87,13 +85,13 @@ function render(){
   setText('#nextTitle',next?.name||next?.title||nameForEventId(state.route.nextEventId)||'Fin du parcours');
   setText('#nextMeta',state.route.nextEventId?'Prochaine étape':'Vous avez terminé');
   setText('#remainingTitle',Number.isFinite(state.route.remainingMinutes)?`${Math.round(state.route.remainingMinutes)} min`:'—');
-  setText('#remainingMeta',`${events().length-(state.route.completedEventIds?.length||0)-(state.route.skippedEventIds?.length||0)} étapes à traiter`);
+  setText('#remainingMeta',`${Math.max(0,events().length-(state.route.completedEventIds?.length||0)-(state.route.skippedEventIds?.length||0))} étapes à traiter`);
   setText('#guideAnswer',lastGuideText);
-  const media=$('#terrainMedia');if(media&&current?.heroImage&&!state.ui.ar)media.style.backgroundImage=`linear-gradient(to top,rgba(3,17,21,.76),rgba(3,17,21,.08)),url("${current.heroImage}")`;
+  const media=$('#terrainMedia');if(media&&current?.heroImage&&!state.ui.ar){media.classList.add('has-photo');media.style.backgroundImage=`linear-gradient(to top,rgba(3,17,21,.76),rgba(3,17,21,.08)),url("${current.heroImage}")`;}
   renderPanels(state);renderTimeline(state);renderMap(state);
   $('#pg16Proposal')?.toggleAttribute('hidden',!state.proposals.pending);
   $('#simStatus')?.toggleAttribute('hidden',!state.session.simulation);
-  $('#arToggle')?.classList.toggle('is-active',Boolean(state.ui.ar));setText('#modeBadge',state.ui.ar?'GEO-AR':'HUMAN GUIDE');
+  $('#arToggle')?.classList.toggle('is-on',Boolean(state.ui.ar));setText('#modeBadge',state.ui.ar?'GEO-AR':'HUMAN GUIDE');
   const debug=$('#pg16Debug');if(debugRequested&&debug){debug.hidden=false;debug.textContent=JSON.stringify({context,state},null,2);}
 }
 
