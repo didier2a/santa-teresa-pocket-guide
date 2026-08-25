@@ -7,7 +7,7 @@ export class GeoAREngine {
   project({fov=70,maxDistanceKm=2.5}={}){
     const state=pocketGuideState.get();const position=state.location;const heading=state.location.heading;
     if(!Number.isFinite(position?.lat)||!Number.isFinite(position?.lng)||!Number.isFinite(heading))return [];
-    const projections=projectPlaces({lat:position.lat,lng:position.lng},heading,places(),{fov,maxDistanceKm});
+    const projections=projectPlaces({position:{lat:position.lat,lng:position.lng},places:places(),heading,fov,maxDistanceKm});
     return projections.map(item=>({...item,distanceKm:Number.isFinite(item.distanceKm)?item.distanceKm:haversineKm(position,item.place),bearing:Number.isFinite(item.bearing)?item.bearing:bearingDeg(position,item.place),direction:compassLabel(Number.isFinite(item.bearing)?item.bearing:bearingDeg(position,item.place))}));
   }
   nearest(limit=5){const state=pocketGuideState.get();const position=state.location;if(!Number.isFinite(position?.lat)||!Number.isFinite(position?.lng))return[];return places().map(place=>({place,distanceKm:haversineKm(position,place),bearing:bearingDeg(position,place)})).sort((a,b)=>a.distanceKm-b.distanceKm).slice(0,limit);}
