@@ -63,3 +63,8 @@ test('V1.7 directions are deterministic and do not invent a turn without heading
   assert.doesNotMatch(directionInstruction({bearing:90,heading:null,distanceMeters:50,placeName:'Alpha'}),/droite|gauche|demi-tour/);
   assert.equal(formatDistance(1250),'1.3 km');
 });
+
+test('V1.7 keeps missing sensor values unknown instead of coercing null to zero',async()=>{
+  load();const engine=new WalkingGuidanceEngine();const snapshot=await engine.processPosition({lat:null,lng:null,accuracy:null,heading:null});
+  assert.equal(snapshot.phase,GUIDANCE_PHASES.WAITING_GPS);assert.equal(snapshot.heading,null);assert.equal(snapshot.distanceMeters,null);
+});

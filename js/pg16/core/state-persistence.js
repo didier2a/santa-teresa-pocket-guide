@@ -1,7 +1,8 @@
 import {pocketGuideState} from './pocketguide-state.js';
 import {eventBus} from './event-bus.js';
 
-const STORAGE_KEY=globalThis.location?.pathname?.includes('pocketguide-17')?'pocketguide-17-state-rc1':'pocketguide-16-state-rc1';
+const pathname=globalThis.location?.pathname||'';
+const STORAGE_KEY=pathname.includes('pocketguide-18')?'pocketguide-18-state-rc1':pathname.includes('pocketguide-17')?'pocketguide-17-state-rc1':'pocketguide-16-state-rc1';
 const MAX_AGE_MS=1000*60*60*24*30;
 
 function storage(){try{return globalThis.localStorage||null}catch{return null}}
