@@ -44,8 +44,14 @@ jobs:
           node --check js/pg16/core/pocketguide-state.js
           node --check js/pg16/core/action-registry.js
           node --check js/pg16/core/context-engine.js
+          node --check js/pg16/core/state-persistence.js
+          node --check js/pg16/core/transaction-manager.js
+          node --check js/pg16/core/proposal-manager.js
+          node --check js/pg16/memory/memory-store.js
           node --check js/pg16/route/route-adapter-v15.js
           node --check js/pg16/route/route-actions.js
+          node --check js/pg16/planner/planner-client.js
+          node --check js/pg16/planner/planner-engine.js
           node --check js/pg16/ui/ui-actions.js
           node --check js/pg16/guide/human-guide.js
           node --check js/pg16/guide/voice-controller.js
@@ -59,8 +65,10 @@ jobs:
           node --test tests/schedule-engine.test.mjs
       - name: V1.6 Human Guide core tests
         run: node --test tests/pg16-core.test.mjs
-      - name: V1.6 Alpha 2 UX bridge tests
+      - name: V1.6 Premium UX bridge tests
         run: node --test tests/pg16-ux-bridge.test.mjs
+      - name: V1.6 RC1 transaction and memory gates
+        run: node --test tests/pg16-rc1-core.test.mjs
 
   deploy:
     if: github.event_name != 'pull_request'
