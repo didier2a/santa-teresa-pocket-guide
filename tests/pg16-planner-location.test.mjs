@@ -1,13 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {pocketGuideState} from '../js/pg16/core/pocketguide-state.js';
+import {registerRouteActions} from '../js/pg16/route/route-actions.js';
 import {plannerEngine,extractDurationMinutes,resolveDestination,currentPlannerContext} from '../js/pg16/planner/planner-engine.js';
 
 function bonifacioPack(){return {schemaVersion:'1.0',id:'bonifacio-demo',title:'Bonifacio Demo',subtitle:'',timezone:'Europe/Paris',travelers:1,start:'2026-08-25',end:'2026-08-25',days:[{date:'2026-08-25',label:'Bonifacio',events:[{id:'e1',time:'10:00',end:'10:20',title:'Porte de Gênes',placeId:'p1',place:'Porte de Gênes',type:'visit',priority:90,mustSee:true}]}],places:[{id:'p1',name:'Porte de Gênes',lat:41.387,lng:9.159,description:'',historyShort:'',historyLong:'',arCue:'',note:'',priority:90,mustSee:true,sourceLabel:'test',sourceUrl:'https://example.com'}],meta:{source:'test',verifiedAt:'2026-08-25'}};}
+function setup(){pocketGuideState.reset({source:'test'});registerRouteActions();pocketGuideState.patch({route:{activeId:'bonifacio-demo',title:'Bonifacio Demo',pack:bonifacioPack(),currentEventId:'e1',nextEventId:null,completedEventIds:[],skippedEventIds:[],remainingMinutes:120},location:{lat:41.591,lng:9.279,accuracy:8,updatedAt:new Date().toISOString()},preferences:{session:{},persistent:{}}},{source:'test'});}
 
 test('Porto-Vecchio request does not inherit Bonifacio route destination',()=>{
-  pocketGuideState.reset({source:'test'});
-  pocketGuideState.patch({route:{activeId:'bonifacio-demo',title:'Bonifacio Demo',pack:bonifacioPack(),currentEventId:'e1',nextEventId:null,completedEventIds:[],skippedEventIds:[],remainingMinutes:120},location:{lat:41.591, lng:9.279, accuracy:8, updatedAt:new Date().toISOString()}},{source:'test'});
+  setup();
   const prompt='Crée-moi une balade touristique à Porto-Vecchio dans l’heure qui suit';
   assert.equal(extractDurationMinutes(prompt),60);
   assert.equal(resolveDestination(prompt,'Porte de Gênes'),'');
@@ -21,11 +22,9 @@ test('Porto-Vecchio request does not inherit Bonifacio route destination',()=>{
 });
 
 test('Planner request sent to Worker keeps Porto-Vecchio and GPS context while Bonifacio stays previous route only',async()=>{
-  pocketGuideState.reset({source:'test'});
-  pocketGuideState.patch({route:{activeId:'bonifacio-demo',title:'Bonifacio Demo',pack:bonifacioPack(),currentEventId:'e1',nextEventId:null,completedEventIds:[],skippedEventIds:[],remainingMinutes:120},location:{lat:41.591,lng:9.279,accuracy:8,updatedAt:new Date().toISOString()},preferences:{session:{},persistent:{}}},{source:'test'});
-  const originalFetch=globalThis.fetch;const calls=[];
+  setup();
+  const originalFetch=globalThis.fetch;
   globalThis.fetch=async (url,options={})=>{
-    calls.push({url:String(url),options});
     if(String(url).endsWith('/data/v2-config.json'))return new Response(JSON.stringify({apiBase:'https://worker.test',plannerModel:'test'}),{status:200,headers:{'Content-Type':'application/json'}});
     if(String(url).endsWith('/v1/plan')){
       const body=JSON.parse(options.body);
