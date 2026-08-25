@@ -17,7 +17,7 @@ export const DEFAULT_GUIDANCE_OPTIONS=Object.freeze({
   autoAdvance:true
 });
 
-function finite(value){const number=Number(value);return Number.isFinite(number)?number:null;}
+function finite(value){if(value==null||value==='')return null;const number=Number(value);return Number.isFinite(number)?number:null;}
 function eventsFromState(){return (pocketGuideState.select('route.pack.days')||[]).flatMap(day=>day.events||[]);}
 function placeById(id){return (pocketGuideState.select('route.pack.places')||[]).find(place=>place?.id===id)||null;}
 function eventById(id){return eventsFromState().find(event=>event?.id===id)||null;}

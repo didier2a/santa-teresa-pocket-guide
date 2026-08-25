@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07191e">
+  <meta name="description" content="PocketGuide 1.8 — guide touristique GPS, simulation photographique et carnet audiovisuel local.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PocketGuide 1.8">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="v15.css?v=1.8.0rc1">
+  <link rel="stylesheet" href="v152.css?v=1.8.0rc1">
+  <link rel="stylesheet" href="pg16-bridge.css?v=1.8.0rc1">
+  <link rel="stylesheet" href="pg17-bridge.css?v=1.8.0rc1">
+  <link rel="stylesheet" href="pg18-bridge.css?v=1.8.0rc1">
+  <title>PocketGuide 1.8 · Guide & carnet local</title>
+</head>
+<body>
+  <main class="pg15 pg18" id="pg18App">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">PG</span><div><strong>PocketGuide <b>1.8</b></strong><small id="routeTitle">Guide & carnet local</small></div></div>
+      <div class="status-row"><span id="networkState" class="status is-ok">● Réseau</span><span id="gpsState" class="status">GPS</span><span id="sessionState" class="status">Guide</span></div>
+    </header>
+
+    <section class="terrain" id="terrain">
+      <div class="terrain-media" id="terrainMedia">
+        <video id="arCamera" class="ar-camera" playsinline muted hidden></video><div class="terrain-gradient"></div><div class="ar-compass" id="arCompass" hidden>—</div><div class="ar-labels" id="arLabels" hidden></div><div class="ar-reticle" id="arReticle" hidden></div>
+        <div class="terrain-topline"><span id="modeBadge" class="mode-badge">GUIDE TOURISTIQUE</span><div class="pg18-hero-actions"><button id="pg18CaptureHero" class="glass-action" type="button" aria-label="Photographier ce lieu">📷</button><button id="arToggle" class="glass-action" type="button">◎ AR</button></div></div>
+        <article class="focus-card">
+          <span class="eyebrow" id="focusEyebrow">Maintenant</span><h1 id="focusTitle">Chargement du parcours…</h1><p id="guideAnswer">Je retrouve votre itinéraire et votre carnet local.</p>
+          <div class="focus-meta"><span id="focusDistance">—</span><span id="focusDirection">—</span><span id="focusTime">—</span></div>
+          <div class="pg17-guidance" id="pg17Guidance" data-phase="waiting_gps" aria-live="polite"><div class="pg17-guidance-head"><span class="pg17-phase" id="pg17Phase">GPS en attente</span><span class="pg17-progress-copy" id="pg17ProgressText">0 %</span></div><strong class="pg17-instruction" id="pg17Instruction">Démarrez le guide pour recevoir les indications.</strong><small class="pg17-distance" id="pg17Distance">Distance inconnue</small><div class="pg17-progress" role="progressbar" aria-label="Progression du parcours"><span id="pg17ProgressBar"></span></div></div>
+        </article>
+      </div>
+      <div class="voice-console"><button id="voiceMain" class="voice-orb" type="button" aria-label="Parler au guide touristique"><span class="voice-pulse"></span><span>🎙️</span></button><div class="voice-copy"><strong id="voiceLabel">Parlez à votre guide</strong><small id="voiceHint">Guidage GPS · récit touristique à l’arrivée</small></div><button id="interruptBtn" class="voice-mini" type="button" aria-label="Interrompre le guide">■</button></div>
+    </section>
+
+    <section class="now-strip" aria-label="Contexte de visite"><button class="now-card" data-ask="where"><small>Vous êtes ici</small><strong id="nowPlace">—</strong><span id="nowDistance">Localisation en attente</span></button><button class="now-card" data-ask="next"><small>Ensuite</small><strong id="nextTitle">—</strong><span id="nextMeta">—</span></button><button class="now-card" data-ask="remaining"><small>Parcours</small><strong id="remainingTitle">—</strong><span id="remainingMeta">—</span></button></section>
+
+    <section class="panel-stack">
+      <section class="panel is-active" data-panel="guide">
+        <div class="panel-head"><div><span class="eyebrow">Guide touristique actif</span><h2>Votre visite audiovisuelle</h2></div><span class="version-pill">1.8</span></div>
+        <div class="pg17-walk-controls" aria-label="Commandes du guidage"><button id="pg17VoiceToggle" class="ghost" type="button" aria-pressed="false">🔇 Guidage muet</button><button id="pg17Repeat" class="ghost" type="button">↻ Répéter</button><button id="pg18SimulateCurrent" class="ghost" type="button">▶ Simuler</button><button id="pg18Capture" class="ghost" type="button">📷 Photographier</button><button id="pg17Continue" class="ghost" type="button" hidden>Continuer vers l’étape suivante</button></div>
+        <p class="pg17-safety">Gardez les yeux sur votre environnement. Les indications relient des points d’intérêt ; elles ne remplacent pas un itinéraire routier détaillé.</p>
+        <div class="quick-grid"><button data-command="Raconte ce lieu">Raconte ce lieu</button><button data-command="Qu'est-ce que je regarde ?">Ce que je regarde</button><button data-command="Continue vers la prochaine étape">Continuer</button><button data-command="J’ai moins de temps, raccourcis le parcours sans perdre les incontournables">Raccourcir</button></div>
+        <div id="pg16Proposal" class="pg16-proposal" hidden><strong>Votre guide vous propose un changement</strong><p id="pg16ProposalText">Confirmez-vous ?</p><div class="proposal-actions"><button id="pg16Yes" class="primary">Oui, confirme</button><button id="pg16No" class="ghost">Non</button></div></div>
+        <div id="pg17Simulation" class="pg17-simulation" hidden><h3>Simulation technique de marche</h3><p id="pg17SimStatus">Simulation prête</p><div class="pg17-sim-track"><span id="pg17SimProgress"></span></div><div class="pg17-sim-actions"><button id="pg17SimStart" class="primary" type="button">▶ Marcher</button><button id="pg17SimPause" class="ghost" type="button" disabled>Pause</button><button id="pg17SimStep" class="ghost" type="button">Pas à pas</button><button id="pg17SimReset" class="ghost" type="button">Recommencer</button></div></div>
+        <div id="conversationLog" class="conversation-log" aria-live="polite"></div><form id="textForm" class="text-command"><input id="textCommand" autocomplete="off" placeholder="Écrivez au guide si nécessaire…"><button>Envoyer</button></form>
+      </section>
+
+      <section class="panel" data-panel="map"><div class="panel-head"><div><span class="eyebrow">Navigation vivante</span><h2>Carte & GPS</h2></div><button id="gpsBtn" class="ghost">◎ GPS</button></div><div id="map" class="map"></div><p id="mapNote" class="pg16-map-note">Votre position, le parcours, l’image et la voix partagent le même contexte.</p><div id="nearbyList" class="nearby-list"></div></section>
+      <section class="panel" data-panel="route"><div class="panel-head"><div><span class="eyebrow">Parcours adaptable</span><h2>Votre journée</h2></div><button id="routeReset" class="ghost">Recommencer</button></div><div class="pg18-route-actions"><button id="pg18SaveNow" class="ghost" type="button">✓ Sauvegarder maintenant</button><button id="pg18OpenJournal" class="ghost" type="button">▦ Carnet audiovisuel</button></div><div id="timeline" class="timeline"></div></section>
+
+      <section class="panel" data-panel="library">
+        <div class="panel-head"><div><span class="eyebrow">Stockage privé hors ligne</span><h2>Mes itinéraires</h2></div><button id="pg18RefreshLibrary" class="ghost" type="button">↻</button></div>
+        <p class="pg18-privacy">🔒 Vos photos restent sur ce téléphone. Elles ne sont jamais envoyées automatiquement. L’export crée un fichier local complet.</p>
+        <div class="pg18-storage" id="pg18Storage">Calcul du stockage local…</div>
+        <div class="pg18-library-toolbar"><button id="pg18Import" class="primary" type="button">Importer une sauvegarde</button><button id="pg18ShowArchived" class="ghost" type="button" aria-pressed="false">Voir les archives</button></div>
+        <div id="pg18LibraryStatus" class="pg18-status" aria-live="polite">Chargement de vos itinéraires…</div><div id="pg18LibraryList" class="pg18-library"></div>
+        <section id="pg18Journal" class="pg18-journal" hidden><div class="panel-head"><div><span class="eyebrow">Souvenirs géolocalisés</span><h3 id="pg18JournalTitle">Carnet audiovisuel</h3></div><button id="pg18CloseJournal" class="ghost" type="button">Fermer</button></div><div id="pg18JournalList" class="pg18-journal-list"></div></section>
+      </section>
+
+      <section class="panel" data-panel="create"><div class="panel-head"><div><span class="eyebrow">Planner orchestré</span><h2>Créer ou changer de balade</h2></div><span class="version-pill">1.8</span></div><div class="creator-grid"><article class="creator-card"><label>Décrivez ce que vous voulez<textarea id="planPrompt" rows="5" placeholder="Ex. Crée un parcours de deux heures avec les monuments et les plus beaux points de vue."></textarea></label><button id="planVoiceBtn" class="ghost" type="button">🎙️ Dicter au guide</button><button id="planBtn" class="primary" type="button">✨ Préparer une proposition</button><p id="pg16PlannerNote" class="microcopy">Après confirmation, le parcours sera automatiquement sauvegardé dans Mes itinéraires.</p></article><article class="creator-card"><h3>Avant de partir</h3><p class="microcopy">Simulez le parcours en photos, puis retrouvez exactement le même RoutePack sur place.</p><button id="pg18SimulateFromPlanner" class="ghost" type="button">▶ Simuler le parcours actif</button><p class="microcopy">La caméra reste optionnelle et ne s’ouvre jamais automatiquement.</p><div id="simStatus" class="pg16-sim-chip" hidden>● Simulation interne</div></article></div></section>
+    </section>
+
+    <nav class="bottom-nav pg18-nav" aria-label="Navigation principale"><button class="is-active" data-tab="guide"><span>🎙️</span><small>Guide</small></button><button data-tab="map"><span>⌖</span><small>Carte</small></button><button data-tab="route"><span>☷</span><small>Parcours</small></button><button data-tab="library"><span>▦</span><small>Voyages</small></button><button data-tab="create"><span>＋</span><small>Créer</small></button></nav>
+  </main>
+
+  <dialog id="pg18PreviewDialog" class="pg18-dialog pg18-preview-dialog"><div class="pg18-dialog-card"><header><div><span class="eyebrow">Simulation avant le voyage</span><h2 id="pg18PreviewTitle">Votre parcours en images</h2></div><button id="pg18PreviewClose" class="ghost" type="button" aria-label="Fermer">×</button></header><div id="pg18PreviewMedia" class="pg18-preview-media"><span id="pg18PreviewProvenance">RoutePack</span><div class="pg18-preview-copy"><h3 id="pg18PreviewPlace">—</h3><p id="pg18PreviewStory">—</p></div></div><div class="pg18-preview-meta"><span id="pg18PreviewLeg">Départ</span><span id="pg18PreviewCount">1 / 1</span></div><div class="pg18-preview-track"><span id="pg18PreviewProgress"></span></div><label class="pg18-mode-label">Version<select id="pg18PreviewMode"><option value="preparatory">Préparatoire</option><option value="enriched">Enrichie</option><option value="souvenir">Souvenir</option></select></label><div class="pg18-preview-controls"><button id="pg18PreviewPrevious" class="ghost" type="button">← Précédent</button><button id="pg18PreviewPlay" class="primary" type="button">▶ Lecture</button><button id="pg18PreviewNext" class="ghost" type="button">Suivant →</button><button id="pg18PreviewRepeat" class="ghost" type="button">↻ Répéter</button><button id="pg18PreviewMute" class="ghost" type="button" aria-pressed="false">🔊 Voix</button></div></div></dialog>
+
+  <dialog id="pg18PhotoDialog" class="pg18-dialog"><form method="dialog" class="pg18-dialog-card" id="pg18PhotoForm"><header><div><span class="eyebrow">Souvenir privé</span><h2>Enregistrer cette photo</h2></div><button value="cancel" class="ghost" type="submit" aria-label="Fermer">×</button></header><img id="pg18PhotoPreview" class="pg18-photo-preview" alt="Aperçu de la photographie"><label>Associer à<select id="pg18PhotoAssociation"><option value="current">POI actuel</option><option value="next">Prochain POI</option><option value="segment">Entre les deux étapes</option></select></label><label>Votre légende<textarea id="pg18PhotoCaption" rows="3" placeholder="Un souvenir, un détail remarqué…"></textarea></label><p id="pg18PhotoLocation" class="microcopy">Position GPS en attente</p><div class="pg18-note-actions"><button id="pg18VoiceNote" class="ghost" type="button">🎙️ Ajouter une note vocale</button><span id="pg18VoiceNoteStatus">Aucune note</span></div><div class="proposal-actions"><button id="pg18PhotoSave" class="primary" type="button">Enregistrer localement</button><button value="cancel" class="ghost" type="submit">Annuler</button></div></form></dialog>
+
+  <dialog id="pg18PhotoViewer" class="pg18-dialog"><div class="pg18-dialog-card"><header><div><span class="eyebrow">Photo personnelle</span><h2 id="pg18ViewerTitle">Votre souvenir</h2></div><button id="pg18ViewerClose" class="ghost" type="button">×</button></header><img id="pg18ViewerImage" class="pg18-photo-preview" alt="Photographie personnelle"><p id="pg18ViewerMeta"></p><p id="pg18ViewerCaption"></p><audio id="pg18ViewerVoice" controls hidden></audio><div class="pg18-viewer-actions"><button id="pg18ViewerFocus" class="ghost" type="button">⌖ Retrouver sur le parcours</button><button id="pg18ViewerAsk" class="primary" type="button">Interroger le guide sur ce lieu</button><button id="pg18ViewerDelete" class="ghost" type="button">Supprimer cette photo</button></div></div></dialog>
+
+  <input id="pg18PhotoInput" type="file" accept="image/*" capture="environment" hidden><input id="pg18ImportInput" type="file" accept=".pocketguide,application/vnd.pocketguide+json,application/json" hidden>
+  <div id="permissionSheet" class="permission-sheet" hidden><div class="permission-card"><span class="eyebrow">Activation terrain</span><h2>Votre guide a besoin de vous situer</h2><p>Le GPS synchronise les images, la distance et les indications vocales. Le micro et la caméra ne s’activent que lorsque vous les utilisez.</p><div class="permission-actions"><button id="startGuide" class="primary">Démarrer le guide</button><button id="startDemo" class="ghost" hidden>Mode simulation</button></div></div></div>
+  <pre id="pg16Debug" class="pg16-debug" hidden></pre><audio id="remoteAudio" autoplay playsinline></audio>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script><script type="module" src="js/pg18/bootstrap/app-entry.js?v=1.8.0rc1"></script>
+</body>
+</html>

@@ -5,7 +5,7 @@ import {walkingGuidanceEngine} from '../guidance/walking-guidance-engine.js';
 
 const DEFAULT_STEP_MS=240;
 
-function finite(value){const number=Number(value);return Number.isFinite(number)?number:null;}
+function finite(value){if(value==null||value==='')return null;const number=Number(value);return Number.isFinite(number)?number:null;}
 function events(){return (pocketGuideState.select('route.pack.days')||[]).flatMap(day=>day.events||[]);}
 function places(){return pocketGuideState.select('route.pack.places')||[];}
 function placeFor(event){return places().find(place=>place?.id===event?.placeId)||null;}
