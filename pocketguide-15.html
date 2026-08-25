@@ -4,21 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#07191e">
-  <meta name="description" content="PocketGuide 1.5 — guide touristique vocal intelligent avec GPS, carte, RoutePack et réalité augmentée géolocalisée.">
+  <meta name="description" content="PocketGuide 1.5.2 — guide touristique vocal intelligent avec GPS, carte, RoutePack et réalité augmentée géolocalisée.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="PocketGuide 1.5">
+  <meta name="apple-mobile-web-app-title" content="PocketGuide 1.5.2">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="v15.css?v=1.5.1">
-  <title>PocketGuide 1.5 · Guide IA & Geo-AR</title>
+  <link rel="stylesheet" href="v15.css?v=1.5.2">
+  <link rel="stylesheet" href="v152.css?v=1.5.2">
+  <title>PocketGuide 1.5.2 · Guide IA & Geo-AR</title>
 </head>
 <body>
   <main class="pg15" id="pg15App">
     <header class="topbar">
-      <div class="brand"><span class="brand-mark">PG</span><div><strong>PocketGuide <b>1.5</b></strong><small id="routeTitle">Guide touristique IA</small></div></div>
+      <div class="brand"><span class="brand-mark">PG</span><div><strong>PocketGuide <b>1.5.2</b></strong><small id="routeTitle">Guide touristique IA</small></div></div>
       <div class="status-row"><span id="networkState" class="status is-ok">● Réseau</span><span id="gpsState" class="status">GPS</span><span id="sessionState" class="status">IA</span></div>
     </header>
 
@@ -79,7 +80,7 @@
       </section>
 
       <section class="panel" data-panel="create">
-        <div class="panel-head"><div><span class="eyebrow">Studio intégré</span><h2>Créer ou changer de balade</h2></div><span class="version-pill">1.5</span></div>
+        <div class="panel-head"><div><span class="eyebrow">Studio intégré</span><h2>Créer ou changer de balade</h2></div><span class="version-pill">1.5.2</span></div>
         <div class="creator-grid">
           <article class="creator-card">
             <label>Décrivez la visite souhaitée<textarea id="planPrompt" rows="5" placeholder="Ex. Balade incontournable à Bonifacio aujourd’hui, 5 lieux, 2 h 30, rythme tranquille, priorité histoire et beaux points de vue."></textarea></label>
@@ -112,9 +113,11 @@
 
   <audio id="remoteAudio" autoplay playsinline></audio>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script type="module" src="js/pocketguide-v1-5.js?v=1.5.1"></script>
-  <script type="module" src="js/pocketguide-v1-5-proactive.js?v=1.5.1"></script>
-  <script type="module" src="js/planner-voice-v151.js?v=1.5.1a"></script>
+  <script type="module" src="js/pocketguide-v1-5.js?v=1.5.2"></script>
+  <script type="module" src="js/pocketguide-v1-5-proactive.js?v=1.5.2"></script>
+  <script type="module" src="js/planner-voice-v151.js?v=1.5.2"></script>
+  <script src="js/platform-v152.js?v=1.5.2"></script>
+  <script src="js/offline-v152.js?v=1.5.2"></script>
   <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});</script>
 </body>
 </html>
