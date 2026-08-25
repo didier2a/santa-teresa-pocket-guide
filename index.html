@@ -26,13 +26,14 @@
   <link rel="stylesheet" href="v4b.css" />
   <link rel="stylesheet" href="v5.css" />
   <link rel="stylesheet" href="ar-v6.css" />
+  <link rel="stylesheet" href="ar-v149.css" />
   <title>PocketGuide</title>
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar shell"><div class="brand"><span class="brand__mark">PG</span><div><strong>PocketGuide</strong><small>Engine · Geo‑AR</small></div></div><div class="topbar__actions"><span id="networkBadge" class="status-pill">● En ligne</span><button id="shareTrip" class="icon-btn" aria-label="Partager le guide">↗</button></div></header>
     <main>
-      <section class="hero shell" id="today"><div class="hero__art hero__art--v4b" aria-hidden="true"></div><div class="hero__content"><p class="kicker">PocketGuide</p><h1>Le territoire devient<br><em>votre interface</em></h1><p class="hero__lead">Réalité augmentée géolocalisée, navigation pédestre, audioguide contextuel, planning et souvenir numérique.</p><div class="hero__meta"><div><span id="countdownValue">—</span><small>avant le départ</small></div><div><span>—</span><small>voyageurs</small></div><div><span>V1.4.8</span><small>Geo‑AR</small></div></div><div class="hero__actions"><button class="primary-btn" id="openAR">◎ Regarder autour de moi</button><button class="secondary-btn" id="installApp">Ajouter à l’accueil</button></div></div></section>
+      <section class="hero shell" id="today"><div class="hero__art hero__art--v4b" aria-hidden="true"></div><div class="hero__content"><p class="kicker">PocketGuide</p><h1>Le territoire devient<br><em>votre interface</em></h1><p class="hero__lead">Réalité augmentée géolocalisée, navigation pédestre, audioguide contextuel, planning et souvenir numérique.</p><div class="hero__meta"><div><span id="countdownValue">—</span><small>avant le départ</small></div><div><span>—</span><small>voyageurs</small></div><div><span>V1.4.9</span><small>16:9 + Audio</small></div></div><div class="hero__actions"><button class="primary-btn" id="openAR">◎ Regarder autour de moi</button><button class="secondary-btn" id="installApp">Ajouter à l’accueil</button></div></div></section>
       <section class="section shell" id="live"><div class="section-head"><div><p class="kicker">Compagnon de route</p><h2>Maintenant</h2></div><div class="clock-wrap"><span id="localClock">--:--</span><small>heure locale</small></div></div><article id="nextCard" class="next-card"><div class="skeleton"></div></article><div class="day-switch" id="daySwitch"></div><div id="todayTimeline" class="timeline"></div></section>
       <section class="section section--intelligent" id="companion"><div class="shell"><div class="section-head"><div><p class="kicker">Adaptation sûre</p><h2>Compagnon intelligent</h2></div><span class="smart-pill">◆ Auto</span></div><div id="companionPanel" class="companion-panel"><div class="skeleton"></div></div><div class="smart-actions"><button id="startNowBtn" class="smart-action">▶ Démarrer maintenant</button><button id="plus15Btn" class="smart-action">+15 min</button><button id="plus30Btn" class="smart-action">+30 min</button><button id="recover30Btn" class="smart-action">↙ Récupérer 30 min</button></div><p class="microcopy">Les recalages respectent les contraintes fixes.</p></div></section>
       <section class="section section--sand" id="program"><div class="shell"><div class="section-head"><div><p class="kicker">Planning adaptable</p><h2>Programme complet</h2></div></div><div class="sync-note v3-sync-note"><span>↻</span><div><strong>Horaires modifiables dans l’app</strong><small id="syncStamp">Les changements restent mémorisés sur ce téléphone.</small></div></div><div id="programDays" class="day-grid"></div></div></section>
@@ -54,6 +55,8 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script type="module" src="js/app.js"></script>
   <script type="module" src="js/ar-v148.js?v=1.4.8-arfix"></script>
+  <script type="module" src="js/orientation-v149.js?v=1.4.9"></script>
+  <script type="module" src="js/audio-companion-v149.js?v=1.4.9"></script>
   <script type="module" src="js/s22-fixes.js"></script>
 </body>
 </html>
