@@ -1,16 +1,17 @@
 import {eventBus} from './event-bus.js';
 
 const DEFAULT_STATE=Object.freeze({
-  version:'1.6.0-alpha.1',
+  version:'1.6.0-rc1',
   boot:{status:'idle',startedAt:null,restoredAt:null},
   user:{language:'fr'},
-  session:{id:null,startedAt:null,lastActiveAt:null},
+  session:{id:null,startedAt:null,lastActiveAt:null,simulation:false},
   trip:{active:false,startedAt:null,resumedAt:null},
   route:{activeId:null,title:null,pack:null,currentEventId:null,nextEventId:null,completedEventIds:[],skippedEventIds:[],remainingMinutes:null},
   location:{lat:null,lng:null,accuracy:null,heading:null,updatedAt:null},
   device:{online:typeof navigator==='undefined'?true:navigator.onLine,standalone:false,platform:'web',battery:null},
+  connectivity:{online:typeof navigator==='undefined'?true:navigator.onLine,lastChangedAt:null,realtime:false},
   perception:{gps:'unknown',orientation:'unknown',camera:'unknown',microphone:'unknown'},
-  conversation:{status:'idle',currentTopic:null,currentPlaceId:null,lastMentionedPlaceId:null,lastAction:null},
+  conversation:{status:'idle',currentTopic:null,currentPlaceId:null,lastMentionedPlaceId:null,lastAction:null,lastObjectType:null,lastObjectId:null},
   preferences:{session:{},persistent:{}},
   memory:{working:{},session:{},trip:{}},
   proposals:{pending:null,lastResolved:null},
