@@ -72,6 +72,7 @@ function resetRouteForSimulation(){
 
 const base=await waitForBase();
 pocketGuideState.patch({version:'1.7.0-rc1',ui:{guidance:{phase:GUIDANCE_PHASES.WAITING_GPS}}},{source:'pg17-bootstrap',event:'app.v17.ready'});
+setText('#modeBadge','GUIDE AUDIOVISUEL');
 walkingGuidanceEngine.onSnapshot=renderGuidance;
 walkingGuidanceEngine.onCue=payload=>{lastGuidanceText=payload.text;if(voiceEnabled)voiceController.speak(payload.text);appendGuide(payload.text);};
 walkingGuidanceEngine.start();
