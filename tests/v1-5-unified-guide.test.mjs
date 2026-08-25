@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const html=fs.readFileSync('pocketguide-15.html','utf8');
+const rootHtml=fs.readFileSync('index.html','utf8');
+const engineHtml=fs.readFileSync('engine.html','utf8');
 const css=fs.readFileSync('v15.css','utf8');
 const js=fs.readFileSync('js/pocketguide-v1-5.js','utf8');
 const proactive=fs.readFileSync('js/pocketguide-v1-5-proactive.js','utf8');
@@ -16,6 +18,14 @@ test('V1.5 is a single field-guide application',()=>{
   for(const id of ['voiceMain','arToggle','map','timeline','planPrompt','libraryList'])assert.match(html,new RegExp(`id="${id}"`));
   assert.match(html,/Conversation terrain/);
   assert.match(html,/Studio intégré/);
+});
+
+test('V1.5.1 root promotes the unified app without breaking engine injection',()=>{
+  assert.match(rootHtml,/pocketguide-15\.html/);
+  assert.match(rootHtml,/location\.pathname\.endsWith\('\/engine\.html'\)/);
+  assert.match(rootHtml,/location\.replace\(target\)/);
+  assert.match(engineHtml,/fetch\('\.\/index\.html'/);
+  assert.match(engineHtml,/route-bootstrap\.js/);
 });
 
 test('V1.5.1 unifies realtime voice GPS and Geo-AR without muting future audio',()=>{
