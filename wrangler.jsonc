@@ -7,6 +7,24 @@
     "OPENAI_REALTIME_MODEL": "gpt-realtime-2.1",
     "OPENAI_PLANNER_MODEL": "gpt-5.6-terra"
   },
+  "ratelimits": [
+    {
+      "name": "PLAN_RATE_LIMITER",
+      "namespace_id": "15051",
+      "simple": {
+        "limit": 8,
+        "period": 60
+      }
+    },
+    {
+      "name": "REALTIME_RATE_LIMITER",
+      "namespace_id": "15052",
+      "simple": {
+        "limit": 20,
+        "period": 60
+      }
+    }
+  ],
   "secrets": {
     "required": ["OPENAI_API_KEY"]
   }
