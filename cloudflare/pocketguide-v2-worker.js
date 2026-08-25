@@ -16,7 +16,8 @@ function cors(origin){
 function json(data,status=200,origin=''){const h=cors(origin);h.set('Content-Type','application/json;charset=UTF-8');return new Response(JSON.stringify(data),{status,headers:h})}
 function allowedOrigin(origin){return ALLOWED_ORIGINS.has(origin)||origin.startsWith('http://localhost')||origin.startsWith('http://127.0.0.1')}
 function clientIp(request){return request.headers.get('CF-Connecting-IP')||request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'unknown'}
-function rateOk(request,bucket){const now=Date.now(),key=`${bucket}:${clientIp(request)}`,limit=LIMITS[bucket]||10;let x=RATE.get(key);if(!x||now-x.start>RATE_WINDOW_MS)x={start:now,count:0};x.count++;RATE.set(key,x);if(RATE.size>1500)for(const [k,v] of RATE)if(now-v.start>RATE_WINDOW_MS*2)RATE.delete(k);return x.count<=limit}
+function localRateOk(request,bucket){const now=Date.now(),key=`${bucket}:${clientIp(request)}`,limit=LIMITS[bucket]||10;let x=RATE.get(key);if(!x||now-x.start>RATE_WINDOW_MS)x={start:now,count:0};x.count++;RATE.set(key,x);if(RATE.size>1500)for(const [k,v] of RATE)if(now-v.start>RATE_WINDOW_MS*2)RATE.delete(k);return x.count<=limit}
+async function rateOk(request,env,bucket){const binding=bucket==='plan'?env.PLAN_RATE_LIMITER:env.REALTIME_RATE_LIMITER;if(binding?.limit){try{const result=await binding.limit({key:`${bucket}:${clientIp(request)}`});return Boolean(result?.success)}catch{}}return localRateOk(request,bucket)}
 function slug(value='route'){return String(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,58)||'route'}
 function extractOutputText(payload){if(typeof payload?.output_text==='string')return payload.output_text;const chunks=[];for(const item of payload?.output||[]){for(const c of item?.content||[]){if(typeof c?.text==='string')chunks.push(c.text)}}return chunks.join('\n').trim()}
 function parseJsonText(text=''){let raw=String(text).trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim();const first=raw.indexOf('{'),last=raw.lastIndexOf('}');if(first>=0&&last>first)raw=raw.slice(first,last+1);return JSON.parse(raw)}
@@ -26,7 +27,7 @@ function routePackSchema(maxPlaces){return{type:'object',additionalProperties:fa
 
 async function realtimeCall(request,env,origin){
   if(!env.OPENAI_API_KEY)return json({error:'OPENAI_API_KEY absente du Worker'},503,origin);
-  if(!rateOk(request,'realtime'))return json({error:'Trop de connexions Realtime. Réessayez dans une minute.'},429,origin);
+  if(!await rateOk(request,env,'realtime'))return json({error:'Trop de connexions Realtime. Réessayez dans une minute.'},429,origin);
   const contentType=request.headers.get('Content-Type')||'';if(!contentType.includes('application/sdp'))return json({error:'SDP attendu'},415,origin);
   const declared=Number(request.headers.get('Content-Length')||0);if(declared>250000)return json({error:'SDP trop volumineux'},413,origin);
   const sdp=await request.text();if(!sdp||sdp.length>250000)return json({error:'SDP invalide'},400,origin);
@@ -39,7 +40,7 @@ async function realtimeCall(request,env,origin){
 
 async function planRoute(request,env,origin){
   if(!env.OPENAI_API_KEY)return json({error:'OPENAI_API_KEY absente du Worker'},503,origin);
-  if(!rateOk(request,'plan'))return json({error:'Trop de demandes Planner. Réessayez dans une minute.'},429,origin);
+  if(!await rateOk(request,env,'plan'))return json({error:'Trop de demandes Planner. Réessayez dans une minute.'},429,origin);
   const declared=Number(request.headers.get('Content-Length')||0);if(declared>60000)return json({error:'Demande trop volumineuse'},413,origin);
   const raw=await request.text();if(raw.length>60000)return json({error:'Demande trop volumineuse'},413,origin);
   let input;try{input=JSON.parse(raw)}catch{return json({error:'JSON invalide'},400,origin)}
