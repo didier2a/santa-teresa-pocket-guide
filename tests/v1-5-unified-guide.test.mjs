@@ -120,7 +120,7 @@ test('Planner strict schema protects coordinates dates times and verified source
   assert.match(worker,/minimum:-180,maximum:180/);
   assert.match(worker,/pattern:'\^\\\\d\{4\}-\\\\d\{2\}-\\\\d\{2\}\$'/);
   assert.match(worker,/pattern:'\^\\\\d\{2\}:\\\\d\{2\}\$'/);
-  assert.match(worker,/sourceUrl:\{type:'string',pattern:'\^https:\\/\\\/.\+'/);
+  assert.ok(worker.includes("sourceUrl:{type:'string',pattern:'^https://.+'}"));
   assert.match(worker,/ids\.size!==p\.places\.length/);
   assert.match(worker,/ids\.has\(e\.placeId\)/);
   assert.match(worker,/maxItems:7/);
