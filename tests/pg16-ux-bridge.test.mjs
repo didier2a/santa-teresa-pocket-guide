@@ -38,7 +38,7 @@ test('Voice controller supports tap-to-talk and spoken replies',()=>{
   assert.match(voice,/SpeechRecognition\|\|globalThis\.webkitSpeechRecognition/);
   assert.match(voice,/SpeechSynthesisUtterance/);
   assert.match(bootstrap,/voiceController\.onTranscript/);
-  assert.match(bootstrap,/id="voiceMain"/u,{message:'bootstrap should wire voiceMain'});
+  assert.match(bootstrap,/\$\('#voiceMain'\)/);
 });
 
 test('RoutePack place explanation is exposed through the Human Guide',async()=>{
