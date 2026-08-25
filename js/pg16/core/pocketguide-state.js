@@ -18,7 +18,7 @@ const DEFAULT_STATE=Object.freeze({
   diagnostics:{lastError:null}
 });
 
-function clone(value){return structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value));}
+function clone(value){return typeof globalThis.structuredClone==='function'?globalThis.structuredClone(value):JSON.parse(JSON.stringify(value));}
 function deepMerge(target,patch){
   if(!patch||typeof patch!=='object'||Array.isArray(patch))return patch;
   const out={...(target&&typeof target==='object'&&!Array.isArray(target)?target:{})};
