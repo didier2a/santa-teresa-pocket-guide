@@ -48,6 +48,7 @@ jobs:
           node --check js/pg16/route/route-actions.js
           node --check js/pg16/ui/ui-actions.js
           node --check js/pg16/guide/human-guide.js
+          node --check js/pg16/guide/voice-controller.js
           node --check js/pg16/bootstrap/app-bootstrap.js
       - name: V1.5.2 cross-platform regression tests
         run: |
@@ -58,6 +59,8 @@ jobs:
           node --test tests/schedule-engine.test.mjs
       - name: V1.6 Human Guide core tests
         run: node --test tests/pg16-core.test.mjs
+      - name: V1.6 Alpha 2 UX bridge tests
+        run: node --test tests/pg16-ux-bridge.test.mjs
 
   deploy:
     if: github.event_name != 'pull_request'

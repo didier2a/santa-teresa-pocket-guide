@@ -1,6 +1,19 @@
 import {actionRegistry} from '../core/action-registry.js';
 import {pocketGuideState} from '../core/pocketguide-state.js';
-import {advanceRoute} from './route-adapter-v15.js';
+import {advanceRoute,routeEventsFromState} from './route-adapter-v15.js';
+
+function currentEvent(){
+  const id=pocketGuideState.select('route.currentEventId');
+  return routeEventsFromState().find(event=>event?.id===id)||null;
+}
+
+function placeForEvent(event){
+  if(!event)return null;
+  const pack=pocketGuideState.select('route.pack');
+  return (pack?.places||[]).find(place=>place?.id===event.placeId)||null;
+}
+
+function currentPlace(){return placeForEvent(currentEvent());}
 
 export function registerRouteActions(){
   if(!actionRegistry.has('route.next'))actionRegistry.register('route.next',{
@@ -21,5 +34,28 @@ export function registerRouteActions(){
     description:'Lire l’état courant du parcours.',
     riskLevel:'safe',confirmation:'none',
     handler:()=>pocketGuideState.select('route')
+  });
+
+  if(!actionRegistry.has('place.current'))actionRegistry.register('place.current',{
+    description:'Lire le lieu associé à l’étape courante.',
+    riskLevel:'safe',confirmation:'none',
+    availability:()=>Boolean(currentPlace()),
+    handler:()=>currentPlace()
+  });
+
+  if(!actionRegistry.has('place.explain'))actionRegistry.register('place.explain',{
+    description:'Expliquer le lieu courant à partir des données fiables du RoutePack.',
+    riskLevel:'safe',confirmation:'none',
+    availability:()=>Boolean(currentPlace()),
+    handler:()=>{
+      const place=currentPlace();
+      if(!place)return null;
+      return {
+        id:place.id,
+        name:place.name||place.title||'Ce lieu',
+        description:place.historyLong||place.historyShort||place.description||place.note||'',
+        cue:place.arCue||place.repere||''
+      };
+    }
   });
 }

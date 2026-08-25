@@ -4,48 +4,117 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#07191e">
-  <title>PocketGuide 1.6 Alpha · Human Guide</title>
-  <style>
-    :root{font-family:Inter,system-ui,sans-serif;color-scheme:dark}
-    *{box-sizing:border-box}body{margin:0;background:#07191e;color:#eef7f5;min-height:100vh}
-    button,input{font:inherit}button{min-height:44px}.pg16{max-width:780px;margin:auto;padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(90px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
-    .hero,.card,.panel{background:#0f282f;border:1px solid #25434a;border-radius:22px;padding:18px;margin:14px 0}.eyebrow{opacity:.66;text-transform:uppercase;letter-spacing:.12em;font-size:.72rem}.hero h1{margin:.3rem 0;font-size:1.9rem}.hero p{line-height:1.5}.status{display:flex;gap:8px;flex-wrap:wrap}.status span{background:#17383f;padding:7px 10px;border-radius:999px;font-size:.82rem}
-    .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fact{background:#102f36;border-radius:16px;padding:12px}.fact small{display:block;opacity:.62}.fact strong{display:block;margin-top:5px}
-    .pg16-log{display:grid;gap:8px;max-height:300px;overflow:auto}.pg16-log-row{display:grid;gap:3px;padding:10px 12px;border-radius:14px;background:#0b2228}.pg16-log-row.user{background:#183c44}.pg16-log-row strong{font-size:.76rem;opacity:.7}.pg16-form{display:flex;gap:8px;margin-top:12px}.pg16-form input{flex:1;min-width:0;border:1px solid #31535a;background:#07191e;color:#fff;border-radius:14px;padding:12px;font-size:16px}.pg16-form button,.actions button,.pg16-nav button{border:1px solid #31535a;background:#17383f;color:#fff;border-radius:14px;padding:9px 12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.proposal{border:1px solid #7c7047;background:#302b19;border-radius:16px;padding:12px;margin-top:12px}.pg16-nav{position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:8px;background:#0b2228;border:1px solid #25434a;border-radius:18px;padding:8px;z-index:10}.pg16-nav button.is-active{background:#2d5c65}.pg16-panel[hidden]{display:none}@media(min-width:700px){.facts{grid-template-columns:repeat(4,minmax(0,1fr))}}
-  </style>
+  <meta name="description" content="PocketGuide 1.6 Alpha 2 — Human Guide Architecture dans l’UX premium 1.5.2.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PocketGuide 1.6">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="v15.css?v=1.6.0a2">
+  <link rel="stylesheet" href="v152.css?v=1.6.0a2">
+  <link rel="stylesheet" href="pg16-bridge.css?v=1.6.0a2">
+  <title>PocketGuide 1.6 Alpha 2 · Human Guide</title>
 </head>
 <body>
-<main class="pg16">
-  <section class="hero">
-    <span class="eyebrow">Human Guide Architecture · Alpha 1</span>
-    <h1>PocketGuide 1.6</h1>
-    <p id="pg16Context">Initialisation du contexte…</p>
-    <div class="status"><span>État : <b id="pg16Status">idle</b></span><span>Branche expérimentale isolée</span></div>
-  </section>
+  <main class="pg15" id="pg16App">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">PG</span><div><strong>PocketGuide <b>1.6</b></strong><small id="routeTitle">Human Guide Alpha 2</small></div></div>
+      <div class="status-row"><span id="networkState" class="status is-ok">● Réseau</span><span id="gpsState" class="status">GPS</span><span id="sessionState" class="status">Guide</span></div>
+    </header>
 
-  <section class="card">
-    <span class="eyebrow">Source unique de vérité</span>
-    <div class="facts">
-      <div class="fact"><small>Parcours</small><strong id="pg16Route">—</strong></div>
-      <div class="fact"><small>Étape</small><strong id="pg16Current">—</strong></div>
-      <div class="fact"><small>Ensuite</small><strong id="pg16Next">—</strong></div>
-      <div class="fact"><small>Temps restant</small><strong id="pg16Remaining">—</strong></div>
-    </div>
-  </section>
+    <section class="terrain" id="terrain">
+      <div class="terrain-media" id="terrainMedia">
+        <video id="arCamera" class="ar-camera" playsinline muted hidden></video>
+        <div class="terrain-gradient"></div>
+        <div class="ar-compass" id="arCompass" hidden>—</div>
+        <div class="ar-labels" id="arLabels" hidden></div>
+        <div class="ar-reticle" id="arReticle" hidden></div>
+        <div class="terrain-topline">
+          <span id="modeBadge" class="mode-badge">HUMAN GUIDE</span>
+          <button id="arToggle" class="glass-action" type="button">◎ AR</button>
+        </div>
+        <article class="focus-card">
+          <span class="eyebrow" id="focusEyebrow">Maintenant</span>
+          <h1 id="focusTitle">Chargement du parcours…</h1>
+          <p id="guideAnswer">Je retrouve le contexte de votre balade.</p>
+          <div class="focus-meta"><span id="focusDistance">—</span><span id="focusDirection">—</span><span id="focusTime">—</span></div>
+        </article>
+      </div>
 
-  <section class="pg16-panel panel" data-panel="guide">
-    <span class="eyebrow">Compagnon central</span><h2>Parlez au Human Guide</h2>
-    <div class="actions"><button data-action="route.next">Continuer</button><button data-action="route.skip">Sauter l’étape</button></div>
-    <div id="pg16Proposal" class="proposal" hidden><strong>Confirmation demandée</strong><p>Le compagnon attend votre décision.</p><div class="actions"><button id="pg16Yes">Oui</button><button id="pg16No">Non</button></div></div>
-    <div id="pg16Log" class="pg16-log" aria-live="polite"></div>
-    <form id="pg16Form" class="pg16-form"><input id="pg16Input" placeholder="Ex. Montre-moi la carte, continue, saute cette étape…" autocomplete="off"><button>Envoyer</button></form>
-  </section>
+      <div class="voice-console">
+        <button id="voiceMain" class="voice-orb" type="button" aria-label="Parler au Human Guide"><span class="voice-pulse"></span><span>🎙️</span></button>
+        <div class="voice-copy"><strong id="voiceLabel">Parlez à votre guide</strong><small id="voiceHint">« Où en sommes-nous ? » · « Raconte ce lieu » · « Montre-moi la carte »</small></div>
+        <button id="interruptBtn" class="voice-mini" type="button" aria-label="Interrompre le guide">■</button>
+      </div>
+    </section>
 
-  <section class="pg16-panel panel" data-panel="map" hidden><span class="eyebrow">Vue du compagnon</span><h2>Carte</h2><p>Alpha 1 : cette vue prouve que la navigation passe déjà par l’Action Registry. Le moteur Leaflet 1.5.2 sera adapté ensuite.</p></section>
-  <section class="pg16-panel panel" data-panel="route" hidden><span class="eyebrow">Vue du compagnon</span><h2>Parcours</h2><p>Le RoutePack est chargé par l’adaptateur 1.5.2 et synchronisé dans PocketGuideState.</p></section>
-  <section class="pg16-panel panel" data-panel="create" hidden><span class="eyebrow">Moteur interne</span><h2>Planner</h2><p>En 1.6, le Planner deviendra d’abord un outil du Human Guide. L’interface manuelle restera disponible en second accès.</p></section>
-</main>
-<nav class="pg16-nav" aria-label="Navigation Alpha 1"><button class="is-active" data-open="guide">Guide</button><button data-open="map">Carte</button><button data-open="route">Parcours</button><button data-open="create">Planner</button></nav>
-<script type="module" src="js/pg16/bootstrap/app-bootstrap.js"></script>
+    <section class="now-strip" aria-label="Contexte de visite">
+      <button class="now-card" data-ask="where"><small>Vous êtes ici</small><strong id="nowPlace">—</strong><span id="nowDistance">Localisation en attente</span></button>
+      <button class="now-card" data-ask="next"><small>Ensuite</small><strong id="nextTitle">—</strong><span id="nextMeta">—</span></button>
+      <button class="now-card" data-ask="remaining"><small>Parcours</small><strong id="remainingTitle">—</strong><span id="remainingMeta">—</span></button>
+    </section>
+
+    <section class="panel-stack">
+      <section class="panel is-active" data-panel="guide">
+        <div class="panel-head"><div><span class="eyebrow">Compagnon central</span><h2>Votre Human Guide</h2></div><span class="pg16-alpha-badge">Alpha 2</span></div>
+        <div class="quick-grid">
+          <button data-command="Raconte ce lieu">Raconte ce lieu</button>
+          <button data-command="Qu'est-ce que je regarde ?">Ce que je regarde</button>
+          <button data-command="Continue vers la prochaine étape">Continuer</button>
+          <button data-command="Saute cette étape">Sauter</button>
+        </div>
+        <div id="pg16Proposal" class="pg16-proposal" hidden><strong>Votre guide vous propose un changement</strong><p id="pg16ProposalText">Confirmez-vous ?</p><div class="proposal-actions"><button id="pg16Yes" class="primary">Oui, confirme</button><button id="pg16No" class="ghost">Non</button></div></div>
+        <div id="conversationLog" class="conversation-log" aria-live="polite"></div>
+        <form id="textForm" class="text-command"><input id="textCommand" autocomplete="off" placeholder="Écrivez au guide si nécessaire…"><button>Envoyer</button></form>
+      </section>
+
+      <section class="panel" data-panel="map">
+        <div class="panel-head"><div><span class="eyebrow">Navigation vivante</span><h2>Carte & GPS</h2></div><button id="gpsBtn" class="ghost">◎ GPS</button></div>
+        <div id="map" class="map"></div>
+        <p id="mapNote" class="pg16-map-note">La carte est pilotée par le même PocketGuideState que le Human Guide.</p>
+        <div id="nearbyList" class="nearby-list"></div>
+      </section>
+
+      <section class="panel" data-panel="route">
+        <div class="panel-head"><div><span class="eyebrow">Parcours adaptable</span><h2>Votre journée</h2></div><button id="routeReset" class="ghost">Recommencer</button></div>
+        <div id="timeline" class="timeline"></div>
+      </section>
+
+      <section class="panel" data-panel="create">
+        <div class="panel-head"><div><span class="eyebrow">Planner orchestré</span><h2>Créer ou changer de balade</h2></div><span class="version-pill">1.6 A2</span></div>
+        <div class="creator-grid">
+          <article class="creator-card">
+            <label>Décrivez ce que vous voulez<textarea id="planPrompt" rows="5" placeholder="Ex. Je suis fatigué, il me reste une heure, garde seulement les incontournables."></textarea></label>
+            <button id="planVoiceBtn" class="ghost" type="button">🎙️ Dicter au guide</button>
+            <button id="planBtn" class="primary" type="button">✨ Demander au Human Guide</button>
+            <p id="pg16PlannerNote" class="microcopy">Alpha 2 : la demande est comprise par le Human Guide. La transaction de remplacement RoutePack sera branchée après Proposal/Transaction Manager.</p>
+          </article>
+          <article class="creator-card">
+            <h3>Débogage terrain</h3>
+            <p>Vous pouvez tester la même version en GPS réel ou avec <code>?sim=1</code>. Ajoutez <code>&debug=1</code> pour voir PocketGuideState.</p>
+            <div id="simStatus" class="pg16-sim-chip" hidden>● Simulation active</div>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <nav class="bottom-nav" aria-label="Navigation principale">
+      <button class="is-active" data-tab="guide"><span>🎙️</span><small>Guide</small></button>
+      <button data-tab="map"><span>⌖</span><small>Carte</small></button>
+      <button data-tab="route"><span>☷</span><small>Parcours</small></button>
+      <button data-tab="create"><span>＋</span><small>Créer</small></button>
+    </nav>
+  </main>
+
+  <div id="permissionSheet" class="permission-sheet" hidden>
+    <div class="permission-card"><span class="eyebrow">Activation terrain</span><h2>Votre guide a besoin de vous situer</h2><p>Le GPS donne le contexte réel. Le micro s’active uniquement lorsque vous touchez le bouton. La caméra n’est activée que pour l’AR.</p><div class="permission-actions"><button id="startGuide" class="primary">Démarrer en réel</button><button id="startDemo" class="ghost">Mode simulation</button></div></div>
+  </div>
+
+  <pre id="pg16Debug" class="pg16-debug" hidden></pre>
+  <audio id="remoteAudio" autoplay playsinline></audio>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script type="module" src="js/pg16/bootstrap/app-bootstrap.js?v=1.6.0a2"></script>
 </body>
 </html>
