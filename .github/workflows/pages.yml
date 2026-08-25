@@ -40,6 +40,15 @@ jobs:
           node --check engine/routepack.js
           node --check cloudflare/pocketguide-v2-worker.js
           node --check service-worker.js
+          node --check js/pg16/core/event-bus.js
+          node --check js/pg16/core/pocketguide-state.js
+          node --check js/pg16/core/action-registry.js
+          node --check js/pg16/core/context-engine.js
+          node --check js/pg16/route/route-adapter-v15.js
+          node --check js/pg16/route/route-actions.js
+          node --check js/pg16/ui/ui-actions.js
+          node --check js/pg16/guide/human-guide.js
+          node --check js/pg16/bootstrap/app-bootstrap.js
       - name: V1.5.2 cross-platform regression tests
         run: |
           node --test tests/v1-5-unified-guide.test.mjs
@@ -47,6 +56,8 @@ jobs:
           node --test tests/route-runtime-v1-1.test.mjs
           node --test tests/ar-core-v148.test.mjs
           node --test tests/schedule-engine.test.mjs
+      - name: V1.6 Human Guide core tests
+        run: node --test tests/pg16-core.test.mjs
 
   deploy:
     if: github.event_name != 'pull_request'
