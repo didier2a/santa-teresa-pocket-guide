@@ -1,6 +1,10 @@
 const APP_VERSION='7.1.0';
 const CACHE='pocketguide-v15-1-voice-geoar';
 const MAP_CACHE='santa-teresa-map-v6';
+const REQUIRED=[
+  './pocketguide-15.html','./v15.css','./manifest.webmanifest','./data/v2-config.json','./data/routes.json','./data/trip.json','./data/routepacks/bonifacio-demo.json',
+  './engine/routepack.js','./js/pocketguide-v1-5.js','./js/pocketguide-v1-5-proactive.js','./js/route-runtime.js','./js/route-library.js','./js/ar-core.js'
+];
 const CORE=[
   './','./index.html','./engine.html','./v2.html','./pocketguide-15.html','./studio.html','./studio-146.html','./studio-147.html','./studio-148.html','./diagnostic-s22.html','./styles.css','./v2.css','./v15.css','./v3.css','./v4b.css','./v5.css','./ar-v6.css','./ar-v148.css','./ar-v149.css','./manifest.webmanifest',
   './data/trip.json','./data/routes.json','./data/ai-config.json','./data/v2-config.json','./data/routepacks/bonifacio-demo.json','./engine/routepack.js','./engine/routepack-v1.schema.json','./js/route-runtime.js','./js/route-bootstrap.js','./js/v2-guide.js','./js/pocketguide-v1-5.js','./js/pocketguide-v1-5-proactive.js','./js/studio-v1-4.js','./js/studio-v1-4-7.js','./js/studio-v1-4-7-soft.js','./js/studio-v1-4-8.js','./js/route-library.js','./js/route-media.js','./js/voice-long-v1-4-7.js',
@@ -8,7 +12,7 @@ const CORE=[
 ];
 const LEAFLET=['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'];
 async function cacheOne(cache,url){try{const response=await fetch(url,{cache:'no-cache'});if(response.ok)await cache.put(url,response.clone());return response.ok}catch{return false}}
-async function cacheCore(){const cache=await caches.open(CACHE);const results=await Promise.allSettled(CORE.map(url=>cacheOne(cache,url)));return results.filter(r=>r.status==='fulfilled'&&r.value).length}
+async function cacheCore(){const cache=await caches.open(CACHE);for(const url of REQUIRED){if(!await cacheOne(cache,url))throw new Error(`PocketGuide asset requis indisponible: ${url}`)}const optional=CORE.filter(url=>!REQUIRED.includes(url));await Promise.allSettled(optional.map(url=>cacheOne(cache,url)))}
 async function cacheExternal(cache,url,mode='cors'){try{const request=new Request(url,{mode,credentials:'omit'});const response=await fetch(request);if(response&&(response.ok||response.type==='opaque'))await cache.put(request,response.clone())}catch{}}
 async function warmExternal(){const cache=await caches.open(CACHE);await Promise.allSettled(LEAFLET.map(url=>cacheExternal(cache,url,'cors')))}
 async function trimCache(name,maxEntries){const cache=await caches.open(name),keys=await cache.keys();while(keys.length>maxEntries)await cache.delete(keys.shift())}
