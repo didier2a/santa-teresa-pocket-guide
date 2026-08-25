@@ -15,7 +15,7 @@ const DEFAULT_STATE=Object.freeze({
   preferences:{session:{},persistent:{}},
   memory:{working:{},session:{},trip:{}},
   proposals:{pending:null,lastResolved:null},
-  ui:{panel:'guide',ar:false,mapReady:false},
+  ui:{panel:'guide',ar:false,arRequested:false,mapReady:false},
   diagnostics:{lastError:null}
 });
 
