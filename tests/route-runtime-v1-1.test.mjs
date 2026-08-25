@@ -29,15 +29,33 @@ test('Engine: une route inconnue est refusée avant exécution',async()=>{
   await assert.rejects(()=>loadPocketGuideRoute({fetchImpl,locationLike:{href:'https://example.test/engine.html?route=route-inconnue'}}),/Parcours inconnu/);
 });
 
-test('Engine V1.x: l entrée générique et le service worker incluent le bootstrap',async()=>{
+test('Engine générique: entrée, bootstrap et cache restent disponibles avec la V1.5.1',async()=>{
   const html=await read('engine.html'),sw=await read('service-worker.js'),bootstrap=await read('js/route-bootstrap.js');
-  assert.match(html,/route-bootstrap\.js/);assert.match(html,/index\.html/);assert.match(sw,/pocketguide-engine-v1-[1234]/);assert.match(sw,/engine\.html/);assert.match(sw,/route-runtime\.js/);assert.match(bootstrap,/__POCKETGUIDE_ROUTE_READY__/);assert.match(bootstrap,/pg:\$\{routeId\}/);
+  assert.match(html,/route-bootstrap\.js/);
+  assert.match(html,/index\.html/);
+  assert.match(sw,/pocketguide-v15-1-voice-geoar/);
+  assert.match(sw,/engine\.html/);
+  assert.match(sw,/route-runtime\.js/);
+  assert.match(sw,/route-bootstrap\.js/);
+  assert.match(bootstrap,/__POCKETGUIDE_ROUTE_READY__/);
+  assert.match(bootstrap,/pg:\$\{routeId\}/);
 });
 
-test('Engine V1.3: le mode moteur est visible même sur Santa Teresa',async()=>{
-  const bootstrap=await read('js/route-bootstrap.js');assert.match(bootstrap,/markEngineRuntime/);assert.match(bootstrap,/POCKETGUIDE ENGINE V1\.3/);assert.match(bootstrap,/Engine V1\.3/);assert.match(bootstrap,/RoutePack V1/);assert.match(bootstrap,/engineRuntimeBadge/);
+test('Engine historique: le badge runtime reflète la version réellement exposée',async()=>{
+  const bootstrap=await read('js/route-bootstrap.js');
+  assert.match(bootstrap,/markEngineRuntime/);
+  assert.match(bootstrap,/POCKETGUIDE V1\.4\.8/);
+  assert.match(bootstrap,/RoutePack média/);
+  assert.match(bootstrap,/engineRuntimeBadge/);
+  assert.match(bootstrap,/dataset\.engineVersion='1\.4\.8'/);
 });
 
 test('Engine: les contenus Santa Teresa sont neutralisés pour une autre route',async()=>{
-  const bootstrap=await read('js/route-bootstrap.js');assert.match(bootstrap,/route\.id!==['"]santa-teresa['"]/);assert.match(bootstrap,/Playlist du parcours/);assert.match(bootstrap,/RoutePack V1/);assert.match(bootstrap,/Parcours chargé/);assert.match(bootstrap,/offlineTab\.hidden=true/);assert.match(bootstrap,/contact\.hidden=true/);
+  const bootstrap=await read('js/route-bootstrap.js');
+  assert.match(bootstrap,/route\.id!==['"]santa-teresa['"]/);
+  assert.match(bootstrap,/Playlist du parcours/);
+  assert.match(bootstrap,/RoutePack \$\{esc\(pack\.schemaVersion\)\}/);
+  assert.match(bootstrap,/Parcours chargé/);
+  assert.match(bootstrap,/offlineTab\.hidden=true/);
+  assert.match(bootstrap,/contact\.hidden=true/);
 });
