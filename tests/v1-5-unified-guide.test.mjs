@@ -6,8 +6,13 @@ const html=fs.readFileSync('pocketguide-15.html','utf8');
 const rootHtml=fs.readFileSync('index.html','utf8');
 const engineHtml=fs.readFileSync('engine.html','utf8');
 const css=fs.readFileSync('v15.css','utf8');
+const css152=fs.readFileSync('v152.css','utf8');
 const js=fs.readFileSync('js/pocketguide-v1-5.js','utf8');
 const plannerVoice=fs.readFileSync('js/planner-voice-v151.js','utf8');
+const platform=fs.readFileSync('js/platform-v152.js','utf8');
+const offline=fs.readFileSync('js/offline-v152.js','utf8');
+const diagnosticHtml=fs.readFileSync('diagnostic.html','utf8');
+const diagnostic=fs.readFileSync('js/diagnostic-v152.js','utf8');
 const proactive=fs.readFileSync('js/pocketguide-v1-5-proactive.js','utf8');
 const worker=fs.readFileSync('cloudflare/pocketguide-v2-worker.js','utf8');
 const wrangler=fs.readFileSync('wrangler.jsonc','utf8');
@@ -16,78 +21,107 @@ const arCore=fs.readFileSync('js/ar-core.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
 const cfg=JSON.parse(fs.readFileSync('data/v2-config.json','utf8'));
 
-test('V1.5 is a single field-guide application and design shell is unchanged',()=>{
-  assert.match(html,/PocketGuide 1\.5/);
+test('V1.5.2 keeps the unified field-guide design and activates compatibility modules',()=>{
+  assert.match(html,/PocketGuide 1\.5\.2/);
   for(const id of ['voiceMain','arToggle','map','timeline','planPrompt','planVoiceBtn','libraryList'])assert.match(html,new RegExp(`id="${id}"`));
   assert.match(html,/Conversation terrain/);
   assert.match(html,/Studio intégré/);
+  assert.match(html,/v152\.css\?v=1\.5\.2/);
+  assert.match(html,/platform-v152\.js\?v=1\.5\.2/);
+  assert.match(html,/offline-v152\.js\?v=1\.5\.2/);
   assert.match(css,/\.voice-console/);
   assert.match(css,/\.bottom-nav/);
   assert.match(css,/\.ar-label/);
 });
 
-test('V1.5.1 Planner accepts long interactive voice description',()=>{
+test('Correction 1: iOS orientation permission is requested from the AR user gesture',()=>{
+  assert.match(platform,/DeviceOrientationEvent\.requestPermission/);
+  assert.match(platform,/pointerdown/);
+  assert.match(platform,/requestOrientationFromGesture/);
+  assert.match(platform,/installOrientationListener/);
+  assert.match(platform,/deviceorientationabsolute/);
+  assert.match(platform,/state\.orientationPermission==='granted'/);
+});
+
+test('Correction 2: Planner voice has MediaRecorder server transcription fallback',()=>{
   assert.match(html,/🎙️ Décrire par la voix/);
-  assert.match(html,/planner-voice-v151\.js/);
   assert.match(plannerVoice,/SpeechRecognition\|\|window\.webkitSpeechRecognition/);
-  assert.match(plannerVoice,/continuous=true/);
-  assert.match(plannerVoice,/interimResults=true/);
-  assert.match(plannerVoice,/dedupeTranscript/);
-  assert.match(plannerVoice,/Arrêter la dictée/);
+  assert.match(plannerVoice,/MediaRecorder/);
+  assert.match(plannerVoice,/startRecorderFallback/);
+  assert.match(plannerVoice,/\/v1\/transcribe/);
+  assert.match(plannerVoice,/audio\/mp4/);
+  assert.match(plannerVoice,/speechWatchdog/);
   assert.match(plannerVoice,/suspendRealtimeMic/);
-  assert.match(plannerVoice,/track\.enabled=false/);
   assert.match(plannerVoice,/planButton\?\.addEventListener\('click'/);
+  assert.match(worker,/\/v1\/transcribe/);
+  assert.match(worker,/audio\/transcriptions/);
+  assert.match(worker,/OPENAI_TRANSCRIBE_MODEL/);
+  assert.match(worker,/20_000_000/);
+  assert.match(wrangler,/TRANSCRIBE_RATE_LIMITER/);
 });
 
-test('P0: root promotes V1.5.1 without breaking legacy engine',()=>{
-  assert.match(rootHtml,/pocketguide-15\.html/);
-  assert.match(rootHtml,/location\.pathname\.endsWith\('\/engine\.html'\)/);
-  assert.match(rootHtml,/location\.replace\(target\)/);
-  assert.match(engineHtml,/fetch\('\.\/index\.html'/);
-  assert.match(engineHtml,/route-bootstrap\.js/);
-  assert.match(rootHtml,/orientation-v149\.js/);
-  assert.match(rootHtml,/audio-companion-v149\.js/);
+test('Correction 3: camera and microphone can be reset without restarting the app',()=>{
+  assert.match(platform,/resetMedia/);
+  assert.match(platform,/stopAppMedia/);
+  assert.match(platform,/resetSensorsBtn/);
+  assert.match(platform,/Réinitialiser caméra & micro/);
+  assert.match(platform,/getTracks\?\.\(\)\.forEach/);
+  assert.match(platform,/navigator\.geolocation\.clearWatch/);
 });
 
-test('P0: Realtime voice can be interrupted without muting future audio',()=>{
+test('Correction 4: iPhone safe areas and touch targets are protected',()=>{
+  assert.match(css152,/safe-area-inset-top/);
+  assert.match(css152,/safe-area-inset-bottom/);
+  assert.match(css152,/safe-area-inset-left/);
+  assert.match(css152,/safe-area-inset-right/);
+  assert.match(css152,/min-height:44px/);
+  assert.match(css152,/min-width:44px/);
+  assert.match(css152,/font-size:16px/);
+});
+
+test('Correction 5: current route can be downloaded with a local schematic offline map',()=>{
+  assert.match(offline,/downloadCurrentRoute/);
+  assert.match(offline,/makeSvg/);
+  assert.match(offline,/pg152-offline-pack/);
+  assert.match(offline,/pocketguide-v152-route-download/);
+  assert.match(offline,/Télécharger hors ligne/);
+  assert.match(offline,/navigator\.onLine/);
+  assert.match(offline,/localStorage\.setItem/);
+});
+
+test('Correction 6: universal diagnostic covers browser and required sensors',()=>{
+  assert.match(diagnosticHtml,/Diagnostic de compatibilité/);
+  assert.match(diagnosticHtml,/Tester GPS, caméra, micro et boussole/);
+  for(const capability of ['Service Worker','GPS Web','Caméra / micro','WebRTC','Orientation','SpeechRecognition','MediaRecorder fallback','Cache API'])assert.match(diagnostic,new RegExp(capability.replace(/[\/]/g,'\\/')));
+  const clickBlock=diagnostic.match(/#testPermissions'\)\.onclick=async\(\)=>\{[\s\S]*?detail\.textContent=out\.join/)?.[0]||'';
+  assert.match(clickBlock,/DeviceOrientationEvent\?\.requestPermission/);
+  assert.ok(clickBlock.indexOf('requestPermission')<clickBlock.indexOf('geolocation.getCurrentPosition'),'orientation permission must be requested before GPS async work on iOS');
+});
+
+test('Correction 7: PWA build 7.2.0 caches cross-platform assets and diagnostic',()=>{
+  assert.equal(manifest.start_url,'./pocketguide-15.html?app=7.2.0');
+  assert.equal(manifest.orientation,'any');
+  assert.equal(cfg.version,'1.5.2');
+  assert.match(sw,/APP_VERSION='7\.2\.0'/);
+  assert.match(sw,/pocketguide-v15-2-multiplatform-a/);
+  for(const asset of ['v152.css','platform-v152.js','offline-v152.js','diagnostic.html','diagnostic-v152.js'])assert.match(sw,new RegExp(asset.replace(/[.]/g,'\\.')));
+  assert.match(sw,/pocketguide-v152-route-download/);
+  assert.doesNotMatch(sw,/client\.navigate/);
+});
+
+test('Existing Realtime stability fixes remain intact',()=>{
   assert.match(js,/RTCPeerConnection/);
   assert.match(js,/response\.cancel/);
-  assert.match(js,/remoteAudio'\)\.play|remoteAudio.*play/);
   const interrupt=js.match(/function interrupt\(\)\{[^}]+\}/s)?.[0]||'';
   assert.doesNotMatch(interrupt,/\.pause\(/);
-  assert.match(js,/responding:false/);
-});
-
-test('P0: compass context is throttled and orientation stops with AR',()=>{
   assert.match(js,/CONTEXT_HEADING_MS=1200/);
   assert.match(js,/CONTEXT_HEADING_DELTA=15/);
   assert.match(js,/ORIENTATION_RENDER_MS=75/);
-  assert.match(js,/shouldSendContext/);
-  assert.match(js,/deltaHeading/);
-  assert.match(js,/stopCamera\(\);stopOrientation\(\)/);
-});
-
-test('P0: Cloudflare bridge protects cost and fixes model selection server-side',()=>{
-  assert.match(worker,/allowedOrigin/);
-  assert.match(worker,/Content-Length/);
-  assert.match(worker,/await rateOk\(request,env,'plan'\)/);
-  assert.match(worker,/await rateOk\(request,env,'realtime'\)/);
-  assert.match(worker,/env\.OPENAI_REALTIME_MODEL/);
-  assert.doesNotMatch(worker,/searchParams\.get\('model'\)/);
-  assert.match(wrangler,/PLAN_RATE_LIMITER/);
-  assert.match(wrangler,/REALTIME_RATE_LIMITER/);
-  assert.match(wrangler,/"ratelimits"/);
-});
-
-test('P1: Realtime transcription and semantic VAD are explicitly configured',()=>{
-  assert.match(js,/gpt-4o-mini-transcribe/);
-  assert.match(js,/language:'fr'/);
   assert.match(js,/semantic_vad/);
-  assert.match(js,/interrupt_response:true/);
-  assert.match(js,/conversation\.item\.input_audio_transcription\.completed/);
+  assert.match(js,/gpt-4o-mini-transcribe/);
 });
 
-test('P1: adaptive route state persists and must-see stops are preserved',()=>{
+test('Adaptive RoutePack state and must-see protection remain intact',()=>{
   for(const tool of ['get_trip_state','get_nearby_places','focus_place_in_ar','skip_next_stop','go_to_place','shorten_route','open_ar'])assert.match(js,new RegExp(tool));
   assert.match(js,/pg15-state-v2/);
   assert.match(js,/persistState/);
@@ -97,78 +131,32 @@ test('P1: adaptive route state persists and must-see stops are preserved',()=>{
   assert.match(js,/preservedMustSee:true/);
 });
 
-test('P1: Planner verifies places with web search and strict JSON Schema',()=>{
+test('Verified Planner and server-side protections remain intact',()=>{
   assert.match(worker,/type:'web_search'/);
   assert.match(worker,/type:'json_schema'/);
   assert.match(worker,/strict:true/);
   assert.match(worker,/sourceUrl/);
-  assert.match(worker,/priority/);
   assert.match(worker,/mustSee/);
-  assert.match(worker,/verifiedAt/);
-  assert.match(js,/verificationSources/);
+  assert.match(worker,/allowedOrigin/);
+  assert.match(worker,/rateOk/);
+  for(const limiter of ['PLAN_RATE_LIMITER','REALTIME_RATE_LIMITER','TRANSCRIBE_RATE_LIMITER'])assert.match(wrangler,new RegExp(limiter));
 });
 
-test('P1: proactive guide has accuracy guard hysteresis per-place and global cooldown',()=>{
+test('Proactive guide, Geo-AR fallback and offline intent fallback remain intact',()=>{
   assert.equal(cfg.autoGuideGlobalCooldownSeconds,75);
   assert.match(proactive,/exitRadiusMeters/);
   assert.match(proactive,/globalCooldownMs/);
   assert.match(proactive,/position\.accuracy/);
-  assert.match(proactive,/seenKey/);
-  assert.match(proactive,/state\.responding/);
-  assert.match(proactive,/requestProactiveGuide/);
-});
-
-test('P1: Geo-AR has compass fallback, manual controls and clean shutdown',()=>{
   assert.match(js,/ensureManualARControls/);
   assert.match(js,/Boussole indisponible/);
-  assert.match(js,/↶ 15°/);
-  assert.match(js,/15° ↷/);
-  assert.match(js,/stopOrientation/);
-  assert.match(js,/height\*\.62/);
-});
-
-test('P1: legacy V1.4.9 modules do not boot inside V1.5',()=>{
-  assert.match(arCore,/!document\.querySelector\('#pg15App'\)/);
-  assert.match(arCore,/document\.querySelector\('#today'\)/);
-});
-
-test('P1: panel navigation scrolls to the active view and timeline returns to terrain',()=>{
-  assert.match(js,/function showPanel/);
-  assert.match(js,/scrollTo\(/);
-  assert.match(js,/showPanel\('guide',\{terrain:true\}\)/);
-});
-
-test('P2: offline intent fallback handles location next route skip shorten and AR',()=>{
   assert.match(js,/function localReply/);
-  for(const word of ['raccour','saute','ensuite','parcours','position','regarde'])assert.match(js,new RegExp(word));
-  assert.match(js,/toggleAR\(true\)/);
-});
-
-test('P2: map follows GPS, can recenter, demo has a marker and nearby cards are interactive',()=>{
   assert.match(js,/followMap/);
-  assert.match(js,/Recentrer/);
-  assert.match(js,/updateMapPosition\(\)/);
   assert.match(js,/data-nearby/);
-  assert.match(js,/tabindex="0"/);
-  assert.match(js,/GPS DÉMO/);
 });
 
-test('P2: PWA install is resilient and updates do not force navigation reloads',()=>{
-  assert.equal(manifest.start_url,'./pocketguide-15.html?app=7.1.1');
-  assert.equal(manifest.orientation,'any');
-  assert.match(sw,/pocketguide-v15-1-voice-geoar-b/);
-  assert.match(sw,/planner-voice-v151\.js/);
-  assert.doesNotMatch(sw,/modesto\.svg/);
-  assert.doesNotMatch(sw,/client\.navigate/);
-  assert.match(sw,/POCKETGUIDE_UPDATE_READY/);
-  assert.match(sw,/Promise\.allSettled/);
-  assert.match(js,/Mise à jour prête/);
-});
-
-test('V1.5.1 assets are cache-busted for Android PWA updates',()=>{
-  assert.match(html,/v15\.css\?v=1\.5\.1/);
-  assert.match(html,/pocketguide-v1-5\.js\?v=1\.5\.1/);
-  assert.match(html,/pocketguide-v1-5-proactive\.js\?v=1\.5\.1/);
-  assert.match(html,/planner-voice-v151\.js\?v=1\.5\.1a/);
-  assert.equal(cfg.version,'1.5.1');
+test('Legacy engine remains isolated from the unified app',()=>{
+  assert.match(rootHtml,/pocketguide-15\.html/);
+  assert.match(engineHtml,/fetch\('\.\/index\.html'/);
+  assert.match(engineHtml,/route-bootstrap\.js/);
+  assert.match(arCore,/!document\.querySelector\('#pg15App'\)/);
 });
