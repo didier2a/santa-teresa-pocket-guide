@@ -75,6 +75,11 @@ jobs:
           node --check js/pg18/simulation/photo-preview-engine.js
           node --check js/pg18/bootstrap/app-entry.js
           node --check js/pg18/bootstrap/app-enhancer.js
+          node --check js/pg2/core/v2-actions.js
+          node --check js/pg2/core/session-store.js
+          node --check js/pg2/companion/realtime-companion.js
+          node --check js/pg2/companion/companion-orchestrator.js
+          node --check js/pg2/bootstrap/app.js
       - name: V1.5.2 cross-platform regression tests
         run: |
           node --test tests/v1-5-unified-guide.test.mjs
@@ -100,6 +105,8 @@ jobs:
         run: node --test tests/pg17-*.test.mjs
       - name: V1.8 local itinerary and journal gates
         run: node --test tests/pg18-*.test.mjs
+      - name: V2 companion operating-system gates
+        run: node --test tests/pg2-*.test.mjs
       - name: Complete repository regression suite
         run: node --test tests/*.test.mjs
 

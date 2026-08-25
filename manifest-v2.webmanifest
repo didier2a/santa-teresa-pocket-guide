@@ -1,0 +1,19 @@
+{
+  "name": "PocketGuide V2 · Compagnon audiovisuel",
+  "short_name": "PocketGuide V2",
+  "description": "Compagnon touristique vocal et audiovisuel avec GPS, RoutePack, simulation, souvenirs privés et Geo-AR.",
+  "id": "./pocketguide-v2.html",
+  "start_url": "./pocketguide-v2.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#041316",
+  "theme_color": "#071f24",
+  "lang": "fr",
+  "categories": ["travel", "navigation", "lifestyle"],
+  "icons": [
+    {"src":"assets/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"assets/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"},
+    {"src":"assets/icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}
+  ]
+}

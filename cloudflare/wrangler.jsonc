@@ -4,6 +4,6 @@
   "main": "pocketguide-v2-worker.js",
   "compatibility_date": "2026-08-23",
   "vars": {
-    "OPENAI_REALTIME_MODEL": "gpt-realtime-2.1"
+    "OPENAI_REALTIME_MODEL": "gpt-realtime-2.1-mini"
   }
 }

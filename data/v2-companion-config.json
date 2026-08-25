@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0-rc1",
+  "apiBase": "https://pocketguide-v2.infoserv2a.workers.dev",
+  "companionModel": "gpt-realtime-2.1-mini",
+  "premiumRealtimeModel": "gpt-realtime-2.1",
+  "plannerModel": "gpt-5.6-terra",
+  "transcribeModel": "gpt-4o-mini-transcribe",
+  "voice": "marin",
+  "reasoningEffort": "low",
+  "connectionTimeoutMs": 15000,
+  "sessionIdleMs": 300000
+}
