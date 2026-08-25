@@ -8,6 +8,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="PocketGuide" />
+  <script>
+    // L'ouverture directe de la racine utilise PocketGuide 1.5.1.
+    // engine.html charge ce même fichier dans son document : dans ce cas le chemin
+    // reste /engine.html et l'interface legacy est volontairement conservée.
+    if(!location.pathname.endsWith('/engine.html')&&!new URLSearchParams(location.search).has('legacy')){
+      const target=new URL('./pocketguide-15.html',location.href);
+      target.search=location.search;target.hash=location.hash;location.replace(target);
+    }
+  </script>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://unpkg.com" />
