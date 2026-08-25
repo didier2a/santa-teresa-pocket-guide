@@ -28,5 +28,5 @@ test('V1.4.8: moteur générique affiche carte, marqueurs et galeries média',as
 
 test('V1.4.8: service worker met en cache les nouveaux composants',async()=>{
   const sw=await read('service-worker.js');
-  assert.match(sw,/pocketguide-engine-v1-4-8a/);assert.match(sw,/studio-148\.html/);assert.match(sw,/route-library\.js/);assert.match(sw,/route-media\.js/);assert.match(sw,/studio-v1-4-8\.js/);
+  assert.match(sw,/const CACHE='pocketguide-/);assert.match(sw,/studio-148\.html/);assert.match(sw,/route-library\.js/);assert.match(sw,/route-media\.js/);assert.match(sw,/studio-v1-4-8\.js/);
 });

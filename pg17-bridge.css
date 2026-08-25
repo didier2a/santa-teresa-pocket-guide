@@ -1,0 +1,22 @@
+/* PocketGuide 1.7 RC1 — real-time audiovisual walking layer over the 1.6 Premium shell. */
+.pg17-guidance{margin-top:14px;padding:13px 14px;border:1px solid rgba(224,244,239,.24);border-radius:18px;background:rgba(3,17,21,.6);backdrop-filter:blur(14px);box-shadow:0 12px 30px rgba(0,0,0,.2)}
+.pg17-guidance-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.pg17-phase{display:inline-flex;align-items:center;min-height:28px;padding:4px 9px;border-radius:999px;background:rgba(121,220,207,.16);color:#d9fff8;font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.pg17-guidance[data-phase="gps_degraded"] .pg17-phase{background:rgba(255,187,92,.2);color:#ffe6bc}
+.pg17-guidance[data-phase="arrived"] .pg17-phase,.pg17-guidance[data-phase="completed"] .pg17-phase{background:rgba(137,225,156,.22);color:#dffff0}
+.pg17-progress-copy{font-size:.75rem;color:rgba(240,255,252,.72)}
+.pg17-instruction{display:block;font-size:clamp(.94rem,3.8vw,1.08rem);line-height:1.32;color:#fff}
+.pg17-distance{display:block;margin-top:5px;color:rgba(240,255,252,.72);font-size:.82rem}
+.pg17-progress{height:5px;margin-top:10px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.12)}
+.pg17-progress>span{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#69d8c9,#eaca6a);transition:width .45s ease}
+.pg17-walk-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.pg17-walk-controls button{min-height:44px;padding:8px 10px;font-size:.78rem}
+.pg17-walk-controls #pg17Continue{grid-column:1/-1;border-color:rgba(234,202,106,.55);background:rgba(234,202,106,.14)}
+.pg17-safety{margin:7px 0 0;color:rgba(239,250,247,.68);font-size:.76rem;line-height:1.4}
+.pg17-simulation{margin:14px 0;padding:14px;border:1px solid rgba(121,220,207,.22);border-radius:18px;background:rgba(2,24,27,.44)}
+.pg17-simulation[hidden]{display:none}.pg17-simulation h3{margin:0 0 5px}.pg17-simulation p{margin:0 0 10px}
+.pg17-sim-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.pg17-sim-actions button{min-height:44px}
+.pg17-sim-track{height:6px;margin:10px 0;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.12)}.pg17-sim-track span{display:block;width:0;height:100%;background:#7bdacc;transition:width .2s linear}
+.terrain-media{transition:filter .35s ease,opacity .35s ease}.terrain-media.pg17-media-transition{filter:saturate(.82);opacity:.9}
+@media (orientation:landscape) and (max-height:560px){.pg17-guidance{margin-top:8px;padding:10px 12px}.focus-card>p{margin-bottom:5px}.pg17-walk-controls{grid-template-columns:repeat(4,minmax(0,1fr))}.pg17-walk-controls #pg17Continue{grid-column:auto}}
+@media (prefers-reduced-motion:reduce){.pg17-progress>span,.pg17-sim-track span,.terrain-media{transition:none!important}.voice-pulse{animation:none!important}}
