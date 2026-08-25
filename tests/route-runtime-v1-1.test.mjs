@@ -29,11 +29,11 @@ test('Engine: une route inconnue est refusée avant exécution',async()=>{
   await assert.rejects(()=>loadPocketGuideRoute({fetchImpl,locationLike:{href:'https://example.test/engine.html?route=route-inconnue'}}),/Parcours inconnu/);
 });
 
-test('Engine générique: entrée, bootstrap et cache restent disponibles avec la V1.5.1',async()=>{
+test('Engine générique: entrée, bootstrap et cache restent disponibles avec la V1.5.2',async()=>{
   const html=await read('engine.html'),sw=await read('service-worker.js'),bootstrap=await read('js/route-bootstrap.js');
   assert.match(html,/route-bootstrap\.js/);
   assert.match(html,/index\.html/);
-  assert.match(sw,/pocketguide-v15-1-voice-geoar/);
+  assert.match(sw,/pocketguide-v15-2-multiplatform/);
   assert.match(sw,/engine\.html/);
   assert.match(sw,/route-runtime\.js/);
   assert.match(sw,/route-bootstrap\.js/);
