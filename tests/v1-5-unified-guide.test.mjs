@@ -79,7 +79,7 @@ test('Correction 4: iPhone safe areas and touch targets are protected',()=>{
   assert.match(css152,/font-size:16px/);
 });
 
-test('Correction 5: current route can be downloaded with a local schematic offline map',()=>{
+test('Correction 5: current route can be downloaded, persisted and reopened offline after restart',()=>{
   assert.match(offline,/downloadCurrentRoute/);
   assert.match(offline,/makeSvg/);
   assert.match(offline,/pg152-offline-pack/);
@@ -87,6 +87,12 @@ test('Correction 5: current route can be downloaded with a local schematic offli
   assert.match(offline,/Télécharger hors ligne/);
   assert.match(offline,/navigator\.onLine/);
   assert.match(offline,/localStorage\.setItem/);
+  assert.match(offline,/persistInLibrary/);
+  assert.match(offline,/saveRoutePack/);
+  assert.match(offline,/openOfflinePack/);
+  assert.match(offline,/pg-route-handoff-v1/);
+  assert.match(offline,/handoff.*local/);
+  assert.match(offline,/Ouvrir le parcours hors ligne/);
 });
 
 test('Correction 6: universal diagnostic covers browser and required sensors',()=>{
@@ -107,6 +113,19 @@ test('Correction 7: PWA build 7.2.0 caches cross-platform assets and diagnostic'
   for(const asset of ['v152.css','platform-v152.js','offline-v152.js','diagnostic.html','diagnostic-v152.js'])assert.match(sw,new RegExp(asset.replace(/[.]/g,'\\.')));
   assert.match(sw,/pocketguide-v152-route-download/);
   assert.doesNotMatch(sw,/client\.navigate/);
+});
+
+test('Planner strict schema protects coordinates dates times and verified sources',()=>{
+  assert.match(worker,/minimum:-90,maximum:90/);
+  assert.match(worker,/minimum:-180,maximum:180/);
+  assert.match(worker,/pattern:'\^\\\\d\{4\}-\\\\d\{2\}-\\\\d\{2\}\$'/);
+  assert.match(worker,/pattern:'\^\\\\d\{2\}:\\\\d\{2\}\$'/);
+  assert.match(worker,/sourceUrl:\{type:'string',pattern:'\^https:\\/\\\/.\+'/);
+  assert.match(worker,/ids\.size!==p\.places\.length/);
+  assert.match(worker,/ids\.has\(e\.placeId\)/);
+  assert.match(worker,/maxItems:7/);
+  assert.match(worker,/maxItems:16/);
+  assert.match(worker,/Math\.min\(10/);
 });
 
 test('Existing Realtime stability fixes remain intact',()=>{
