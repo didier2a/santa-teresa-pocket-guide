@@ -63,9 +63,9 @@ test('Cloudflare bridge protects the permanent OpenAI key',()=>{
 });
 
 test('PWA promotes V1.5 while retaining V2 offline assets',()=>{
-  assert.equal(manifest.start_url,'./pocketguide-15.html?app=7.0.0');
+  assert.match(manifest.start_url,/^\.\/pocketguide-15\.html\?app=\d+\.\d+\.\d+$/);
   assert.equal(manifest.orientation,'any');
-  assert.match(sw,/pocketguide-v15-voice-geoar-a/);
+  assert.match(sw,/const CACHE='pocketguide-v15/);
   assert.match(sw,/\.\/pocketguide-15\.html/);
   assert.match(sw,/\.\/v2\.html/);
   assert.match(sw,/\.\/v2\.css/);

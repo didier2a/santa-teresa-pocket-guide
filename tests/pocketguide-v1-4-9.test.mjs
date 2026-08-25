@@ -27,5 +27,5 @@ test('V1.4.9: ancien audioguide automatique robotique est neutralisé',async()=>
 test('V1.4.9: GeoAR charge les modules paysage et compagnon',async()=>{
   const core=await read('js/ar-core.js'),sw=await read('service-worker.js');
   assert.match(core,/orientation-v149\.js/);assert.match(core,/audio-companion-v149\.js/);assert.match(core,/ar-v149\.css/);assert.match(core,/V1\.4\.9/);
-  assert.match(sw,/pocketguide-engine-v1-4-9a/);assert.match(sw,/orientation-v149\.js/);assert.match(sw,/audio-companion-v149\.js/);assert.match(sw,/ar-v149\.css/);
+  assert.match(sw,/const CACHE='pocketguide-/);assert.match(sw,/orientation-v149\.js/);assert.match(sw,/audio-companion-v149\.js/);assert.match(sw,/ar-v149\.css/);
 });

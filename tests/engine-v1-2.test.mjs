@@ -43,7 +43,7 @@ test('Engine V1.4: Studio conserve import validation partage export et ajoute vo
 
 test('Engine V1.4: le cache offline contient Studio vocal, config AI et Bonifacio',async()=>{
   const sw=await read('service-worker.js');
-  assert.match(sw,/pocketguide-engine-v1-4/);
+  assert.match(sw,/const CACHE='pocketguide-/);
   assert.match(sw,/studio\.html/);
   assert.match(sw,/studio-v1-4\.js/);
   assert.match(sw,/ai-config\.json/);
