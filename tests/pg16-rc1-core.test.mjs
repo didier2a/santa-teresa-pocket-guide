@@ -25,6 +25,13 @@ function load(p=pack()){
   registerRouteActions();
 }
 
+test('RC1 route actions register structural contracts',()=>{
+  registerRouteActions();
+  assert.equal(actionRegistry.describe('route.replace')?.confirmation,'required');
+  assert.equal(actionRegistry.describe('route.replace')?.riskLevel,'structural');
+  assert.equal(actionRegistry.describe('route.shorten')?.confirmation,'required');
+});
+
 test('persistent and session memories remain separated and forgettable',()=>{
   pocketGuideState.reset({source:'test'});
   memoryStore.setPreference('interest','histoire',{scope:'persistent',source:'explicit_user'});
@@ -74,6 +81,3 @@ test('shorten removes low-priority optional step but preserves must-see places',
   assert.deepEqual(remaining,['e1','e3']);
   assert.equal(remaining.includes('e1'),true);assert.equal(remaining.includes('e3'),true);
 });
-
-assert.ok(actionRegistry.has('route.replace'));
-assert.ok(actionRegistry.has('route.shorten'));
