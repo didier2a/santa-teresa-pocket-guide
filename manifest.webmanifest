@@ -1,8 +1,8 @@
 {
-  "name": "PocketGuide 1.5 · Guide IA & Geo-AR",
-  "short_name": "PocketGuide 1.5",
+  "name": "PocketGuide 1.5.2 · Guide IA & Geo-AR",
+  "short_name": "PocketGuide 1.5.2",
   "description": "Guide touristique vocal intelligent avec GPS, cartographie, RoutePack et réalité augmentée Geo-AR.",
-  "start_url": "./pocketguide-15.html?app=7.1.1",
+  "start_url": "./pocketguide-15.html?app=7.2.0",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
