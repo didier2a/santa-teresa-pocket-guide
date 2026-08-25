@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07191e">
+  <title>PocketGuide 1.6 Alpha · Human Guide</title>
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;color-scheme:dark}
+    *{box-sizing:border-box}body{margin:0;background:#07191e;color:#eef7f5;min-height:100vh}
+    button,input{font:inherit}button{min-height:44px}.pg16{max-width:780px;margin:auto;padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(90px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+    .hero,.card,.panel{background:#0f282f;border:1px solid #25434a;border-radius:22px;padding:18px;margin:14px 0}.eyebrow{opacity:.66;text-transform:uppercase;letter-spacing:.12em;font-size:.72rem}.hero h1{margin:.3rem 0;font-size:1.9rem}.hero p{line-height:1.5}.status{display:flex;gap:8px;flex-wrap:wrap}.status span{background:#17383f;padding:7px 10px;border-radius:999px;font-size:.82rem}
+    .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fact{background:#102f36;border-radius:16px;padding:12px}.fact small{display:block;opacity:.62}.fact strong{display:block;margin-top:5px}
+    .pg16-log{display:grid;gap:8px;max-height:300px;overflow:auto}.pg16-log-row{display:grid;gap:3px;padding:10px 12px;border-radius:14px;background:#0b2228}.pg16-log-row.user{background:#183c44}.pg16-log-row strong{font-size:.76rem;opacity:.7}.pg16-form{display:flex;gap:8px;margin-top:12px}.pg16-form input{flex:1;min-width:0;border:1px solid #31535a;background:#07191e;color:#fff;border-radius:14px;padding:12px;font-size:16px}.pg16-form button,.actions button,.pg16-nav button{border:1px solid #31535a;background:#17383f;color:#fff;border-radius:14px;padding:9px 12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.proposal{border:1px solid #7c7047;background:#302b19;border-radius:16px;padding:12px;margin-top:12px}.pg16-nav{position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:8px;background:#0b2228;border:1px solid #25434a;border-radius:18px;padding:8px;z-index:10}.pg16-nav button.is-active{background:#2d5c65}.pg16-panel[hidden]{display:none}@media(min-width:700px){.facts{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  </style>
+</head>
+<body>
+<main class="pg16">
+  <section class="hero">
+    <span class="eyebrow">Human Guide Architecture · Alpha 1</span>
+    <h1>PocketGuide 1.6</h1>
+    <p id="pg16Context">Initialisation du contexte…</p>
+    <div class="status"><span>État : <b id="pg16Status">idle</b></span><span>Branche expérimentale isolée</span></div>
+  </section>
+
+  <section class="card">
+    <span class="eyebrow">Source unique de vérité</span>
+    <div class="facts">
+      <div class="fact"><small>Parcours</small><strong id="pg16Route">—</strong></div>
+      <div class="fact"><small>Étape</small><strong id="pg16Current">—</strong></div>
+      <div class="fact"><small>Ensuite</small><strong id="pg16Next">—</strong></div>
+      <div class="fact"><small>Temps restant</small><strong id="pg16Remaining">—</strong></div>
+    </div>
+  </section>
+
+  <section class="pg16-panel panel" data-panel="guide">
+    <span class="eyebrow">Compagnon central</span><h2>Parlez au Human Guide</h2>
+    <div class="actions"><button data-action="route.next">Continuer</button><button data-action="route.skip">Sauter l’étape</button></div>
+    <div id="pg16Proposal" class="proposal" hidden><strong>Confirmation demandée</strong><p>Le compagnon attend votre décision.</p><div class="actions"><button id="pg16Yes">Oui</button><button id="pg16No">Non</button></div></div>
+    <div id="pg16Log" class="pg16-log" aria-live="polite"></div>
+    <form id="pg16Form" class="pg16-form"><input id="pg16Input" placeholder="Ex. Montre-moi la carte, continue, saute cette étape…" autocomplete="off"><button>Envoyer</button></form>
+  </section>
+
+  <section class="pg16-panel panel" data-panel="map" hidden><span class="eyebrow">Vue du compagnon</span><h2>Carte</h2><p>Alpha 1 : cette vue prouve que la navigation passe déjà par l’Action Registry. Le moteur Leaflet 1.5.2 sera adapté ensuite.</p></section>
+  <section class="pg16-panel panel" data-panel="route" hidden><span class="eyebrow">Vue du compagnon</span><h2>Parcours</h2><p>Le RoutePack est chargé par l’adaptateur 1.5.2 et synchronisé dans PocketGuideState.</p></section>
+  <section class="pg16-panel panel" data-panel="create" hidden><span class="eyebrow">Moteur interne</span><h2>Planner</h2><p>En 1.6, le Planner deviendra d’abord un outil du Human Guide. L’interface manuelle restera disponible en second accès.</p></section>
+</main>
+<nav class="pg16-nav" aria-label="Navigation Alpha 1"><button class="is-active" data-open="guide">Guide</button><button data-open="map">Carte</button><button data-open="route">Parcours</button><button data-open="create">Planner</button></nav>
+<script type="module" src="js/pg16/bootstrap/app-bootstrap.js"></script>
+</body>
+</html>
