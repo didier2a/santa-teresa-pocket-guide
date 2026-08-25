@@ -78,6 +78,8 @@ jobs:
         run: node --test tests/pg16-rc1-core.test.mjs
       - name: V1.6 RC1 route-memory behavior gate
         run: node --test tests/pg16-route-memory.test.mjs
+      - name: V1.6 Planner location replacement gate
+        run: node --test tests/pg16-planner-location.test.mjs
       - name: V1.6 RC1 G0-G15 contract gates
         run: node --test tests/pg16-rc1-contract.test.mjs
       - name: V1.6 RC1 G14 simulation matrix
