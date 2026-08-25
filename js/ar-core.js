@@ -38,7 +38,9 @@ export function simulatedPositionForPlace(place,{northMeters=35,westMeters=20}={
   return {lat:place.lat+latOffset,lng:place.lng-lngOffset,accuracy:3,simulated:true};
 }
 
-if(typeof window!=='undefined'){
+// Compatibilite V1.4.9 uniquement : la V1.5 importe ce module pour sa geometrie,
+// sans charger le compagnon audio/orientation legacy dans la nouvelle application.
+if(typeof window!=='undefined'&&document.querySelector('#today')&&!document.querySelector('#pg15App')){
   const version=document.querySelector('#today .hero__meta > div:nth-child(3) span');if(version)version.textContent='V1.4.9';
   const label=document.querySelector('#today .hero__meta > div:nth-child(3) small');if(label)label.textContent='16:9 + Audio';
   const css=document.createElement('link');
