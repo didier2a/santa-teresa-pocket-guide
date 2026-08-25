@@ -107,6 +107,7 @@ pocketGuideState.patch({version:'1.8.0-rc1'},{source:'pg18-bootstrap',event:'app
 photoPreviewEngine.onScene=renderPreviewScene;photoPreviewEngine.onStatus=renderPreviewStatus;itineraryManager.onStatus=payload=>{if(payload.type==='error')setText('#pg18LibraryStatus',payload.message);};itineraryManager.start();
 
 $('#pg18LibraryList')?.addEventListener('click',event=>{const button=event.target.closest('[data-library-action]');if(button)handleLibraryAction(button);});
+$('[data-tab="library"]')?.addEventListener('click',()=>openPanel('library'));
 $('#pg18RefreshLibrary')?.addEventListener('click',()=>renderLibrary());$('#pg18ShowArchived')?.addEventListener('click',event=>{includeArchived=!includeArchived;event.currentTarget.setAttribute('aria-pressed',String(includeArchived));event.currentTarget.textContent=includeArchived?'Masquer les archives':'Voir les archives';renderLibrary();});
 $('#pg18SaveNow')?.addEventListener('click',async()=>{await itineraryManager.flush();await renderLibrary('Itinéraire sauvegardé sur ce téléphone.');});$('#pg18OpenJournal')?.addEventListener('click',()=>openJournal());$('#pg18CloseJournal')?.addEventListener('click',()=>{$('#pg18Journal').hidden=true;revokeJournalUrls();});
 $('#pg18JournalList')?.addEventListener('click',event=>{const button=event.target.closest('[data-view-media]');if(button)openPhotoViewer(button.dataset.viewMedia);});
