@@ -25,10 +25,15 @@ export class PerceptionEngine {
   }
   stopOrientation(){if(!this.orientationHandler)return;globalThis.removeEventListener?.('deviceorientationabsolute',this.orientationHandler,true);globalThis.removeEventListener?.('deviceorientation',this.orientationHandler,true);this.orientationHandler=null;}
   async openCamera(videoEl){
-    if(this.cameraStream)return this.cameraStream;if(!globalThis.navigator?.mediaDevices?.getUserMedia){pocketGuideState.patch({perception:{camera:'unavailable'}},{source:'perception',event:'camera.unavailable'});return null;}
-    try{this.cameraStream=await globalThis.navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});if(videoEl){videoEl.srcObject=this.cameraStream;videoEl.hidden=false;await videoEl.play();}pocketGuideState.patch({perception:{camera:'ready'},ui:{ar:true,panel:'guide'}},{source:'perception',event:'camera.ready'});return this.cameraStream;}catch(error){pocketGuideState.patch({perception:{camera:error?.name==='NotAllowedError'?'denied':'error'}},{source:'perception',event:'camera.error'});return null;}
+    if(this.cameraStream)return this.cameraStream;
+    if(!globalThis.navigator?.mediaDevices?.getUserMedia){pocketGuideState.patch({perception:{camera:'unavailable'},ui:{ar:false,arRequested:false}},{source:'perception',event:'camera.unavailable'});return null;}
+    try{
+      this.cameraStream=await globalThis.navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+      if(videoEl){videoEl.srcObject=this.cameraStream;videoEl.hidden=false;await videoEl.play();}
+      pocketGuideState.patch({perception:{camera:'ready'},ui:{ar:true,arRequested:false,panel:'guide'}},{source:'perception',event:'camera.ready'});return this.cameraStream;
+    }catch(error){pocketGuideState.patch({perception:{camera:error?.name==='NotAllowedError'?'denied':'error'},ui:{ar:false,arRequested:false}},{source:'perception',event:'camera.error'});return null;}
   }
-  closeCamera(videoEl){try{this.cameraStream?.getTracks().forEach(t=>t.stop())}catch{}this.cameraStream=null;if(videoEl){try{videoEl.pause()}catch{}videoEl.srcObject=null;videoEl.hidden=true;}pocketGuideState.patch({perception:{camera:'idle'},ui:{ar:false}},{source:'perception',event:'camera.closed'});}
+  closeCamera(videoEl){try{this.cameraStream?.getTracks().forEach(t=>t.stop())}catch{}this.cameraStream=null;if(videoEl){try{videoEl.pause()}catch{}videoEl.srcObject=null;videoEl.hidden=true;}pocketGuideState.patch({perception:{camera:'idle'},ui:{ar:false,arRequested:false}},{source:'perception',event:'camera.closed'});}
   reset(){this.stopLocation();this.stopOrientation();this.closeCamera();pocketGuideState.patch({perception:{gps:'unknown',orientation:'unknown',camera:'unknown',microphone:'unknown'}},{source:'perception',event:'perception.reset'});eventBus.emit('perception.reset.completed',{});}
 }
 
