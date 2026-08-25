@@ -28,21 +28,25 @@ jobs:
           node-version: 22
       - name: Syntax checks
         run: |
-          node --check js/app.js
-          node --check js/ar-v6.js
-          node --check js/s22-fixes.js
-          node --check js/diagnostic-s22.js
-          node --check js/schedule-engine.js
-          node --check js/trip-config.js
-          node --check js/v2-guide.js
+          node --check js/ar-core.js
           node --check js/pocketguide-v1-5.js
+          node --check js/pocketguide-v1-5-proactive.js
+          node --check js/route-runtime.js
+          node --check js/route-library.js
+          node --check engine/routepack.js
           node --check cloudflare/pocketguide-v2-worker.js
           node --check service-worker.js
-      - name: Functional regression tests
-        run: node --test tests/*.test.mjs
+      - name: V1.5.1 stability regression tests
+        run: |
+          node --test tests/v1-5-unified-guide.test.mjs
+          node --test tests/routepack-v1.test.mjs
+          node --test tests/route-runtime-v1-1.test.mjs
+          node --test tests/ar-core-v148.test.mjs
+          node --test tests/schedule-engine.test.mjs
 
   deploy:
     if: github.event_name != 'pull_request'
+    needs: test
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
