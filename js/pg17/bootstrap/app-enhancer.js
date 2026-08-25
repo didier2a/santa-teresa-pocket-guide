@@ -12,7 +12,7 @@ const params=new URL(location.href).searchParams;
 const simulationRequested=params.get('walksim')==='1';
 const autoWalk=params.get('autowalk')==='1';
 const PHASE_LABELS={waiting_gps:'GPS en attente',gps_degraded:'GPS imprécis',en_route:'En chemin',preview:'À proximité',approaching:'Vous approchez',arrived:'Vous êtes arrivé',departed:'Étape quittée',completed:'Parcours terminé'};
-let voiceEnabled=false,lastPrefetched=null,currentHero=null;
+let voiceEnabled=false,lastPrefetched=null,currentHero=null,lastGuidanceText='';
 const mediaRequests=new Map();
 
 function waitForBase(timeoutMs=12_000){
@@ -32,7 +32,8 @@ async function enrichMissingHero(snapshot){
   const place=snapshot?.place;if(!place?.id||mediaRequests.has(place.id)||!pocketGuideState.select('device.online'))return;
   const task=(async()=>{
     try{
-      const results=await findCommonsImages(`${place.name||place.title} ${pocketGuideState.select('route.title')||''}`,{limit:3});if(!results.length)return;
+      const name=place.name||place.title,queries=[`${name} Santa Teresa Gallura`,name,'Santa Teresa Gallura'];let results=[];
+      for(const query of queries){results=await findCommonsImages(query,{limit:3});if(results.length)break;}if(!results.length)return;
       const pack=pocketGuideState.select('route.pack'),places=(pack?.places||[]).map(item=>item.id===place.id?{...item,heroImage:results[0].url,media:results,photoExact:false,photoLabel:'Wikimedia Commons',imageAttribution:{source:results[0].source,author:results[0].author,license:results[0].license,descriptionUrl:results[0].descriptionUrl}}:item);
       pocketGuideState.patch({route:{pack:{...pack,places}}},{source:'pg17-media',event:'route.media.enriched'});
     }catch{eventBus.emit('guidance.media.degraded',{placeId:place.id});}
@@ -44,6 +45,9 @@ function verifyCurrentHero(snapshot){
 }
 function renderGuidance(snapshot){
   if(!snapshot)return;
+  if(lastGuidanceText)setText('#guideAnswer',lastGuidanceText);
+  if(!pocketGuideState.select('ui.ar'))setText('#modeBadge','GUIDE AUDIOVISUEL');
+  if(snapshot.phase===GUIDANCE_PHASES.COMPLETED)setText('#focusTitle','Parcours terminé');
   setText('#pg17Phase',PHASE_LABELS[snapshot.phase]||snapshot.phase);
   setText('#pg17Instruction',snapshot.instruction);
   setText('#pg17Distance',formatDistance(snapshot.distanceMeters));
@@ -69,13 +73,15 @@ function resetRouteForSimulation(){
 const base=await waitForBase();
 pocketGuideState.patch({version:'1.7.0-rc1',ui:{guidance:{phase:GUIDANCE_PHASES.WAITING_GPS}}},{source:'pg17-bootstrap',event:'app.v17.ready'});
 walkingGuidanceEngine.onSnapshot=renderGuidance;
-walkingGuidanceEngine.onCue=payload=>{appendGuide(payload.text);if(voiceEnabled)voiceController.speak(payload.text);};
+walkingGuidanceEngine.onCue=payload=>{lastGuidanceText=payload.text;if(voiceEnabled)voiceController.speak(payload.text);appendGuide(payload.text);};
 walkingGuidanceEngine.start();
 walkingSimulator.onStatus=renderSimulation;
 
 proactiveEngine.onSuggestion=payload=>{if(payload.type==='near_place'||payload.type==='gps_degraded')return;appendGuide(payload.text);if(voiceEnabled&&!realtimeSession.connected)voiceController.speak(payload.text);};
 proactiveEngine.options.poiRadiusMeters=-1;proactiveEngine.options.gpsAccuracyBad=Number.POSITIVE_INFINITY;
 proactiveEngine.start();
+eventBus.on('voice.speaking',()=>{if(lastGuidanceText)setText('#guideAnswer',lastGuidanceText);});
+eventBus.on('voice.idle',()=>{if(lastGuidanceText)setText('#guideAnswer',lastGuidanceText);});
 
 $('#startGuide')?.addEventListener('click',()=>setVoiceEnabled(true));
 $('#pg17VoiceToggle')?.addEventListener('click',()=>setVoiceEnabled(!voiceEnabled));
