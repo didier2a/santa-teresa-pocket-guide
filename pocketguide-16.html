@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#07191e">
-  <meta name="description" content="PocketGuide 1.6 Alpha 2 — Human Guide Architecture dans l’UX premium 1.5.2.">
+  <meta name="description" content="PocketGuide 1.6 — compagnon de voyage conversationnel avec GPS, carte, Planner, RoutePack et Geo-AR.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PocketGuide 1.6">
@@ -12,15 +12,15 @@
   <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="v15.css?v=1.6.0a2">
-  <link rel="stylesheet" href="v152.css?v=1.6.0a2">
-  <link rel="stylesheet" href="pg16-bridge.css?v=1.6.0a2">
-  <title>PocketGuide 1.6 Alpha 2 · Human Guide</title>
+  <link rel="stylesheet" href="v15.css?v=1.6.0rc1">
+  <link rel="stylesheet" href="v152.css?v=1.6.0rc1">
+  <link rel="stylesheet" href="pg16-bridge.css?v=1.6.0rc1">
+  <title>PocketGuide 1.6 · Human Guide</title>
 </head>
 <body>
   <main class="pg15" id="pg16App">
     <header class="topbar">
-      <div class="brand"><span class="brand-mark">PG</span><div><strong>PocketGuide <b>1.6</b></strong><small id="routeTitle">Human Guide Alpha 2</small></div></div>
+      <div class="brand"><span class="brand-mark">PG</span><div><strong>PocketGuide <b>1.6</b></strong><small id="routeTitle">Human Guide</small></div></div>
       <div class="status-row"><span id="networkState" class="status is-ok">● Réseau</span><span id="gpsState" class="status">GPS</span><span id="sessionState" class="status">Guide</span></div>
     </header>
 
@@ -45,7 +45,7 @@
 
       <div class="voice-console">
         <button id="voiceMain" class="voice-orb" type="button" aria-label="Parler au Human Guide"><span class="voice-pulse"></span><span>🎙️</span></button>
-        <div class="voice-copy"><strong id="voiceLabel">Parlez à votre guide</strong><small id="voiceHint">« Où en sommes-nous ? » · « Raconte ce lieu » · « Montre-moi la carte »</small></div>
+        <div class="voice-copy"><strong id="voiceLabel">Parlez à votre guide</strong><small id="voiceHint">« Où en sommes-nous ? » · « Raconte ce lieu » · « Change la balade »</small></div>
         <button id="interruptBtn" class="voice-mini" type="button" aria-label="Interrompre le guide">■</button>
       </div>
     </section>
@@ -58,12 +58,12 @@
 
     <section class="panel-stack">
       <section class="panel is-active" data-panel="guide">
-        <div class="panel-head"><div><span class="eyebrow">Compagnon central</span><h2>Votre Human Guide</h2></div><span class="pg16-alpha-badge">Alpha 2</span></div>
+        <div class="panel-head"><div><span class="eyebrow">Compagnon central</span><h2>Votre Human Guide</h2></div><span class="version-pill">1.6</span></div>
         <div class="quick-grid">
           <button data-command="Raconte ce lieu">Raconte ce lieu</button>
           <button data-command="Qu'est-ce que je regarde ?">Ce que je regarde</button>
           <button data-command="Continue vers la prochaine étape">Continuer</button>
-          <button data-command="Saute cette étape">Sauter</button>
+          <button data-command="J’ai moins de temps, raccourcis le parcours sans perdre les incontournables">Raccourcir</button>
         </div>
         <div id="pg16Proposal" class="pg16-proposal" hidden><strong>Votre guide vous propose un changement</strong><p id="pg16ProposalText">Confirmez-vous ?</p><div class="proposal-actions"><button id="pg16Yes" class="primary">Oui, confirme</button><button id="pg16No" class="ghost">Non</button></div></div>
         <div id="conversationLog" class="conversation-log" aria-live="polite"></div>
@@ -73,7 +73,7 @@
       <section class="panel" data-panel="map">
         <div class="panel-head"><div><span class="eyebrow">Navigation vivante</span><h2>Carte & GPS</h2></div><button id="gpsBtn" class="ghost">◎ GPS</button></div>
         <div id="map" class="map"></div>
-        <p id="mapNote" class="pg16-map-note">La carte est pilotée par le même PocketGuideState que le Human Guide.</p>
+        <p id="mapNote" class="pg16-map-note">Votre position, le parcours et le Human Guide partagent le même contexte.</p>
         <div id="nearbyList" class="nearby-list"></div>
       </section>
 
@@ -83,18 +83,19 @@
       </section>
 
       <section class="panel" data-panel="create">
-        <div class="panel-head"><div><span class="eyebrow">Planner orchestré</span><h2>Créer ou changer de balade</h2></div><span class="version-pill">1.6 A2</span></div>
+        <div class="panel-head"><div><span class="eyebrow">Planner orchestré</span><h2>Créer ou changer de balade</h2></div><span class="version-pill">1.6</span></div>
         <div class="creator-grid">
           <article class="creator-card">
-            <label>Décrivez ce que vous voulez<textarea id="planPrompt" rows="5" placeholder="Ex. Je suis fatigué, il me reste une heure, garde seulement les incontournables."></textarea></label>
+            <label>Décrivez ce que vous voulez<textarea id="planPrompt" rows="5" placeholder="Ex. Je suis fatigué, il me reste une heure, garde seulement les incontournables. Ou crée-moi une nouvelle balade orientée histoire et panoramas."></textarea></label>
             <button id="planVoiceBtn" class="ghost" type="button">🎙️ Dicter au guide</button>
-            <button id="planBtn" class="primary" type="button">✨ Demander au Human Guide</button>
-            <p id="pg16PlannerNote" class="microcopy">Alpha 2 : la demande est comprise par le Human Guide. La transaction de remplacement RoutePack sera branchée après Proposal/Transaction Manager.</p>
+            <button id="planBtn" class="primary" type="button">✨ Préparer une proposition</button>
+            <p id="pg16PlannerNote" class="microcopy">Le Planner vérifie le parcours. Rien n’est remplacé sans votre confirmation.</p>
           </article>
           <article class="creator-card">
-            <h3>Débogage terrain</h3>
-            <p>Vous pouvez tester la même version en GPS réel ou avec <code>?sim=1</code>. Ajoutez <code>&debug=1</code> pour voir PocketGuideState.</p>
-            <div id="simStatus" class="pg16-sim-chip" hidden>● Simulation active</div>
+            <h3>Votre compagnon</h3>
+            <p class="microcopy">PocketGuide tient compte de votre position, du temps restant, des étapes déjà parcourues et des préférences utiles que vous lui demandez de retenir.</p>
+            <p class="microcopy">Vous pouvez dire : « qu’est-ce que tu sais de mes préférences ? », « remets comme avant », ou « change complètement la balade ».</p>
+            <div id="simStatus" class="pg16-sim-chip" hidden>● Simulation interne</div>
           </article>
         </div>
       </section>
@@ -109,12 +110,12 @@
   </main>
 
   <div id="permissionSheet" class="permission-sheet" hidden>
-    <div class="permission-card"><span class="eyebrow">Activation terrain</span><h2>Votre guide a besoin de vous situer</h2><p>Le GPS donne le contexte réel. Le micro s’active uniquement lorsque vous touchez le bouton. La caméra n’est activée que pour l’AR.</p><div class="permission-actions"><button id="startGuide" class="primary">Démarrer en réel</button><button id="startDemo" class="ghost">Mode simulation</button></div></div>
+    <div class="permission-card"><span class="eyebrow">Activation terrain</span><h2>Votre guide a besoin de vous situer</h2><p>Le GPS donne le contexte réel. Le micro s’active lorsque vous touchez le bouton. La caméra n’est utilisée que lorsque vous ouvrez l’AR.</p><div class="permission-actions"><button id="startGuide" class="primary">Démarrer le guide</button><button id="startDemo" class="ghost" hidden>Mode simulation</button></div></div>
   </div>
 
   <pre id="pg16Debug" class="pg16-debug" hidden></pre>
   <audio id="remoteAudio" autoplay playsinline></audio>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script type="module" src="js/pg16/bootstrap/app-bootstrap.js?v=1.6.0a2"></script>
+  <script type="module" src="js/pg16/bootstrap/app-rc-bootstrap.js?v=1.6.0rc1"></script>
 </body>
 </html>
