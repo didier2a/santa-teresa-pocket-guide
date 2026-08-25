@@ -3,6 +3,7 @@ import {eventBus} from '../../pg16/core/event-bus.js';
 import {actionRegistry} from '../../pg16/core/action-registry.js';
 import {voiceController} from '../../pg16/guide/voice-controller.js';
 import {enrichRoutePackMedia} from '../../route-media.js';
+import {V51_PHOTO_MAP} from '../../trip-config.js';
 import {itineraryStore} from '../storage/itinerary-store.js';
 import {itineraryManager} from '../itineraries/itinerary-manager.js';
 import {createPortableBackupBlob,backupFilename,downloadPortableBackup,importPortableBundle} from '../backup/portable-backup.js';
@@ -38,11 +39,16 @@ async function warmRouteImages(pack){
   await Promise.allSettled(urls.map(async url=>{if(await cache.match(url))return;const response=await fetch(url);if(response.ok)await cache.put(url,response.clone());}));
 }
 async function ensurePreviewMedia(itinerary){
-  const needs=(itinerary?.routePack?.places||[]).some(place=>!place?.media?.length||!/^https:\/\//.test(place?.heroImage||''));
+  const santaTeresa=itinerary?.title==='Santa Teresa Pocket Guide';
+  const canonicalPlace=place=>{const photo=santaTeresa?V51_PHOTO_MAP[place?.id]:null;if(!photo)return place;const media={url:photo.image,originalUrl:photo.image,descriptionUrl:photo.page||'',title:photo.label,author:photo.credit||'',license:'',credit:photo.credit||'',source:photo.page?'Wikimedia Commons':'PocketGuide'};return {...place,heroImage:photo.image,media:[media],photoExact:photo.exact,photoLabel:photo.label,imageAttribution:{source:media.source,author:media.author,license:media.license,descriptionUrl:media.descriptionUrl}};};
+  const canonicalPlaces=(itinerary?.routePack?.places||[]).map(canonicalPlace);
+  const canonicalChanged=canonicalPlaces.some((place,index)=>place.heroImage!==(itinerary?.routePack?.places||[])[index]?.heroImage);
+  if(canonicalChanged)itinerary.routePack={...itinerary.routePack,places:canonicalPlaces};
+  const needs=canonicalChanged||canonicalPlaces.some(place=>!place?.media?.length||(!/^https:\/\//.test(place?.heroImage||'')&&!(santaTeresa&&V51_PHOTO_MAP[place?.id]?.image===place?.heroImage)));
   if(!needs||!pocketGuideState.select('device.online')){await warmRouteImages(itinerary.routePack);return itinerary;}
   setText('#pg18LibraryStatus','Préparation et mise en cache des photographies du parcours…');
   let routePack=await enrichRoutePackMedia(itinerary.routePack,{destination:itinerary.title});
-  const places=[];for(const place of routePack.places||[]){let heroImage=place.heroImage||'';if(heroImage&&!/^https:\/\//.test(heroImage)){try{const response=await fetch(heroImage,{method:'HEAD',cache:'no-store'});if(!response.ok)heroImage=place.media?.[0]?.url||'';}catch{heroImage=place.media?.[0]?.url||'';}}if(!heroImage)heroImage=place.media?.[0]?.url||'';places.push({...place,heroImage});}routePack={...routePack,places};
+  const places=[];for(const sourcePlace of routePack.places||[]){const place=canonicalPlace(sourcePlace);let heroImage=place.heroImage||'';if(heroImage&&!/^https:\/\//.test(heroImage)){try{const response=await fetch(heroImage,{method:'HEAD',cache:'no-store'});if(!response.ok)heroImage=place.media?.[0]?.url||'';}catch{heroImage=place.media?.[0]?.url||'';}}if(!heroImage)heroImage=place.media?.[0]?.url||'';places.push({...place,heroImage});}routePack={...routePack,places};
   itinerary.routePack=routePack;itinerary.routeFingerprint=JSON.stringify(routePack);itinerary.revision=Math.max(1,Number(itinerary.revision)||1)+1;itinerary.updatedAt=new Date().toISOString();itinerary.cover=routePack.places?.find(place=>place.heroImage)?.heroImage||itinerary.cover;await itineraryStore.saveItinerary(itinerary);
   if(currentId()===itinerary.id)pocketGuideState.patch({route:{pack:routePack}},{source:'pg18-media',event:'route.media.enriched'});
   await warmRouteImages(routePack);setText('#pg18LibraryStatus','Photographies du parcours prêtes pour la consultation hors ligne.');return itinerary;
