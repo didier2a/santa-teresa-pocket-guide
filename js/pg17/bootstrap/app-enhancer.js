@@ -83,7 +83,7 @@ proactiveEngine.options.poiRadiusMeters=-1;proactiveEngine.options.gpsAccuracyBa
 proactiveEngine.start();
 eventBus.on('voice.speaking',()=>{if(lastGuidanceText)setText('#guideAnswer',lastGuidanceText);});
 eventBus.on('voice.idle',()=>{if(lastGuidanceText)setText('#guideAnswer',lastGuidanceText);});
-eventBus.on('*',()=>{if(!pocketGuideState.select('ui.ar'))setText('#modeBadge','GUIDE AUDIOVISUEL');});
+eventBus.on('*',()=>{if(!pocketGuideState.select('ui.ar'))setText('#modeBadge','GUIDE AUDIOVISUEL');if(lastGuidanceText)setText('#guideAnswer',lastGuidanceText);});
 
 $('#startGuide')?.addEventListener('click',()=>setVoiceEnabled(true));
 $('#pg17VoiceToggle')?.addEventListener('click',()=>setVoiceEnabled(!voiceEnabled));
