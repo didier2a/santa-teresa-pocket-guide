@@ -35,8 +35,8 @@ Les huit non-conformités logicielles C1 à C8 relevées sur la V2.3 ont été c
 
 ## Résultats reproductibles
 
-- Tests V2.3.1 : 47 scénarios de contrat et de simulation réussis.
-- Régression complète V1.4.8 → V2.3.1 : 285 tests réussis, aucun échec.
+- Tests V2.3.1 : 48 scénarios de contrat et de simulation réussis.
+- Régression complète V1.4.8 → V2.3.1 : 286 tests réussis, aucun échec.
 - Audit HTTP du cache : 80 ressources obligatoires chargées, 80 réponses valides, aucun fichier vide.
 
 ## Correctif de démarrage 2.3.1.1
@@ -45,6 +45,13 @@ Les huit non-conformités logicielles C1 à C8 relevées sur la V2.3 ont été c
 - Les fonctions natives `requestAnimationFrame` et `cancelAnimationFrame` sont invoquées avec le receveur global attendu par Android/WebIDL.
 - Le script de démarrage et le cache PWA ont une nouvelle révision afin que le Galaxy S22 ne réutilise pas le runtime fautif déjà installé.
 - Deux tests de non-régression couvrent explicitement la reprise de titre V2.2 et le démarrage du moniteur d’animation Android.
+
+## Correctif anti-cache 2.3.1.2
+
+- Le bootstrap V2.3, le bootstrap hérité V2.2, le runtime vivant et le moniteur de performance utilisent désormais des URL de module révisionnées.
+- Même lorsqu’un ancien service worker contrôle encore le premier chargement, il ne peut plus répondre avec les modules 2.2 non révisionnés.
+- Un verrou d’identité léger est installé avant les imports hérités et rétablit immédiatement le titre et le libellé V2.3.1 en cas de tentative de remplacement.
+- Les caches V2.2 et V2.3 sont renouvelés et l’application PWA passe à la révision `8.3.3`.
 - `git diff --check` : aucune erreur d’espace ou de patch.
 - Clé OpenAI : aucune clé dans le navigateur ou le dépôt ; le pont protégé existant est réutilisé.
 

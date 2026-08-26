@@ -47,6 +47,6 @@ test('map switcher provides four modes but Google remains lazy and opt-in',async
   assert.equal(googleReadiness(config).ready,false);assert.equal(config.googleMaps.enabled,false);assert.equal(config.googleMaps.browserKey,'');
 });
 
-test('V2.2 remains an independent offline-installable PWA',()=>{const parsed=JSON.parse(manifest);assert.match(parsed.start_url,/pocketguide-v22\.html/);assert.match(sw,/PG22_CACHE='pocketguide-v22-unified-audiovisual-2-2-1'/);for(const asset of ['pocketguide-v22.html','pocketguide-v22.css','manifest-v22.webmanifest','data/v22-config.json','human-guide-visemes-v22.png','js/pg22/audio/unified-audio-pack.js'])assert.match(sw,new RegExp(asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));});
+test('V2.2 remains an independent offline-installable PWA',()=>{const parsed=JSON.parse(manifest);assert.match(parsed.start_url,/pocketguide-v22\.html/);assert.match(sw,/PG22_CACHE='pocketguide-v22-unified-audiovisual-2-2-1-pg231-hotfix2'/);for(const asset of ['pocketguide-v22.html','pocketguide-v22.css','manifest-v22.webmanifest','data/v22-config.json','human-guide-visemes-v22.png','js/pg22/audio/unified-audio-pack.js'])assert.match(sw,new RegExp(asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));});
 
 test('premium mobile ergonomics preserve accessibility and privacy',()=>{assert.match(css,/min-height:44px/);assert.match(css,/prefers-reduced-motion:reduce/);assert.match(html,/aria-live="polite"/);assert.match(html,/Rien n’est envoyé automatiquement/);assert.match(spec,/ne les archive pas|ne sont ni exportées/i);});

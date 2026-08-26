@@ -1,4 +1,4 @@
-import {installBeforeV21,installAfterV21} from './audiovisual-runtime.js';
+import {installBeforeV21,installAfterV21} from './audiovisual-runtime.js?v=2.3.1.2';
 
 installBeforeV21();
 await import('../../pg21/bootstrap/app.js');

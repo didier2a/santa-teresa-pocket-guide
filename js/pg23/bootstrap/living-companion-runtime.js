@@ -8,7 +8,7 @@ import {humanRealtimeCompanion} from '../../pg21/companion/human-realtime-compan
 import {unifiedVoiceService} from '../../pg22/audio/unified-audio-pack.js';
 import {livingAvatarRuntime,LipSyncLabRuntime} from '../avatar/living-avatar-runtime.js';
 import {livingPresenceMachine} from '../core/living-presence-machine.js';
-import {livingPerformanceMonitor} from '../performance/living-performance-monitor.js';
+import {livingPerformanceMonitor} from '../performance/living-performance-monitor.js?v=2.3.1.2';
 import {livingSceneEngine} from '../scenes/living-scene-engine.js';
 import {RoutePresentationDirector,attributionForPlace} from '../scenes/route-presentation-director.js';
 import {scrollDirector} from '../scenes/scroll-director.js';
