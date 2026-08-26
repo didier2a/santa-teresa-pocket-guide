@@ -52,6 +52,7 @@ Les huit non-conformités logicielles C1 à C8 relevées sur la V2.3 ont été c
 - Même lorsqu’un ancien service worker contrôle encore le premier chargement, il ne peut plus répondre avec les modules 2.2 non révisionnés.
 - Un verrou d’identité léger est installé avant les imports hérités et rétablit immédiatement le titre et le libellé V2.3.1 en cas de tentative de remplacement.
 - Les caches V2.2 et V2.3 sont renouvelés et l’application PWA passe à la révision `8.3.3`.
+- La publication GitHub Pages est redéclenchée par l’API de contenu afin de garantir la reconstruction de l’origine statique.
 - `git diff --check` : aucune erreur d’espace ou de patch.
 - Clé OpenAI : aucune clé dans le navigateur ou le dépôt ; le pont protégé existant est réutilisé.
 
