@@ -3,7 +3,7 @@ import {eventBus} from '../../pg16/core/event-bus.js';
 const now=()=>globalThis.performance?.now?.()||Date.now();
 
 export class LivingPerformanceMonitor{
-  constructor({bus=eventBus,clock=now,raf=globalThis.requestAnimationFrame,caf=globalThis.cancelAnimationFrame}={}){this.bus=bus;this.clock=clock;this.raf=raf;this.caf=caf;this.bootAt=this.clock();this.firstRenderMs=null;this.firstContentfulPaintMs=null;this.lastTouchMs=null;this.lastLipMs=null;this.sampledFps=null;this.longTasks=0;this.battery=null;this.observers=[];this.handlers=[];this.fpsFrame=0;}
+  constructor({bus=eventBus,clock=now,raf=callback=>globalThis.requestAnimationFrame?.(callback),caf=id=>globalThis.cancelAnimationFrame?.(id)}={}){this.bus=bus;this.clock=clock;this.raf=raf;this.caf=caf;this.bootAt=this.clock();this.firstRenderMs=null;this.firstContentfulPaintMs=null;this.lastTouchMs=null;this.lastLipMs=null;this.sampledFps=null;this.longTasks=0;this.battery=null;this.observers=[];this.handlers=[];this.fpsFrame=0;}
   install({root}={}){
     this.raf?.(()=>{this.firstRenderMs=Math.round(this.clock()-this.bootAt);this.bus.emit('pg23.performance.first-render',{durationMs:this.firstRenderMs});});
     const onPointer=()=>{const started=this.clock();this.raf?.(()=>{this.lastTouchMs=Math.round(this.clock()-started);this.bus.emit('pg23.performance.touch',{durationMs:this.lastTouchMs});});};root?.addEventListener?.('pointerdown',onPointer,{passive:true});this.handlers.push([root,'pointerdown',onPointer]);
