@@ -2,6 +2,16 @@
 
 Mini-app PWA mobile-first pour le séjour du 17 au 18 septembre 2026 à Santa Teresa di Gallura.
 
+## V2.2 RC1 — accompagnatrice audiovisuelle unifiée
+
+La V2.2 conserve le socle V1.8/V2.1 et unifie toute l’expérience autour de la même personne, du même avatar et de la voix OpenAI `marin`. Elle ajoute la réflexion visible et annulable, l’AudioPack hors ligne strict, les visèmes pilotés par le flux audio, les photos progressives avec provenance et quatre modes cartographiques à consentement explicite.
+
+- Application : `pocketguide-v22.html`
+- Cahier des charges : `docs/PG22_AUDIVISUAL_TECHNICAL_SPEC.md`
+- Audit : `docs/PG22_RELEASE_AUDIT.md`
+- Tests : `node --test tests/*.test.mjs`
+- Google Satellite/Street View/3D reste désactivé tant que la clé dédiée restreinte, les quotas et alertes ne sont pas validés ; OSM reste pleinement opérationnel.
+
 ## V2.1 — guide humaine adaptative
 
 La V2.1 conserve toutes les capacités de la V1.8/V2 et refond l’expérience autour d’une guide humaine stylisée, vocale et audiovisuelle. L’interface se réduit à trois espaces — Compagnon, Voyage et Mes voyages — et s’adapte automatiquement aux moments accueil, préparation, départ, marche, arrivée, simulation et carnet.

@@ -68,7 +68,7 @@ export class ItineraryManager{
     await this.store.saveItinerary(copy);this.status('duplicated',{id,duplicateId});return copy;
   }
   async delete(id){await this.store.deleteItinerary(id);this.status('deleted',{id});return true;}
-  async mediaSaved(itineraryId){const item=await this.store.getItinerary(itineraryId);if(!item)return null;item.stats={...(item.stats||{}),mediaCount:(await this.store.listMedia(itineraryId)).length};item.updatedAt=now();await this.store.saveItinerary(item);this.status('media_counted',{id:itineraryId,count:item.stats.mediaCount});return item;}
+  async mediaSaved(itineraryId){const item=await this.store.getItinerary(itineraryId);if(!item)return null;const media=await this.store.listMedia(itineraryId),personalCount=media.filter(entry=>entry.kind!=='guide-audio').length,audioCount=media.filter(entry=>entry.kind==='guide-audio').length;item.stats={...(item.stats||{}),mediaCount:personalCount,audioCount};item.updatedAt=now();await this.store.saveItinerary(item);this.status('media_counted',{id:itineraryId,count:personalCount,audioCount});return item;}
   start(){
     if(this.started)return this;this.started=true;
     for(const type of ['app.ready','route.loaded','route.replaced','route.advanced','route.skipped','route.shortened','route.completed','route.media.enriched'])this.unsubs.push(eventBus.on(type,()=>this.schedule(type)));

@@ -80,6 +80,13 @@ jobs:
           node --check js/pg2/companion/realtime-companion.js
           node --check js/pg2/companion/companion-orchestrator.js
           node --check js/pg2/bootstrap/app.js
+          node --check js/pg22/planning/planning-stage-engine.js
+          node --check js/pg22/media/media-pack-engine.js
+          node --check js/pg22/audio/unified-audio-pack.js
+          node --check js/pg22/avatar/avatar-runtime.js
+          node --check js/pg22/maps/map-mode-controller.js
+          node --check js/pg22/bootstrap/audiovisual-runtime.js
+          node --check js/pg22/bootstrap/app.js
       - name: V1.5.2 cross-platform regression tests
         run: |
           node --test tests/v1-5-unified-guide.test.mjs
@@ -107,6 +114,8 @@ jobs:
         run: node --test tests/pg18-*.test.mjs
       - name: V2 companion operating-system gates
         run: node --test tests/pg2-*.test.mjs
+      - name: V2.2 unified audiovisual gates
+        run: node --test tests/pg22-*.test.mjs
       - name: Complete repository regression suite
         run: node --test tests/*.test.mjs
 

@@ -1,0 +1,20 @@
+{
+  "version": "2.2.0-rc1",
+  "apiBase": "https://pocketguide-v2.infoserv2a.workers.dev",
+  "ttsEndpoint": "https://santa-teresa-pocket-guide.vercel.app/api/tts",
+  "companionModel": "gpt-realtime-2.1-mini",
+  "plannerModel": "gpt-5.6-terra",
+  "ttsModel": "gpt-4o-mini-tts",
+  "voice": "marin",
+  "offlineAudioMode": "strict",
+  "googleMaps": {
+    "enabled": false,
+    "browserKey": "",
+    "restrictionsVerified": false,
+    "apiRestrictionsVerified": false,
+    "quotasConfigured": false,
+    "billingAlertsConfigured": false,
+    "allowedReferrers": ["https://didier2a.github.io/santa-teresa-pocket-guide/*"],
+    "cachePolicy": "online-only-no-durable-google-media-cache"
+  }
+}
