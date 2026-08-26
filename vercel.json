@@ -6,6 +6,8 @@
     "api/plan-status.js": { "maxDuration": 20 },
     "api/transcribe.js": { "maxDuration": 30 },
     "api/tts.js": { "maxDuration": 30 },
+    "api/liveavatar-session.js": { "maxDuration": 20 },
+    "api/liveavatar-status.js": { "maxDuration": 20 },
     "api/validate-routepack.js": { "maxDuration": 30 }
   },
   "headers": [
