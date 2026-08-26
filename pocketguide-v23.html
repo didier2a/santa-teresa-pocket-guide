@@ -12,15 +12,15 @@
   <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="pocketguide-v23.css?v=2.3.0rc1">
-  <title>PocketGuide V2.3 · Compagnon vivant</title>
+  <link rel="stylesheet" href="pocketguide-v23.css?v=2.3.1">
+  <title>PocketGuide V2.3.1 · Compagnon vivant</title>
 </head>
 <body>
-  <main class="companion-app living-app" id="companionApp" data-presence="ready" data-view="companion" data-moment="welcome" data-portrait="hero" data-pg-version="2.3.0-rc1">
+  <main class="companion-app living-app" id="companionApp" data-presence="ready" data-view="companion" data-moment="welcome" data-portrait="hero" data-pg-version="2.3.1">
     <header class="app-header">
       <button class="identity" id="homeIdentity" type="button" aria-label="Revenir au compagnon">
         <span class="identity-mark" aria-hidden="true">P</span>
-        <span><strong>PocketGuide 2.3</strong><small id="routeTitle">Votre guide personnelle</small></span>
+        <span><strong>PocketGuide 2.3.1</strong><small id="routeTitle">Votre guide personnelle</small></span>
       </button>
       <div class="life-status" aria-live="polite">
         <span class="life-dot" aria-hidden="true"></span>
@@ -72,8 +72,8 @@
         </article>
         <section class="moment-panel" id="momentPanel" aria-live="polite">
           <span class="overline" id="momentEyebrow">Votre guide personnel</span>
-          <h2 id="momentTitle">Que souhaitez-vous vivre aujourd’hui&nbsp;?</h2>
-          <p id="momentMessage">Parlez naturellement : je peux préparer, reprendre, montrer ou raconter un voyage.</p>
+          <h2 id="momentTitle">Bonjour. Je suis avec vous.</h2>
+          <p id="momentMessage">Parlez-moi naturellement. Je ferai apparaître les images, la carte et les étapes pendant que je vous accompagne.</p>
           <div class="moment-actions">
             <button id="momentPrimary" class="action action--accent action--primary" type="button">Parler à ma guide</button>
             <button id="momentSecondary" class="text-action" type="button">Écrire ma demande</button>
@@ -185,7 +185,7 @@
 
   <dialog id="welcomeDialog" class="sheet sheet--welcome">
     <div class="welcome-human"><img src="assets/companion/human-guide-v21.webp" alt="Votre guide PocketGuide"></div>
-    <span class="overline">PocketGuide V2.2</span>
+    <span class="overline">PocketGuide V2.3.1</span>
     <h2>Je marcherai à vos côtés.</h2>
     <p>Commençons par la voix. Je ne demanderai votre position qu’au départ du parcours, et la caméra restera fermée jusqu’à ce que vous choisissiez de regarder avec moi.</p>
     <div class="sheet-actions">
@@ -286,6 +286,18 @@
       <div><dt>Visème</dt><dd id="labViseme">neutral</dd></div>
       <div><dt>Changements</dt><dd id="labChanges">0</dd></div>
       <div><dt>Visibilité</dt><dd id="labVisibility">À mesurer</dd></div>
+      <div><dt>Version</dt><dd id="labVersion">2.3.1</dd></div>
+      <div><dt>État</dt><dd id="labState">ready</dd></div>
+      <div><dt>Mode</dt><dd id="labMode">lab</dd></div>
+      <div><dt>Source</dt><dd id="labSource">silencieux</dd></div>
+      <div><dt>Audio</dt><dd id="labAudio">Au repos</dd></div>
+      <div><dt>Latence</dt><dd id="labLatency">Non mesurée</dd></div>
+      <div><dt>Premier rendu</dt><dd id="labFcp">Non mesuré</dd></div>
+      <div><dt>Toucher</dt><dd id="labTouch">Non mesuré</dd></div>
+      <div><dt>Animation</dt><dd id="labFps">Échantillonnage…</dd></div>
+      <div><dt>Mémoire</dt><dd id="labMemory">Selon navigateur</dd></div>
+      <div><dt>Batterie</dt><dd id="labBattery">Selon navigateur</dd></div>
+      <div><dt>Vidéo active</dt><dd id="labVideo">0</dd></div>
     </dl>
     <p id="labStatus" class="sheet-status" aria-live="polite">Lancez d’abord le test silencieux.</p>
     <div class="lab-actions">
@@ -311,6 +323,6 @@
   <pre id="debugPanel" class="debug-panel" hidden></pre>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script type="module" src="js/pg23/bootstrap/app.js?v=2.3.0rc1"></script>
+  <script type="module" src="js/pg23/bootstrap/app.js?v=2.3.1"></script>
 </body>
 </html>

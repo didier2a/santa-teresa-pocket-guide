@@ -2,6 +2,17 @@
 
 Mini-app PWA mobile-first pour le séjour du 17 au 18 septembre 2026 à Santa Teresa di Gallura.
 
+## V2.3.1 — compagnon vivant orchestrateur
+
+La V2.3.1 place l’avatar au centre dès l’ouverture et le conserve en mode compact dans le voyage, le Planner, l’aperçu et l’AR. Une demande comme « Montre-moi l’itinéraire » déclenche une présentation progressive POI par POI avec photo attribuée ou absence explicite, puis carte. La voix `marin`, la synchronisation labiale, les états de présence, les scènes persistantes et le diagnostic de performance partagent maintenant le même runtime.
+
+- Application : `pocketguide-v23.html`
+- Cahier des charges : `docs/PG23_LIVING_COMPANION_TECHNICAL_SPEC.md`
+- Audit contradictoire : `docs/PG23_CONFORMANCE_AUDIT_2026-08-26.md`
+- Clôture V2.3.1 : `docs/PG231_RELEASE_VALIDATION_2026-08-26.md`
+- Tests : `node --test tests/*.test.mjs`
+- La validation physique Galaxy S22 reste distincte de la simulation automatisée.
+
 ## V2.2 RC1 — accompagnatrice audiovisuelle unifiée
 
 La V2.2 conserve le socle V1.8/V2.1 et unifie toute l’expérience autour de la même personne, du même avatar et de la voix OpenAI `marin`. Elle ajoute la réflexion visible et annulable, l’AudioPack hors ligne strict, les visèmes pilotés par le flux audio, les photos progressives avec provenance et quatre modes cartographiques à consentement explicite.

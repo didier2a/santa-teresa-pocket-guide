@@ -37,6 +37,7 @@ const simulationRequested=params.get('sim')==='1';
 const walkingSimulationRequested=params.get('walksim')==='1';
 const debugRequested=params.get('debug')==='1';
 const app=$('#companionApp');
+const livingCompanion=/^2\.3/.test(app?.dataset?.pgVersion||'');
 const session=loadCompanionSession()||{currentItineraryId:null,quietMode:false,voiceEnabled:true,conversationExpanded:true};
 const voiceRecorder=new LocalVoiceNoteRecorder();
 let map=null,routeLayer=null,positionMarker=null,toastTimer=null,showArchives=false,pendingPhoto=null,pendingPhotoUrl=null,pendingVoiceNote=null,previewItineraryId=null,previewVoice=true,arRenderTimer=null,pendingPlanPack=null,lastRenderedMoment='welcome';
@@ -45,7 +46,7 @@ const journalUrls=[];
 function esc(value=''){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));}
 function safeImage(value=''){const url=String(value||'');return /^(https:\/\/|\.\/|assets\/)/.test(url)?url:'';}
 function setText(selector,value){const target=$(selector);if(target)target.textContent=value??'—';}
-function showDialog(dialog){if(!dialog)return;if(typeof dialog.showModal==='function'&&!dialog.open)dialog.showModal();else dialog.setAttribute('open','');}
+function showDialog(dialog){if(!dialog)return;const livingSurface=livingCompanion&&['plannerDialog','proposalDialog','readyDialog','previewDialog'].includes(dialog.id);if(livingSurface&&typeof dialog.show==='function'&&!dialog.open){dialog.classList.add('living-surface');dialog.show();}else if(typeof dialog.showModal==='function'&&!dialog.open)dialog.showModal();else dialog.setAttribute('open','');}
 function closeDialog(dialog){if(!dialog)return;if(typeof dialog.close==='function'&&dialog.open)dialog.close();else dialog.removeAttribute('open');}
 function toast(message,duration=3000){const target=$('#toast');if(!target)return;target.textContent=String(message||'');target.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{target.hidden=true;},duration);}
 function allEvents(){return (pocketGuideState.select('route.pack.days')||[]).flatMap(day=>(day.events||[]).map(event=>({...event,date:day.date,label:day.label})));}
@@ -77,8 +78,8 @@ function renderProposalSummary(pack){
   const section=$('#proposalSummary');if(!section)return;const places=pack?.places||[],events=packEvents(pack),minutes=packDuration(pack),distance=packDistance(pack),effort=distance<=2.5&&minutes<=120?'Tranquille':distance<=6&&minutes<=240?'Équilibré':'Dynamique';
   setText('#proposalDuration',minutes?formatDuration(minutes):'À préciser');setText('#proposalDistance',Number.isFinite(distance)&&distance>0?`${distance.toFixed(distance<10?1:0)} km`:'À préciser');setText('#proposalPoi',String(events.length||places.length||0));setText('#proposalDifficulty',effort);
   $('#proposalPlaces').innerHTML=places.slice(0,8).map((place,index)=>`<span>${index+1}. ${esc(place.name||place.title||'Étape')}</span>`).join('');
-  const images=places.map(place=>({url:safeImage(place.heroImage||place.media?.[0]?.url),name:place.name||place.title||'Étape'})).filter(item=>item.url).slice(0,3);
-  $('#proposalImages').innerHTML=images.map(item=>`<img src="${esc(item.url)}" alt="Aperçu de ${esc(item.name)}">`).join('');$('#proposalImages').hidden=!images.length;section.hidden=!pack;
+  const images=places.slice(0,livingCompanion?10:3).map(place=>({url:safeImage(place.heroImage||place.media?.[0]?.url),name:place.name||place.title||'Étape',credit:place.media?.[0]?.attribution||[place.imageAttribution?.author,place.imageAttribution?.license,place.imageAttribution?.source].filter(Boolean).join(' · ')}));
+  $('#proposalImages').innerHTML=livingCompanion?images.map(item=>`<figure class="proposal-media-card" data-media-status="${item.url?'verified':'unavailable'}">${item.url?`<img src="${esc(item.url)}" alt="Aperçu de ${esc(item.name)}">`:'<span aria-hidden="true">◫</span>'}<figcaption><strong>${esc(item.name)}</strong><small>${esc(item.url?(item.credit||'Source à vérifier'):'Photo vérifiée indisponible')}</small></figcaption></figure>`).join(''):images.filter(item=>item.url).map(item=>`<img src="${esc(item.url)}" alt="Aperçu de ${esc(item.name)}">`).join('');$('#proposalImages').hidden=!images.length;section.hidden=!pack;
 }
 function setConversationExpanded(expanded){
   const value=Boolean(expanded),conversation=$('#conversation'),toggle=$('#toggleConversation');session.conversationExpanded=value;if(conversation)conversation.hidden=!value;if(toggle){toggle.setAttribute('aria-expanded',String(value));toggle.textContent=value?'Masquer la conversation':'Ouvrir la conversation';}saveCompanionSession({...session,currentItineraryId:currentItineraryId()});
@@ -106,7 +107,7 @@ async function runMomentAction(action){
 
 function enrichKnownMedia(){
   const pack=pocketGuideState.select('route.pack');if(!pack?.places)return false;let changed=false;
-  const places=pack.places.map(place=>{const photo=V51_PHOTO_MAP[place.id];if(!photo)return place;const image=photo.image||'';if(place.heroImage===image)return place;changed=true;return {...place,heroImage:image,photoLabel:photo.label||place.name,imageAttribution:{source:photo.page?'Wikimedia Commons':'PocketGuide',author:photo.credit||'',descriptionUrl:photo.page||''},media:[{url:image,title:photo.label||place.name,source:'Wikimedia Commons',descriptionUrl:photo.page||''}]};});
+  const places=pack.places.map(place=>{const photo=V51_PHOTO_MAP[place.id];if(!photo)return place;const image=photo.page&&photo.image?photo.image:'';if(place.heroImage===image&&Boolean(place.media?.[0]?.url)===Boolean(image))return place;changed=true;return {...place,heroImage:image,photoExact:Boolean(photo.exact),photoLabel:photo.label||place.name,imageAttribution:image?{source:'Wikimedia Commons',author:photo.credit||'',descriptionUrl:photo.page||''}:null,media:image?[{url:image,title:photo.label||place.name,source:'Wikimedia Commons',sourceUrl:photo.page||'',descriptionUrl:photo.page||'',attribution:photo.credit||'Wikimedia Commons'}]:[]};});
   if(changed)pocketGuideState.patch({route:{pack:{...pack,places}}},{source:'pg21-media',event:'route.media.enriched'});return changed;
 }
 
@@ -248,7 +249,7 @@ async function boot(){
   installEvents();walkingGuidanceEngine.start();itineraryManager.start();await itineraryManager.saveCurrent('pg21-initial');session.currentItineraryId=currentItineraryId();saveCompanionSession(session);
   appendTurn('companion',`Bonjour. Je serai votre guide personnelle pour « ${pocketGuideState.select('route.title')} ». Vous pouvez me parler comme à une accompagnatrice : je prépare, j’explique, je vous guide et je garde vos souvenirs sur ce téléphone.`,{source:'local'});renderHero();renderTimeline();adaptiveMomentEngine.sync();
   if(simulationRequested||walkingSimulationRequested){closeDialog($('#welcomeDialog'));session.quietMode=true;perceptionEngine.setMode('simulation');perceptionEngine.simulateAtCurrent();appendTurn('companion','Simulation active. Elle reste strictement séparée de toute position réelle.',{source:'local'});if(walkingSimulationRequested){walkingSimulator.prepare();walkingSimulator.onStatus=status=>{if(status.status==='completed')toast('Simulation de marche terminée.');};walkingSimulator.run();}}
-  else showDialog($('#welcomeDialog'));
+  else if(!livingCompanion)showDialog($('#welcomeDialog'));
   if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').catch(error=>eventBus.emit('pwa.registration.failed',{message:String(error?.message||error)}));
   navigator.serviceWorker?.addEventListener?.('message',event=>{if(event.data?.type==='POCKETGUIDE_UPDATE_READY')toast('Une nouvelle version est prête. Elle sera appliquée au prochain démarrage.',5000);});
   globalThis.__POCKETGUIDE_V21__={state:pocketGuideState,bus:eventBus,actions:actionRegistry,companion:companionOrchestrator,realtime:realtimeCompanion,planner:plannerEngine,perception:perceptionEngine,guidance:walkingGuidanceEngine,simulator:walkingSimulator,itineraries:itineraryManager,preview:photoPreviewEngine,moments:adaptiveMomentEngine,openAR,openPreview,openJournal,render:renderHero};
