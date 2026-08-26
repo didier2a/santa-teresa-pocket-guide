@@ -7,6 +7,7 @@ export default function handler(req,res){
   return res.status(200).json({
     ok:true,
     version:'1.4.9',
+    diagnosticRevision:'liveavatar-v2.4',
     openaiConfigured:Boolean(process.env.OPENAI_API_KEY),
     liveAvatarConfigured:Boolean(process.env.LIVEAVATAR_API_KEY||process.env.HEYGEN_API_KEY),
     liveAvatarIdentityConfigured:Boolean(process.env.HEYGEN_AVATAR_ID),
