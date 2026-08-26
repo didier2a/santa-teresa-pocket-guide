@@ -2,6 +2,15 @@
 
 Mini-app PWA mobile-first pour le séjour du 17 au 18 septembre 2026 à Santa Teresa di Gallura.
 
+## V2.1 — guide humaine adaptative
+
+La V2.1 conserve toutes les capacités de la V1.8/V2 et refond l’expérience autour d’une guide humaine stylisée, vocale et audiovisuelle. L’interface se réduit à trois espaces — Compagnon, Voyage et Mes voyages — et s’adapte automatiquement aux moments accueil, préparation, départ, marche, arrivée, simulation et carnet.
+
+- Application : `pocketguide-v21.html`
+- Cahier des charges : `docs/PG21_ERGONOMIC_TECHNICAL_SPEC.md`
+- Audit : `docs/PG21_RELEASE_AUDIT.md`
+- Tests : `node --test tests/*.test.mjs`
+
 ## V2
 
 - agenda des deux jours avec liens directs vers les événements Google Agenda existants ;

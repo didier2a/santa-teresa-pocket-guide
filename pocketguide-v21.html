@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#071f24">
+  <meta name="description" content="PocketGuide V2.1 — votre guide humaine, vocale et audiovisuelle.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PocketGuide V2.1">
+  <link rel="manifest" href="manifest-v21.webmanifest">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="pocketguide-v21.css?v=2.1.0rc1">
+  <title>PocketGuide V2.1 · Votre guide</title>
+</head>
+<body>
+  <main class="companion-app" id="companionApp" data-presence="ready" data-view="companion" data-moment="welcome" data-portrait="hero">
+    <header class="app-header">
+      <button class="identity" id="homeIdentity" type="button" aria-label="Revenir au compagnon">
+        <span class="identity-mark" aria-hidden="true">P</span>
+        <span><strong>PocketGuide 2.1</strong><small id="routeTitle">Votre guide personnelle</small></span>
+      </button>
+      <div class="life-status" aria-live="polite">
+        <span class="life-dot" aria-hidden="true"></span>
+        <span id="connectionLabel">Avec vous</span>
+      </div>
+    </header>
+
+    <section class="view view--companion is-active" data-view-panel="companion" aria-label="Compagnon">
+      <div class="cinema" id="visualStage">
+        <video id="companionCamera" class="cinema-camera" playsinline muted hidden></video>
+        <div class="cinema-shade"></div>
+        <figure class="human-guide" id="humanGuide" aria-label="Votre guide PocketGuide">
+          <span class="human-guide__halo" aria-hidden="true"></span>
+          <img src="assets/companion/human-guide-v21.webp" alt="Portrait stylisé de votre guide PocketGuide">
+          <figcaption id="guideStateLabel">Je suis avec vous</figcaption>
+        </figure>
+        <div class="sensor-row" aria-label="État des sens du compagnon">
+          <span id="gpsSense">Position en attente</span>
+          <span id="visionSense">Vision au repos</span>
+        </div>
+        <div class="ar-layer" id="arLayer" hidden aria-label="Repères en réalité augmentée">
+          <div class="ar-reticle" aria-hidden="true"></div>
+          <div id="arLabels"></div>
+          <button id="closeAr" class="glass-button ar-close" type="button">Fermer l’AR</button>
+        </div>
+        <article class="place-story">
+          <span class="overline" id="momentLabel">Votre prochaine découverte</span>
+          <h1 id="placeTitle">Je prépare votre voyage…</h1>
+          <p id="placeStory">Je rassemble votre parcours, vos souvenirs et le contexte utile.</p>
+          <div class="journey-facts">
+            <span id="distanceLabel">Distance en attente</span>
+            <span id="remainingLabel">—</span>
+            <span id="progressLabel">0 %</span>
+          </div>
+          <div class="direction-card" id="directionCard" data-phase="waiting_gps">
+            <span id="directionPhase">Je vous situe</span>
+            <strong id="directionText">Activez votre position lorsque vous serez prêt.</strong>
+          </div>
+        </article>
+        <section class="moment-panel" id="momentPanel" aria-live="polite">
+          <span class="overline" id="momentEyebrow">Votre guide personnel</span>
+          <h2 id="momentTitle">Que souhaitez-vous vivre aujourd’hui&nbsp;?</h2>
+          <p id="momentMessage">Parlez naturellement : je peux préparer, reprendre, montrer ou raconter un voyage.</p>
+          <div class="moment-actions">
+            <button id="momentPrimary" class="action action--accent action--primary" type="button">Parler à ma guide</button>
+            <button id="momentSecondary" class="text-action" type="button">Écrire ma demande</button>
+          </div>
+        </section>
+      </div>
+
+      <section class="presence-dock" aria-label="Dialogue avec votre compagnon">
+        <button id="companionMic" class="presence" type="button" aria-pressed="false" aria-label="Parler à votre compagnon">
+          <span class="presence-aura" aria-hidden="true"></span>
+          <span class="presence-core" aria-hidden="true"><img src="assets/companion/human-guide-v21.webp" alt=""></span>
+        </button>
+        <div class="presence-copy">
+          <strong id="presenceLabel">Je suis avec vous</strong>
+          <small id="presenceHint">Touchez pour parler naturellement</small>
+        </div>
+        <button id="stopCompanion" class="round-button" type="button" aria-label="Interrompre le compagnon">■</button>
+      </section>
+
+      <details class="more-actions" id="moreActions">
+        <summary>Autres possibilités</summary>
+        <div class="suggestions" id="suggestions" aria-label="Suggestions">
+          <button type="button" data-prompt="Raconte-moi ce lieu">Raconte ce lieu</button>
+          <button type="button" data-prompt="Où allons-nous ensuite ?">Et ensuite ?</button>
+          <button type="button" id="lookWithCompanion">Regarde avec moi</button>
+          <button type="button" id="openAr">Voir en AR</button>
+        </div>
+      </details>
+
+      <button id="toggleConversation" class="conversation-toggle" type="button" aria-expanded="true">Conversation</button>
+      <section class="conversation" id="conversation" aria-label="Conversation">
+        <div class="conversation-log" id="conversationLog" aria-live="polite"></div>
+        <form class="composer" id="companionForm">
+          <label class="sr-only" for="companionInput">Écrire à votre compagnon</label>
+          <input id="companionInput" autocomplete="off" placeholder="Demandez-moi n’importe quoi…">
+          <button type="submit" aria-label="Envoyer">↑</button>
+        </form>
+      </section>
+    </section>
+
+    <section class="view" data-view-panel="journey" aria-label="Voyage" hidden>
+      <header class="section-intro">
+        <div><span class="overline">Votre journée avec moi</span><h2 id="journeyTitle">Le voyage</h2></div>
+        <button id="simulateJourney" class="action action--accent" type="button">Voir avant de partir</button>
+      </header>
+      <div class="journey-toolbar" role="group" aria-label="Présentation du voyage">
+        <button class="segmented is-active" data-journey-mode="timeline" type="button">Étapes</button>
+        <button class="segmented" data-journey-mode="map" type="button">Carte</button>
+        <button id="startGps" class="segmented" type="button">Ma position</button>
+      </div>
+      <div id="journeyTimeline" class="timeline"></div>
+      <div id="journeyMap" class="map" hidden aria-label="Carte du parcours"></div>
+      <section class="create-card">
+        <span class="overline">Une autre envie ?</span>
+        <h3>Créez une excursion en parlant</h3>
+        <p>Une ville précise ou simplement « autour de moi » : je prépare un RoutePack vérifié et je vous le présente avant de remplacer votre parcours.</p>
+        <button id="createByVoice" class="action action--accent" type="button">Me décrire une excursion</button>
+        <button id="createByText" class="action" type="button">Écrire ma demande</button>
+      </section>
+    </section>
+
+    <section class="view" data-view-panel="memories" aria-label="Souvenirs" hidden>
+      <header class="section-intro">
+        <div><span class="overline">Mémoire privée du téléphone</span><h2>Mes voyages</h2></div>
+        <button id="captureMemory" class="action action--accent" type="button">Photographier</button>
+      </header>
+      <p class="privacy-note">Vos itinéraires, photos et voix restent sur cet appareil. Rien n’est envoyé automatiquement.</p>
+      <div class="memory-tools">
+        <button id="importJourney" class="action" type="button">Importer</button>
+        <button id="showArchived" class="action" type="button" aria-pressed="false">Archives</button>
+        <span id="storageLabel">Stockage local</span>
+      </div>
+      <div id="journeyLibrary" class="journey-library"></div>
+      <section class="journal" id="journal" hidden>
+        <header><div><span class="overline">Carnet audiovisuel</span><h3 id="journalTitle">Votre voyage</h3></div><button id="closeJournal" class="round-button" type="button" aria-label="Fermer le carnet">×</button></header>
+        <div id="journalEntries" class="journal-grid"></div>
+      </section>
+    </section>
+
+    <nav class="main-nav" aria-label="Navigation principale">
+      <button class="is-active" type="button" data-view-target="companion"><span aria-hidden="true">✦</span><small>Compagnon</small></button>
+      <button type="button" data-view-target="journey"><span aria-hidden="true">⌁</span><small>Voyage</small></button>
+      <button type="button" data-view-target="memories"><span aria-hidden="true">◫</span><small>Mes voyages</small></button>
+    </nav>
+  </main>
+
+  <dialog id="welcomeDialog" class="sheet sheet--welcome">
+    <div class="welcome-human"><img src="assets/companion/human-guide-v21.webp" alt="Votre guide PocketGuide"></div>
+    <span class="overline">PocketGuide V2.1</span>
+    <h2>Je marcherai à vos côtés.</h2>
+    <p>Commençons par la voix. Je ne demanderai votre position qu’au départ du parcours, et la caméra restera fermée jusqu’à ce que vous choisissiez de regarder avec moi.</p>
+    <div class="sheet-actions">
+      <button id="startTogether" class="action action--accent" type="button">Commencer avec ma guide</button>
+      <button id="exploreQuietly" class="action" type="button">Explorer discrètement</button>
+    </div>
+  </dialog>
+
+  <dialog id="proposalDialog" class="sheet">
+    <span class="overline">Une proposition, jamais une décision imposée</span>
+    <h2>Voulez-vous que je fasse ce changement ?</h2>
+    <p id="proposalText">—</p>
+    <section class="proposal-summary" id="proposalSummary" aria-label="Résumé du parcours proposé">
+      <div class="proposal-metrics"><span><strong id="proposalDuration">—</strong><small>Durée</small></span><span><strong id="proposalDistance">—</strong><small>Distance</small></span><span><strong id="proposalPoi">—</strong><small>Étapes</small></span><span><strong id="proposalDifficulty">—</strong><small>Rythme</small></span></div>
+      <div class="proposal-places" id="proposalPlaces"></div>
+      <div class="proposal-images" id="proposalImages"></div>
+    </section>
+    <p class="proposal-safety">Votre voyage actuel reste intact tant que vous n’avez pas confirmé.</p>
+    <div class="sheet-actions sheet-actions--split">
+      <button id="confirmProposal" class="action action--accent" type="button">Oui, confirme</button>
+      <button id="rejectProposal" class="action" type="button">Non, ne change rien</button>
+    </div>
+  </dialog>
+
+  <dialog id="readyDialog" class="sheet sheet--welcome">
+    <div class="welcome-human welcome-human--small"><img src="assets/companion/human-guide-v21.webp" alt="Votre guide PocketGuide"></div>
+    <span class="overline">Votre excursion est prête</span>
+    <h2>Voulez-vous que je vous la montre avant de partir&nbsp;?</h2>
+    <p>Je peux lancer maintenant la visite photographique. Votre progression réelle ne sera pas modifiée.</p>
+    <div class="sheet-actions sheet-actions--split"><button id="previewNow" class="action action--accent" type="button">Oui, montre-moi</button><button id="previewLater" class="action" type="button">Plus tard</button></div>
+  </dialog>
+
+  <dialog id="locationDialog" class="sheet sheet--welcome">
+    <div class="welcome-human welcome-human--small"><img src="assets/companion/human-guide-v21.webp" alt="Votre guide PocketGuide"></div>
+    <span class="overline">Au moment du départ</span>
+    <h2>Puis-je vous situer&nbsp;?</h2>
+    <p>Votre position sert uniquement à calculer la distance et les indications du parcours. Elle n’est pas envoyée avec vos photos ni conservée comme un souvenir personnel.</p>
+    <div class="sheet-actions sheet-actions--split"><button id="allowPosition" class="action action--accent" type="button">Autoriser ma position</button><button id="positionLater" class="action" type="button">Pas maintenant</button></div>
+  </dialog>
+
+  <dialog id="plannerDialog" class="sheet">
+    <button class="sheet-close" type="button" data-close-dialog="plannerDialog" aria-label="Fermer">×</button>
+    <span class="overline">Nouvelle excursion</span>
+    <h2>Que voulez-vous découvrir ?</h2>
+    <p>Parlez-moi naturellement : destination, durée, rythme et centres d’intérêt. Pour « autour de moi », j’utiliserai seulement la position que vous avez autorisée.</p>
+    <form id="plannerForm" class="planner-form">
+      <label for="plannerPrompt">Votre demande</label>
+      <textarea id="plannerPrompt" rows="5" placeholder="Ex. Demain à Porto-Vecchio, crée une promenade de deux heures avec les monuments et de beaux points de vue."></textarea>
+      <div class="planner-fields"><label>Destination facultative<input id="plannerDestination" placeholder="À déduire de votre demande"></label><label>POI<input id="plannerPlaces" type="number" min="3" max="10" value="5"></label></div>
+      <button class="action action--accent" type="submit">Préparer la proposition</button>
+    </form>
+    <p id="plannerStatus" class="sheet-status" aria-live="polite"></p>
+  </dialog>
+
+  <dialog id="previewDialog" class="sheet sheet--preview">
+    <header class="preview-header"><div><span class="overline">Simulation avant le voyage</span><h2 id="previewTitle">Votre parcours</h2></div><button class="round-button" id="closePreview" type="button" aria-label="Fermer">×</button></header>
+    <div class="preview-visual" id="previewVisual"><span id="previewSource">RoutePack</span><div><h3 id="previewPlace">—</h3><p id="previewStory">—</p></div></div>
+    <div class="preview-meta"><span id="previewLeg">Départ</span><span id="previewCount">1 / 1</span></div>
+    <div class="preview-progress"><span id="previewProgress"></span></div>
+    <div class="preview-controls">
+      <button id="previewPrevious" class="action" type="button">←</button>
+      <button id="previewPlay" class="action action--accent" type="button">Lecture</button>
+      <button id="previewNext" class="action" type="button">→</button>
+      <button id="previewRepeat" class="action" type="button">Répéter</button>
+    </div>
+  </dialog>
+
+  <dialog id="photoDialog" class="sheet">
+    <button class="sheet-close" type="button" data-close-dialog="photoDialog" aria-label="Fermer">×</button>
+    <span class="overline">Souvenir privé</span><h2>Garder ce moment</h2>
+    <img id="photoPreview" class="photo-preview" alt="Aperçu de votre photographie">
+    <label>Associer à<select id="photoAssociation"><option value="current">POI actuel</option><option value="next">Prochain POI</option><option value="segment">Entre deux étapes</option></select></label>
+    <label>Légende<textarea id="photoCaption" rows="3" placeholder="Ce que vous souhaitez retenir…"></textarea></label>
+    <p id="photoLocation" class="sheet-status">Position mesurée indisponible</p>
+    <button id="recordVoiceNote" class="action" type="button">Ajouter une note vocale</button>
+    <span id="voiceNoteStatus" class="sheet-status">Aucune note</span>
+    <div class="sheet-actions sheet-actions--split">
+      <button id="savePhoto" class="action action--accent" type="button">Enregistrer localement</button>
+      <button id="askAboutPhoto" class="action" type="button">Demander ce que je regarde</button>
+    </div>
+  </dialog>
+
+  <input id="photoInput" type="file" accept="image/*" capture="environment" hidden>
+  <input id="importInput" type="file" accept=".pocketguide,application/vnd.pocketguide+json,application/json" hidden>
+  <audio id="remoteAudio" autoplay playsinline></audio>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <pre id="debugPanel" class="debug-panel" hidden></pre>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script type="module" src="js/pg21/bootstrap/app.js?v=2.1.0rc1"></script>
+</body>
+</html>
