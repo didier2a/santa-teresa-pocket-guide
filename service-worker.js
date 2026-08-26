@@ -1,11 +1,11 @@
-const APP_VERSION='8.2.0';
+const APP_VERSION='8.2.1';
 const CACHE='pocketguide-v15-2-multiplatform-a';
 const PG16_CACHE='pocketguide-v16-rc1-planner-hotfix1';
 const PG17_CACHE='pocketguide-v17-rc1-audiovisual6';
 const PG18_CACHE='pocketguide-v18-rc1-local-journal6';
 const PG2_CACHE='pocketguide-v2-companion-rc1';
 const PG21_CACHE='pocketguide-v21-human-companion-rc1';
-const PG22_CACHE='pocketguide-v22-unified-audiovisual-rc1';
+const PG22_CACHE='pocketguide-v22-unified-audiovisual-2-2-1';
 const PG18_MEDIA_CACHE='pocketguide-v18-route-media';
 const MAP_CACHE='santa-teresa-map-v6';
 const REQUIRED=[

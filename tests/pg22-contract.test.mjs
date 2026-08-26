@@ -7,8 +7,8 @@ import {MemoryAudioPackStore,UnifiedVoiceService,narrationEntries,UNIFIED_VOICE}
 import {MAP_MODES,MapModeController,googleReadiness} from '../js/pg22/maps/map-mode-controller.js';
 
 const read=path=>readFile(new URL(`../${path}`,import.meta.url),'utf8');
-const [spec,html,css,configText,manifest,worker,sw,planner,audioSource,mapSource,runtime]=await Promise.all([
-  read('docs/PG22_AUDIVISUAL_TECHNICAL_SPEC.md'),read('pocketguide-v22.html'),read('pocketguide-v22.css'),read('data/v22-config.json'),read('manifest-v22.webmanifest'),read('cloudflare/pocketguide-v2-worker.js'),read('service-worker.js'),read('js/pg16/planner/planner-engine.js'),read('js/pg22/audio/unified-audio-pack.js'),read('js/pg22/maps/map-mode-controller.js'),read('js/pg22/bootstrap/audiovisual-runtime.js')
+const [spec,html,css,configText,manifest,worker,sw,planner,audioSource,avatarSource,mapSource,runtime]=await Promise.all([
+  read('docs/PG22_AUDIVISUAL_TECHNICAL_SPEC.md'),read('pocketguide-v22.html'),read('pocketguide-v22.css'),read('data/v22-config.json'),read('manifest-v22.webmanifest'),read('cloudflare/pocketguide-v2-worker.js'),read('service-worker.js'),read('js/pg16/planner/planner-engine.js'),read('js/pg22/audio/unified-audio-pack.js'),read('js/pg22/avatar/avatar-runtime.js'),read('js/pg22/maps/map-mode-controller.js'),read('js/pg22/bootstrap/audiovisual-runtime.js')
 ]);
 const config=JSON.parse(configText);
 
@@ -18,6 +18,7 @@ test('one audiovisual companion exposes thinking, visemes and immediate interrup
   for(const id of ['humanGuide','avatarMouth','thinkingPanel','thinkingLabel','thinkingProgress','cancelPlanning','modifyPlanning','stopCompanion','remoteAudio','guideAudio'])assert.match(html,new RegExp(`id="${id}"`));
   assert.match(css,/human-guide-visemes-v22\.png/);assert.match(css,/data-avatar-state="thinking"/);assert.match(css,/data-avatar-state="speaking"/);assert.match(runtime,/unifiedVoiceService\.interrupt\(\)/);assert.match(runtime,/avatarRuntime\.interrupt\(\)/);
   const image=await stat(new URL('../assets/companion/human-guide-visemes-v22.png',import.meta.url));assert.ok(image.size>100_000&&image.size<1_500_000);
+  assert.match(audioSource,/createMediaStreamSource/);assert.match(runtime,/response\.output_audio_transcript\.delta/);assert.match(avatarSource,/transcript-fallback/);assert.match(runtime,/lipsync/);
 });
 
 test('planning stages are operational, ordered and cancellable',()=>{
@@ -46,6 +47,6 @@ test('map switcher provides four modes but Google remains lazy and opt-in',async
   assert.equal(googleReadiness(config).ready,false);assert.equal(config.googleMaps.enabled,false);assert.equal(config.googleMaps.browserKey,'');
 });
 
-test('V2.2 remains an independent offline-installable PWA',()=>{const parsed=JSON.parse(manifest);assert.match(parsed.start_url,/pocketguide-v22\.html/);assert.match(sw,/PG22_CACHE='pocketguide-v22-unified-audiovisual-rc1'/);for(const asset of ['pocketguide-v22.html','pocketguide-v22.css','manifest-v22.webmanifest','data/v22-config.json','human-guide-visemes-v22.png','js/pg22/audio/unified-audio-pack.js'])assert.match(sw,new RegExp(asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));});
+test('V2.2 remains an independent offline-installable PWA',()=>{const parsed=JSON.parse(manifest);assert.match(parsed.start_url,/pocketguide-v22\.html/);assert.match(sw,/PG22_CACHE='pocketguide-v22-unified-audiovisual-2-2-1'/);for(const asset of ['pocketguide-v22.html','pocketguide-v22.css','manifest-v22.webmanifest','data/v22-config.json','human-guide-visemes-v22.png','js/pg22/audio/unified-audio-pack.js'])assert.match(sw,new RegExp(asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));});
 
 test('premium mobile ergonomics preserve accessibility and privacy',()=>{assert.match(css,/min-height:44px/);assert.match(css,/prefers-reduced-motion:reduce/);assert.match(html,/aria-live="polite"/);assert.match(html,/Rien n’est envoyé automatiquement/);assert.match(spec,/ne les archive pas|ne sont ni exportées/i);});

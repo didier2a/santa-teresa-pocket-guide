@@ -15,7 +15,7 @@ import {mapModeController,googleReadiness} from '../maps/map-mode-controller.js'
 
 const $=selector=>document.querySelector(selector);
 const $$=selector=>[...document.querySelectorAll(selector)];
-let wrapped=false,pendingGoogleMode=null;
+let wrapped=false,realtimeLipSyncInstalled=false,pendingGoogleMode=null;
 
 const UNIFIED_PERSONA=`Tu incarnes PocketGuide V2.2, une unique accompagnatrice humaine numérique de voyage : chaleureuse, cultivée, éloquente, élégante et attentive. Tu ne te fais jamais passer pour une personne physique. Tu parles en français naturel avec la voix marin. L’utilisateur ne doit jamais percevoir plusieurs IA ou moteurs.
 
@@ -23,7 +23,19 @@ Tu orchestres l’application : Terra vérifie et prépare, les règles GPS dét
 
 Pour une excursion, recueille destination ou « autour de moi », durée, rythme et centres d’intérêt, puis montre que tu réfléchis. Toute modification structurelle reste une proposition jusqu’à confirmation. Une image personnelle n’est transmise qu’après une action et un consentement explicites. Les photos Google restent en ligne et les photos personnelles restent locales par défaut. Tu peux être interrompue immédiatement, sans protester ni répéter inutilement.`;
 
-function installUnifiedRealtimePersona(){humanRealtimeCompanion.sessionUpdate=function(reason='initial'){if(!this.connected)return false;const context=humanContextEngine.build(),moment=pocketGuideState.select('ui.moment')||'ready';return this.send({type:'session.update',session:{type:'realtime',instructions:`${UNIFIED_PERSONA}\n\nMoment ergonomique : ${moment}.\nContexte PocketGuide (${reason}) : ${JSON.stringify(context)}`,tools:TOOLS,tool_choice:'auto',reasoning:{effort:'low'},audio:{input:{noise_reduction:{type:'near_field'},transcription:{model:'gpt-4o-mini-transcribe',language:'fr'},turn_detection:{type:'semantic_vad',create_response:true,interrupt_response:true}},output:{voice:'marin'}}}});};}
+function installUnifiedRealtimePersona(){
+  humanRealtimeCompanion.sessionUpdate=function(reason='initial'){if(!this.connected)return false;const context=humanContextEngine.build(),moment=pocketGuideState.select('ui.moment')||'ready';return this.send({type:'session.update',session:{type:'realtime',instructions:`${UNIFIED_PERSONA}\n\nMoment ergonomique : ${moment}.\nContexte PocketGuide (${reason}) : ${JSON.stringify(context)}`,tools:TOOLS,tool_choice:'auto',reasoning:{effort:'low'},audio:{input:{noise_reduction:{type:'near_field'},transcription:{model:'gpt-4o-mini-transcribe',language:'fr'},turn_detection:{type:'semantic_vad',create_response:true,interrupt_response:true}},output:{voice:'marin'}}}});};
+  if(realtimeLipSyncInstalled)return;realtimeLipSyncInstalled=true;const handleEvent=humanRealtimeCompanion.handleEvent.bind(humanRealtimeCompanion);
+  humanRealtimeCompanion.handleEvent=function(event){
+    const type=event?.type||'';
+    if(type==='response.output_audio_transcript.delta'&&event.delta)eventBus.emit('pg22.audio.transcript.delta',{delta:event.delta,source:'realtime'});
+    else if(type==='response.output_audio_transcript.done')eventBus.emit('pg22.audio.transcript.done',{text:String(event.transcript||this.transcript||''),source:'realtime'});
+    else if(type==='response.done')eventBus.emit('pg22.audio.realtime.done',{source:'realtime'});
+    else if(type==='input_audio_buffer.speech_started')eventBus.emit('pg22.audio.interrupted',{source:'barge-in'});
+    else if(type==='error')eventBus.emit('pg22.audio.interrupted',{source:'realtime-error'});
+    return handleEvent(event);
+  };
+}
 
 function currentPlace(){const route=pocketGuideState.select('route')||{},event=(route.pack?.days||[]).flatMap(day=>day.events||[]).find(item=>item.id===route.currentEventId);return (route.pack?.places||[]).find(place=>place.id===event?.placeId)||(route.pack?.places||[])[0]||null;}
 function attributionFromPlace(place){const media=place?.media?.[0],legacy=place?.imageAttribution;if(media)return {label:media.attribution||[media.author,media.license,media.source].filter(Boolean).join(' · '),url:media.sourceUrl||media.descriptionUrl||''};if(legacy)return {label:[legacy.author,legacy.license,legacy.source].filter(Boolean).join(' · '),url:legacy.sourceUrl||legacy.descriptionUrl||''};return null;}
@@ -77,7 +89,8 @@ export function installBeforeV21(){
 }
 
 export function installAfterV21(){
-  installPlanningUi();installMaps();installAudioPersistence();installMediaAttributions();eventBus.on('companion.status',payload=>{if(payload.value==='thinking')avatarRuntime.setState('thinking',payload.label);else if(payload.value==='speaking')avatarRuntime.setState('speaking',payload.label);else if(!['planning'].includes(payload.value))avatarRuntime.setState(payload.value==='listening'?'listening':'ready',payload.label);});
+  installPlanningUi();installMaps();installAudioPersistence();installMediaAttributions();eventBus.on('companion.status',payload=>{if(payload.value==='thinking')avatarRuntime.setState('thinking',payload.label);else if(payload.value==='speaking')avatarRuntime.setState('speaking',payload.label);else if(payload.value==='listening')avatarRuntime.setState('listening',payload.label);else if(payload.value==='ready'&&avatarRuntime.state==='speaking')avatarRuntime.scheduleReady(650,payload.label);else if(!['planning'].includes(payload.value))avatarRuntime.setState('ready',payload.label);});
   $('#stopCompanion')?.addEventListener('click',()=>{unifiedVoiceService.interrupt();avatarRuntime.interrupt();},{capture:true});document.querySelector('.identity strong').textContent='PocketGuide 2.2';document.title='PocketGuide V2.2 · Votre guide';
-  globalThis.__POCKETGUIDE_V22__={version:'2.2.0-rc1',planning:planningStageEngine,audio:unifiedVoiceService,avatar:avatarRuntime,media:mediaPackEngine,maps:mapModeController,googleReadiness};
+  const lipSyncTest=new URLSearchParams(location.search).get('lipsync')==='1';if(lipSyncTest){const panel=$('#debugPanel');if(panel){panel.hidden=false;panel.textContent='V2.2.1 · Autotest des 7 positions de bouche en cours…';}setTimeout(()=>avatarRuntime.selfTest().then(()=>{if(panel)panel.textContent='V2.2.1 · Test terminé : les 7 positions de bouche ont été affichées.';}),450);}
+  globalThis.__POCKETGUIDE_V22__={version:'2.2.1',planning:planningStageEngine,audio:unifiedVoiceService,avatar:avatarRuntime,media:mediaPackEngine,maps:mapModeController,googleReadiness};
 }
