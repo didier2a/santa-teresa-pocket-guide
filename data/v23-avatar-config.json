@@ -18,7 +18,7 @@
     "modelUrl": "./assets/avatar-local/models/claire-rocketbox.glb",
     "modelFPS": 24,
     "modelPixelRatio": 1,
-    "cameraView": "upper",
+    "cameraView": "portrait",
     "dynamicBones": false
   },
   "live": {

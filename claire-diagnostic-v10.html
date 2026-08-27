@@ -4,23 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#061c20">
-  <title>Diagnostic Claire V10 · PocketGuide 2.3.2</title>
+  <title>Diagnostic Claire V11 Portrait · PocketGuide 2.3.2</title>
+  <script>
+    if('serviceWorker'in navigator){let portraitReloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!portraitReloading){portraitReloading=true;location.reload();}});navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'}).then(registration=>registration.update()).catch(()=>{});}
+  </script>
   <style>
     :root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#041519;color:#f6f0df}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 70% 0,#0d5556 0,transparent 34%),linear-gradient(#061c20,#031215);min-height:100svh}main{width:min(100% - 24px,760px);margin:auto;padding:calc(18px + env(safe-area-inset-top)) 0 calc(36px + env(safe-area-inset-bottom))}h1{margin:.15rem 0 .3rem;font:600 clamp(1.65rem,7vw,2.7rem)/1.05 Georgia,serif}p{color:#bdd0cc;line-height:1.5}.verdict,.card{border:1px solid rgba(255,255,255,.13);border-radius:22px;background:rgba(4,31,35,.86);box-shadow:0 20px 48px rgba(0,0,0,.25)}.verdict{display:grid;gap:5px;margin:18px 0;padding:16px}.verdict strong{font-size:1.05rem}.verdict[data-state="pass"]{border-color:#54d7b3;background:#0b3c39}.verdict[data-state="fail"]{border-color:#ff9589;background:#44201f}.verdict[data-state="running"]{border-color:#eacb82}.steps{display:grid;gap:8px;margin:0;padding:0;list-style:none}.steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:11px 12px;border-radius:15px;background:rgba(255,255,255,.055)}.steps i{display:grid;width:25px;height:25px;place-items:center;border-radius:50%;background:#193d40;font-style:normal}.steps li[data-state="pass"] i{background:#176b59}.steps li[data-state="fail"] i{background:#8c3b34}.steps strong,.steps small{display:block}.steps small{margin-top:3px;color:#9fb7b3;line-height:1.35}.card{margin-top:14px;padding:12px}.card h2{margin:2px 4px 10px;font-size:.86rem;letter-spacing:.08em;text-transform:uppercase}.viewport{position:relative;width:100%;height:min(72svh,560px);overflow:hidden;border-radius:16px;background:radial-gradient(circle at 50% 30%,#185b59,transparent 50%),linear-gradient(#0b3034,#06181b)}.viewport canvas{display:block!important;width:100%!important;height:100%!important}.badge{position:absolute;z-index:2;top:10px;left:10px;padding:7px 10px;border-radius:999px;background:rgba(3,18,21,.78);font-size:.67rem;font-weight:800}.report{max-height:280px;overflow:auto;margin:0;padding:12px;border-radius:15px;background:#020c0e;color:#b9d8d2;font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.note{font-size:.78rem}.direct{height:260px}
   </style>
 </head>
 <body>
   <main>
-    <span>POCKETGUIDE 2.3.2 · AUDIT V10</span>
-    <h1>Validation du nouveau renderer Claire</h1>
-    <p>Cette version utilise Three.js pour l’image et TalkingHead pour animer Claire. Elle vérifie tous les pixels du canvas et calcule le cadrage depuis le modèle réel.</p>
+    <span>POCKETGUIDE 2.3.2 · AUDIT V11 PORTRAIT</span>
+    <h1>Claire debout, visage en trois-quarts</h1>
+    <p>Cette version préserve la pose native de Claire, cadre la tête et les épaules, puis confie à TalkingHead l’animation faciale et labiale.</p>
     <section class="verdict" id="verdict" data-state="running" aria-live="polite"><strong>Audit en cours…</strong><span>Le nouveau moteur charge Claire.</span></section>
     <ol class="steps" id="steps"></ol>
-    <section class="card"><h2>Référence Three.js</h2><div class="viewport direct" id="directView"><span class="badge">Modèle brut</span></div></section>
-    <section class="card"><h2>Architecture PocketGuide corrigée</h2><div class="viewport" id="talkingView"><span class="badge">Three.js + TalkingHead</span></div></section>
+    <section class="card"><h2>Référence Three.js</h2><div class="viewport direct" id="directView"><span class="badge">Portrait natif</span></div></section>
+    <section class="card"><h2>Architecture PocketGuide corrigée</h2><div class="viewport" id="talkingView"><span class="badge">Pose native + labial TalkingHead</span></div></section>
     <section class="card"><h2>Rapport technique</h2><pre class="report" id="report">Initialisation…</pre></section>
-    <p class="note">Le verdict vert confirme que cette architecture produit réellement Claire sur le GPU du téléphone.</p>
+    <p class="note">Le verdict vert confirme à la fois le rendu GPU, la verticalité de Claire et le cadrage rapproché du visage.</p>
   </main>
-  <script type="module" src="./js/pg23/avatar/claire-diagnostic-v10.js"></script>
+  <script type="module" src="./js/pg23/avatar/claire-diagnostic-v10.js?v=11-portrait"></script>
 </body>
 </html>
