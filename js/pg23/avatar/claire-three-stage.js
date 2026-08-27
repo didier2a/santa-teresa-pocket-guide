@@ -23,5 +23,5 @@ export class ClaireThreeStage{
   }
   start(head){this.head=head;this.running=true;this.lastTick=performance.now();const loop=timestamp=>{if(!this.running)return;const elapsed=timestamp-this.lastTick;if(elapsed>=this.frameDuration){this.lastTick=timestamp;try{if(this.head?.isRunning)this.head.animate(Math.min(100,Math.max(1,elapsed)));this.render();}catch(error){console.error('[PocketGuide Claire renderer]',error);}}this.raf=requestAnimationFrame(loop);};this.raf=requestAnimationFrame(loop);}
   stop(){this.running=false;if(this.raf)cancelAnimationFrame(this.raf);this.raf=0;}
-  dispose(){this.stop();this.resizeObserver?.disconnect?.();this.resizeObserver=null;try{this.renderer?.dispose?.();}catch{}try{this.renderer?.getContext?.().getExtension('WEBGL_lose_context')?.loseContext();}catch{}this.renderer=null;this.scene=null;this.camera=null;this.root=null;this.head=null;}
+  dispose(){this.stop();this.resizeObserver?.disconnect?.();this.resizeObserver=null;try{this.renderer?.dispose?.();}catch(error){console.warn('[PocketGuide Claire renderer] renderer dispose',error);}try{this.renderer?.getContext?.().getExtension('WEBGL_lose_context')?.loseContext();}catch(error){console.warn('[PocketGuide Claire renderer] context dispose',error);}this.renderer=null;this.scene=null;this.camera=null;this.root=null;this.head=null;}
 }
