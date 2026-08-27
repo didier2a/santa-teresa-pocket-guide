@@ -13,7 +13,7 @@ function fixture({gps='unknown',items=[]}={}){
   const actions={async execute(name,args,context){calls.push({name,args,context});return{ok:true,name,result:{view:name}};}};
   const proposals={pending:()=>null};
   const planner={async proposeReplacement(request){calls.push({name:'planner',request});return{proposal:{id:'proposal-1'},plan:{pack:{...pack,id:'santa-revision',title:'Santa révisé'}}};}};
-  const guide={async confirmPending(confirmed){return{text:confirmed?'C’est confirmé.':'D’accord, je ne change rien.'};},async handleText(){return{text:'Je propose ce changement.',proposal:{id:'proposal-2'}};}};
+  const guide={async confirmPending(confirmed){return{text:confirmed?'C’est confirmé.':'D’accord, je ne change rien.'};},async handleText(text){return /avant/i.test(text)?{text:'C’est revenu comme avant.'}:{text:'Je propose ce changement.',proposal:{id:'proposal-2'}};}};
   const guidance={lastSnapshot:null,repeatLastCue:()=>false,async processPosition(){return{instruction:'Continuez tout droit.'};},async continueAfterArrival(){return{ok:true};}};
   const itineraries={async saveCurrent(){return{id:'santa-test',label:'Santa Test'};},async list(){return items;},async load(id){calls.push({name:'load',id});return{id};}};
   const concierge={active:false,awaiting:null,consume(){return{handled:true,ready:false,reply:'Où souhaitez-vous aller ?'};}};
@@ -27,11 +27,17 @@ test('la guide reconnaît les quatre priorités fonctionnelles 2.3.3',()=>{
   assert.equal(classifyPocketGuideCommand('Guide-moi par GPS étape par étape').type,'start_guidance');
   assert.equal(classifyPocketGuideCommand('Montre-moi la carte, les photos et les fiches du parcours').type,'show_route_content');
   assert.equal(classifyPocketGuideCommand('Ouvre mes voyages sauvegardés').type,'open_saved_journeys');
+  assert.equal(classifyPocketGuideCommand('Remets comme avant').type,'undo_change');
 });
 
 test('une confirmation en attente reste prioritaire sur toute interprétation libre',()=>{
   assert.equal(classifyPocketGuideCommand('Oui',{pendingProposal:true}).type,'confirm_proposal');
   assert.equal(classifyPocketGuideCommand('Non, ne change rien',{pendingProposal:true}).type,'reject_proposal');
+});
+
+test('annuler le dernier changement passe par le moteur local même si la voix est connectée',async()=>{
+  const {router}=fixture(),routed=router.handle('Remets comme avant',{source:'text'}),result=await routed.completion;
+  assert.equal(routed.intent,'undo_change');assert.match(result.speech,/revenu comme avant/);
 });
 
 test('le démarrage du guidage ouvre la carte et demande une permission GPS explicite',async()=>{

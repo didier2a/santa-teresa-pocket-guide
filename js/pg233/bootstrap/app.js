@@ -74,6 +74,9 @@ function installStatusBridge(){
   eventBus.on('pg233.planner.requested',payload=>showPlanner(payload?.mode||'edit'));
   eventBus.on('pg233.planning.started',()=>{setText('#guideActionStatus','Je vérifie les lieux et je prépare une proposition…');});
   eventBus.on('proposal.created',()=>{setText('#guideActionStatus','Une proposition est prête. Votre confirmation reste indispensable.');});
+  eventBus.on('proposal.confirmed',()=>{setText('#guideActionStatus','L’itinéraire confirmé est actif. Vous pouvez encore dire « Remets comme avant ».');});
+  eventBus.on('proposal.rejected',()=>{setText('#guideActionStatus','Aucun changement appliqué. Votre voyage reste intact.');});
+  eventBus.on('transaction.undone',()=>{setText('#guideActionStatus','Le voyage précédent est restauré.');});
   eventBus.on('guidance.snapshot',snapshot=>{if(snapshot?.instruction)setText('#guideActionStatus',snapshot.instruction);});
   for(const event of ['gps.denied','gps.error','gps.unavailable'])eventBus.on(event,()=>void reportClientDiagnostic(event,{status:'error',code:event}));
   eventBus.on('pg23.presentation.failed',()=>void reportClientDiagnostic('presentation.failed',{status:'error',code:'presentation-failed'}));

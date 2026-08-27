@@ -35,6 +35,7 @@ export function classifyPocketGuideCommand(text,{pendingProposal=false,planningA
   if(pendingProposal&&YES.test(raw))return{type:'confirm_proposal'};
   if(pendingProposal&&NO.test(raw))return{type:'reject_proposal'};
   if(planningActive)return{type:'create_itinerary',continuation:true};
+  if(/\b(?:remets?|reviens?|retourne)\b[\s\S]{0,28}\b(?:avant|comme avant|precedent)\b/.test(value))return{type:'undo_change'};
 
   const savedNamed=namedJourneyQuery(raw);
   if(savedNamed&&/\b(?:ouvre|reprends?|charge)\b/i.test(raw))return{type:'open_saved_journey',query:savedNamed};
@@ -100,6 +101,7 @@ export class GuideCommandRouter{
     switch(intent.type){
       case'confirm_proposal':{const reply=await this.guide.confirmPending(true);await this.itineraries.saveCurrent('pg233-confirmed').catch(()=>null);return outcome(intent.type,reply.text||'C’est confirmé. Le nouvel itinéraire est enregistré.');}
       case'reject_proposal':{const reply=await this.guide.confirmPending(false);return outcome(intent.type,reply.text||'D’accord, je ne change rien.');}
+      case'undo_change':{const reply=await this.guide.handleText(text,{source:'pg233-command'});return outcome(intent.type,reply.text||'Le dernier changement a été annulé.');}
       case'create_itinerary':{
         const location=this.state.select('location')||{},request=this.concierge.consume(text,{location:{...location,simulated:Boolean(this.state.select('session.simulation'))}});
         if(!request.handled)return outcome(intent.type,'Dites-moi la destination, la durée, le rythme et ce que vous aimez découvrir.');
