@@ -3,12 +3,25 @@ import {eventBus} from '../../pg16/core/event-bus.js';
 import {companionOrchestrator21} from '../../pg21/companion/companion-orchestrator.js';
 import {liveAvatarRealtimeController,liveAvatarRealtimeRequested} from '../../pg23/avatar/liveavatar-realtime-controller.js';
 import {guideCommandRouter} from '../core/guide-command-router.js';
+import {reportClientDiagnostic} from '../core/client-diagnostics.js';
 
 const VERSION='2.3.3';
 const $=selector=>document.querySelector(selector);
 let installed=false;
 
 function setText(selector,value){const node=$(selector);if(node)node.textContent=String(value??'');}
+function safeMediaUrl(value=''){const url=String(value||'').trim();return /^(https:\/\/|\.\/|assets\/)/.test(url)?url:'';}
+function resetRouteContent(total=0){const section=$('#journeyRouteContent'),host=$('#journeyRouteCards');if(!section||!host)return;host.replaceChildren();section.hidden=false;setText('#journeyRouteContentCount',total?`0 / ${total} étapes`:'Préparation…');}
+function appendRouteContentScene(scene,total=0){
+  if(!['media','poi'].includes(scene?.type))return false;const section=$('#journeyRouteContent'),host=$('#journeyRouteCards'),sceneId=String(scene.id||'');if(!section||!host||[...host.children].some(node=>node.dataset.routeScene===sceneId))return false;
+  const article=document.createElement('article');article.className=`journey-route-card${scene.image?'':' journey-route-card--text'}`;article.dataset.routeScene=String(scene.id||'');const image=safeMediaUrl(scene.image);if(image){const img=document.createElement('img');img.src=image;img.alt=`Photographie de ${scene.title||'cette étape'}`;img.loading='lazy';article.append(img);}const copy=document.createElement('div');copy.className='journey-route-card__copy';const title=document.createElement('h4'),text=document.createElement('p');title.textContent=scene.title||'Étape du parcours';text.textContent=scene.text||'Cette étape reste disponible sur la carte.';copy.append(title,text);const credit=scene.attribution;if(credit?.label&&/^https:\/\//.test(String(credit.url||''))){const link=document.createElement('a');link.href=credit.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent=credit.label;copy.append(link);}article.append(copy);host.append(article);section.hidden=false;setText('#journeyRouteContentCount',`${host.children.length}${total?` / ${total}`:''} fiche${host.children.length>1?'s':''}`);return true;
+}
+function installRouteContentBridge(){
+  eventBus.on('pg23.presentation.started',payload=>{if(payload?.source==='pg233-route-content')resetRouteContent(Math.max(0,Number(payload.count||0)-2));});
+  eventBus.on('pg23.presentation.frame',payload=>{if(payload?.source==='pg233-route-content')appendRouteContentScene(payload.scene,Math.max(0,Number(payload.total||0)-2));});
+  eventBus.on('pg23.presentation.completed',payload=>{if(payload?.source!=='pg233-route-content')return;const section=$('#journeyRouteContent'),count=$('#journeyRouteCards')?.children.length||0;setText('#journeyRouteContentCount',`${count} fiche${count>1?'s':''} prête${count>1?'s':''}`);setTimeout(()=>section?.scrollIntoView?.({behavior:globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches?'auto':'smooth',block:'start'}),80);});
+  eventBus.on('pg23.presentation.failed',payload=>{if(payload?.source==='pg233-route-content'){setText('#journeyRouteContentCount','Présentation interrompue');setText('#guideActionStatus','La carte reste disponible, mais les fiches n’ont pas toutes pu être affichées.');}});
+}
 function updateIdentity(){
   const app=$('#companionApp');if(app)app.dataset.pgVersion=VERSION;
   const identity=$('.identity strong');if(identity)identity.textContent=`PocketGuide ${VERSION}`;
@@ -55,16 +68,18 @@ function installCommandBridge(){
 
 function installStatusBridge(){
   eventBus.on('pg233.command.started',payload=>{setText('#guideActionStatus','Je m’en occupe…');const app=$('#companionApp');if(app)app.dataset.guideAction='running';eventBus.emit('companion.status',{value:'thinking',label:'J’agis dans PocketGuide',commandId:payload.id});});
-  eventBus.on('pg233.command.completed',payload=>{setText('#guideActionStatus',payload.result?.speech||'Action terminée.');const app=$('#companionApp');if(app)app.dataset.guideAction='ready';});
-  eventBus.on('pg233.command.failed',payload=>{setText('#guideActionStatus',payload.result?.speech||'Cette action est momentanément indisponible.');const app=$('#companionApp');if(app)app.dataset.guideAction='error';});
+  eventBus.on('pg233.command.completed',payload=>{setText('#guideActionStatus',payload.result?.speech||'Action terminée.');const app=$('#companionApp');if(app)app.dataset.guideAction='ready';void reportClientDiagnostic('command.completed',{status:'ok',intent:payload.intent});});
+  eventBus.on('pg233.command.failed',payload=>{setText('#guideActionStatus',payload.result?.speech||'Cette action est momentanément indisponible.');const app=$('#companionApp');if(app)app.dataset.guideAction='error';void reportClientDiagnostic('command.failed',{status:'error',intent:payload.intent,code:'command-failed'});});
   eventBus.on('pg233.planner.requested',payload=>showPlanner(payload?.mode||'edit'));
   eventBus.on('pg233.planning.started',()=>{setText('#guideActionStatus','Je vérifie les lieux et je prépare une proposition…');});
   eventBus.on('proposal.created',()=>{setText('#guideActionStatus','Une proposition est prête. Votre confirmation reste indispensable.');});
   eventBus.on('guidance.snapshot',snapshot=>{if(snapshot?.instruction)setText('#guideActionStatus',snapshot.instruction);});
+  for(const event of ['gps.denied','gps.error','gps.unavailable'])eventBus.on(event,()=>void reportClientDiagnostic(event,{status:'error',code:event}));
+  eventBus.on('pg23.presentation.failed',()=>void reportClientDiagnostic('presentation.failed',{status:'error',code:'presentation-failed'}));
 }
 
 export function installPocketGuide233(){
-  if(installed)return globalThis.__POCKETGUIDE_V233__;installed=true;updateIdentity();installCapabilityPanel();installCommandBridge();installStatusBridge();
+  if(installed)return globalThis.__POCKETGUIDE_V233__;installed=true;updateIdentity();installCapabilityPanel();installCommandBridge();installStatusBridge();installRouteContentBridge();
   setText('#momentEyebrow','Votre guide opérationnelle');setText('#momentMessage','Demandez-moi de créer ou modifier l’itinéraire, de vous guider par GPS, d’afficher les lieux ou de reprendre un voyage sauvegardé.');
-  const runtime={version:VERSION,commands:guideCommandRouter,avatar:liveAvatarRealtimeController,showPlanner,narrate,capabilities:Object.freeze(['itinerary','gps-guidance','route-content','saved-journeys'])};globalThis.__POCKETGUIDE_V233__=runtime;eventBus.emit('pg233.runtime.ready',{version:VERSION,capabilities:runtime.capabilities});return runtime;
+  const runtime={version:VERSION,commands:guideCommandRouter,avatar:liveAvatarRealtimeController,showPlanner,narrate,capabilities:Object.freeze(['itinerary','gps-guidance','route-content','saved-journeys'])};globalThis.__POCKETGUIDE_V233__=runtime;eventBus.emit('pg233.runtime.ready',{version:VERSION,capabilities:runtime.capabilities});void reportClientDiagnostic('runtime.ready',{status:'ready'});return runtime;
 }

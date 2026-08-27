@@ -8,11 +8,16 @@ function simulatedPlace(){const route=pocketGuideState.select('route');const eve
 export class PerceptionEngine {
   constructor(){this.gpsWatch=null;this.orientationHandler=null;this.cameraStream=null;this.mode='real';}
   setMode(mode='real'){this.mode=mode==='simulation'?'simulation':'real';pocketGuideState.patch({session:{simulation:this.mode==='simulation'}},{source:'perception',event:'perception.mode.changed'});return this.mode;}
-  async startLocation(){
+  async startLocation({waitForResult=false}={}){
     if(this.mode==='simulation')return this.simulateAtCurrent();
     if(!globalThis.navigator?.geolocation){pocketGuideState.patch({perception:{gps:'unavailable'}},{source:'perception',event:'gps.unavailable'});return false;}
-    if(this.gpsWatch!=null)return true;pocketGuideState.patch({perception:{gps:'starting'}},{source:'perception',event:'gps.starting'});
-    this.gpsWatch=globalThis.navigator.geolocation.watchPosition(position=>{const c=position.coords;pocketGuideState.patch({location:{lat:c.latitude,lng:c.longitude,accuracy:Number.isFinite(c.accuracy)?c.accuracy:null,heading:normalizeHeading(c.heading),updatedAt:new Date(position.timestamp).toISOString()},perception:{gps:'ready'}},{source:'perception',event:'gps.updated'});},error=>{pocketGuideState.patch({perception:{gps:error.code===1?'denied':'error'}},{source:'perception',event:error.code===1?'gps.denied':'gps.error'});},{enableHighAccuracy:true,maximumAge:5000,timeout:15000});return true;
+    if(this.gpsWatch!=null){if(pocketGuideState.select('perception.gps')==='ready'||!waitForResult)return true;this.stopLocation();}
+    pocketGuideState.patch({perception:{gps:'starting'}},{source:'perception',event:'gps.starting'});
+    let settle=null,startFailed=false;const firstResult=waitForResult?new Promise(resolve=>{settle=resolve;}):null,finish=value=>{if(settle){const resolve=settle;settle=null;resolve(value);}};
+    try{
+      this.gpsWatch=globalThis.navigator.geolocation.watchPosition(position=>{const c=position.coords;pocketGuideState.patch({location:{lat:c.latitude,lng:c.longitude,accuracy:Number.isFinite(c.accuracy)?c.accuracy:null,heading:normalizeHeading(c.heading),updatedAt:new Date(position.timestamp).toISOString()},perception:{gps:'ready'}},{source:'perception',event:'gps.updated'});finish(true);},error=>{const status=error?.code===1?'denied':'error';pocketGuideState.patch({perception:{gps:status},diagnostics:{lastError:{scope:'gps',code:String(error?.code||'unknown'),message:String(error?.message||status)}}},{source:'perception',event:status==='denied'?'gps.denied':'gps.error'});finish(false);},{enableHighAccuracy:true,maximumAge:5000,timeout:15000});
+    }catch(error){startFailed=true;pocketGuideState.patch({perception:{gps:'error'},diagnostics:{lastError:{scope:'gps',code:error?.name||'start-error',message:String(error?.message||error)}}},{source:'perception',event:'gps.error'});finish(false);}
+    return waitForResult?firstResult:!startFailed;
   }
   stopLocation(){if(this.gpsWatch!=null&&globalThis.navigator?.geolocation){globalThis.navigator.geolocation.clearWatch(this.gpsWatch);this.gpsWatch=null;}pocketGuideState.patch({perception:{gps:'idle'}},{source:'perception',event:'gps.stopped'});}
   simulateAtCurrent({heading=0,accuracy=4}={}){const place=simulatedPlace();if(!place||!Number.isFinite(Number(place.lat))||!Number.isFinite(Number(place.lng)))return false;this.setMode('simulation');pocketGuideState.patch({location:{lat:Number(place.lat),lng:Number(place.lng),accuracy,heading:normalizeHeading(heading),updatedAt:new Date().toISOString()},perception:{gps:'ready',orientation:'ready'}},{source:'simulation',event:'gps.updated'});return true;}

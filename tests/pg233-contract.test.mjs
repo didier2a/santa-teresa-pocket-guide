@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
 const read=path=>readFile(new URL(`../${path}`,import.meta.url),'utf8');
-const [manifestText,css,sw,vercelText,shell,bootstrap,router,controller,endpoint]=await Promise.all([
-  read('manifest-v233.webmanifest'),read('pocketguide-v233.css'),read('service-worker.js'),read('vercel.json'),read('js/pg23/bootstrap/app.js'),read('js/pg233/bootstrap/app.js'),read('js/pg233/core/guide-command-router.js'),read('js/pg23/avatar/liveavatar-realtime-controller.js'),read('api/liveavatar-session.js')
+const [manifestText,css,sw,vercelText,page,shell,bootstrap,router,controller,endpoint]=await Promise.all([
+  read('manifest-v233.webmanifest'),read('pocketguide-v233.css'),read('service-worker.js'),read('vercel.json'),read('pocketguide-v23.html'),read('js/pg23/bootstrap/app.js'),read('js/pg233/bootstrap/app.js'),read('js/pg233/core/guide-command-router.js'),read('js/pg23/avatar/liveavatar-realtime-controller.js'),read('api/liveavatar-session.js')
 ]);
 
 test('PocketGuide 2.3.3 possède une URL et une installation PWA stables',()=>{
@@ -22,6 +22,11 @@ test('les quatre capacités prioritaires sont visibles et tactiles dans la coque
   assert.match(bootstrap,/data-pg233-command/);assert.match(css,/min-height:88px/);assert.match(css,/focus-visible/);assert.match(css,/prefers-reduced-motion:reduce/);
 });
 
+test('GPS et carte-fiches exposent leurs résultats au lieu de rester silencieux',()=>{
+  for(const id of ['locationStatus','journeyRouteContent','journeyRouteCards','journeyRouteContentCount'])assert.match(page,new RegExp(`id="${id}"`));
+  assert.match(bootstrap,/pg23\.presentation\.frame/);assert.match(bootstrap,/pg23\.presentation\.failed/);assert.match(css,/journey-route-card/);
+});
+
 test('LiveAvatar délègue les actions à PocketGuide puis prononce seulement leur résultat',()=>{
   assert.match(controller,/this\.onCommand/);assert.match(controller,/cancelResponse\('pg233-voice-command'\)/);assert.match(controller,/\[POCKETGUIDE_APP_RESULT\]/);assert.match(controller,/this\.narrate/);assert.match(bootstrap,/guideCommandRouter\.handle/);
   assert.match(endpoint,/POCKETGUIDE_CONTEXT_233_NAME/);assert.match(endpoint,/L'application PocketGuide est la seule source de vérité/);assert.match(endpoint,/appVersion==='2\.3\.3'/);assert.match(endpoint,/voice:'marin'/);
@@ -34,7 +39,7 @@ test('itinéraire, GPS, contenus et stockage sont reliés aux moteurs existants'
 });
 
 test('le mode 2.3.3 et ses modules sont disponibles hors ligne sans altérer le cache 2.3.2',()=>{
-  assert.match(sw,/APP_VERSION='8\.3\.19'/);assert.match(sw,/PG23_CACHE='pocketguide-v23-liveavatar-realtime-2-3-2-c'/);assert.match(sw,/PG233_CACHE='pocketguide-v233-application-guide-2-3-3-a'/);
+  assert.match(sw,/APP_VERSION='8\.3\.20'/);assert.match(sw,/PG23_CACHE='pocketguide-v23-atomic-runtime-2-3-3-d'/);assert.match(sw,/PG233_CACHE='pocketguide-v233-application-guide-2-3-3-b'/);assert.match(sw,/isAtomicRuntimeAsset/);
   for(const asset of ['manifest-v233.webmanifest','pocketguide-v233.css','guide-command-router.js','pg233/bootstrap/app.js'])assert.match(sw,new RegExp(asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   assert.match(sw,/pocketguide-2\.3\.3/);
 });

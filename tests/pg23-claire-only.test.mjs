@@ -43,8 +43,8 @@ test('le pack mobile télécharge en parallèle avec délai, reprise et cache',(
   assert.match(manager,/timeoutMs=18000/);assert.match(manager,/fetchImpl\.bind\(globalThis\)/);assert.match(manager,/retries=1/);assert.match(manager,/concurrency=4/);assert.match(manager,/AbortController/);assert.match(manager,/Promise\.allSettled/);assert.match(manager,/target\.match\(url\)/);
 });
 
-test('le service worker 2.3.2 installe uniquement des ressources publiées',()=>{
-  assert.match(sw,/APP_VERSION='8\.3\.19'/);assert.match(sw,/pocketguide-v23-liveavatar-realtime-2-3-2-c/);assert.match(sw,/pocketguide-local-avatar-v9/);assert.match(sw,/claire-three-stage\.js/);assert.match(sw,/endsWith\('\/pocketguide-v23'\)/);assert.doesNotMatch(sw,/docs\/PG23_/);
+test('le service worker atomique installe uniquement des ressources publiées',()=>{
+  assert.match(sw,/APP_VERSION='8\.3\.20'/);assert.match(sw,/pocketguide-v23-atomic-runtime-2-3-3-d/);assert.match(sw,/pocketguide-local-avatar-v9/);assert.match(sw,/claire-three-stage\.js/);assert.match(sw,/endsWith\('\/pocketguide-v23'\)/);assert.doesNotMatch(sw,/docs\/PG23_/);
 });
 
 test('le bundle Cloudflare exclut les sources et publie la route Claire',async()=>{

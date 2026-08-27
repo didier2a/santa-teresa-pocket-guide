@@ -26,7 +26,10 @@ export class RoutePresentationDirector{
   cancel(reason='interrupted'){this.runId+=1;const wasRunning=this.running;this.running=false;if(wasRunning)this.bus.emit('pg23.presentation.stopped',{reason});return wasRunning;}
   async present(pack,{source='companion-request',speak=true,intervalMs=this.intervalMs}={}){
     this.cancel('replaced');const id=this.runId,scenes=buildRoutePresentationScenes(pack,source);if(!scenes.length)return{ok:false,reason:'no-route',count:0};this.running=true;this.bus.emit('pg23.presentation.started',{routeId:pack.id,count:scenes.length,source});
-    let presented=0;for(const scene of scenes){if(id!==this.runId)return{ok:false,reason:'interrupted',count:presented};this.sceneEngine?.create?.(scene);presented+=1;this.bus.emit('pg23.presentation.frame',{routeId:pack.id,scene,index:presented,total:scenes.length});if(presented<scenes.length)await this.waitImpl(intervalMs);}
-    this.running=false;const text=`Je vous ai présenté les ${Math.max(0,scenes.length-2)} étapes de « ${pack.title||'votre parcours'} ». Vous pouvez ouvrir la carte ou lancer la simulation avant le départ.`;this.bus.emit('pg23.presentation.completed',{routeId:pack.id,count:presented,text});if(speak)this.voiceService?.speak?.(text,{routeId:pack.id,key:'route-presentation-summary'}).catch?.(()=>{});return{ok:true,count:presented,scenes,text};
+    let presented=0;
+    try{
+      for(const scene of scenes){if(id!==this.runId)return{ok:false,reason:'interrupted',count:presented};this.sceneEngine?.create?.(scene);presented+=1;this.bus.emit('pg23.presentation.frame',{routeId:pack.id,scene,index:presented,total:scenes.length,source});if(presented<scenes.length)await this.waitImpl(intervalMs);}
+      this.running=false;const text=`Je vous ai présenté les ${Math.max(0,scenes.length-2)} étapes de « ${pack.title||'votre parcours'} ». Vous pouvez ouvrir la carte ou lancer la simulation avant le départ.`;this.bus.emit('pg23.presentation.completed',{routeId:pack.id,count:presented,text,source});if(speak)this.voiceService?.speak?.(text,{routeId:pack.id,key:'route-presentation-summary'}).catch?.(()=>{});return{ok:true,count:presented,scenes,text};
+    }catch(error){if(id===this.runId)this.running=false;this.bus.emit('pg23.presentation.failed',{routeId:pack.id,count:presented,source,error:String(error?.message||error)});throw error;}
   }
 }

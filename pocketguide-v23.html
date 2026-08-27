@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <link rel="stylesheet" href="pocketguide-v23.css?v=2.3.2.14">
   <script>
-    if('serviceWorker'in navigator&&navigator.serviceWorker.controller){let claireReloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!claireReloading){claireReloading=true;location.reload();}});navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'}).then(registration=>registration.update()).catch(()=>{});}
+    if('serviceWorker'in navigator){let pocketGuideReloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!pocketGuideReloading){pocketGuideReloading=true;location.reload();}});navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'}).then(registration=>registration.update()).catch(()=>{});}
   </script>
   <script type="importmap">
     {"imports":{"events":"./vendor/liveavatar/events-browser.mjs","three":"./vendor/avatar-local/three-0.180.0/build/three.module.min.js","three/addons/":"./vendor/avatar-local/three-0.180.0/addons/","talkinghead":"./vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs"}}
@@ -165,6 +165,10 @@
       <div id="journeyTimeline" class="timeline"></div>
       <div id="journeyMap" class="map" hidden aria-label="Carte du parcours"></div>
       <div id="googleMapHost" class="map map--google" hidden aria-label="Vue Google choisie explicitement"></div>
+      <section id="journeyRouteContent" class="journey-route-content" aria-labelledby="journeyRouteContentTitle" hidden>
+        <header><div><span class="overline">Fiches du parcours</span><h3 id="journeyRouteContentTitle">Étapes, photos et informations</h3></div><span id="journeyRouteContentCount" aria-live="polite">Préparation…</span></header>
+        <div id="journeyRouteCards" class="journey-route-cards"></div>
+      </section>
       <section class="create-card">
         <span class="overline">Une autre envie ?</span>
         <h3>Créez une excursion en parlant</h3>
@@ -240,6 +244,7 @@
     <span class="overline">Au moment du départ</span>
     <h2>Puis-je vous situer&nbsp;?</h2>
     <p>Votre position sert uniquement à calculer la distance et les indications du parcours. Elle n’est pas envoyée avec vos photos ni conservée comme un souvenir personnel.</p>
+    <p id="locationStatus" class="sheet-status" aria-live="polite">La position n’est demandée qu’après votre accord.</p>
     <div class="sheet-actions sheet-actions--split"><button id="allowPosition" class="action action--accent" type="button">Autoriser ma position</button><button id="positionLater" class="action" type="button">Pas maintenant</button></div>
   </dialog>
 

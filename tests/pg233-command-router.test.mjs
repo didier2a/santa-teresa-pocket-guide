@@ -53,3 +53,8 @@ test('une demande de fiche crée une scène fiable avec le média du RoutePack',
   const {router,calls}=fixture();const result=await router.handle('Affiche la fiche de Rena Bianca').completion,created=calls.find(call=>call.name==='scene');
   assert.equal(result.placeId,'rena');assert.equal(created.scene.title,'Rena Bianca');assert.equal(created.scene.image,'rena.jpg');assert.equal(created.scene.persist,true);
 });
+
+test('carte et fiches restent dans le même espace et attendent la présentation',async()=>{
+  const {router,calls}=fixture();const result=await router.handle('Montre-moi la carte, les photos et les fiches du parcours').completion,actions=calls.filter(call=>call.name?.startsWith('ui.')||call.name==='pg23.present_route');
+  assert.deepEqual(actions.map(call=>call.name),['ui.open_map','pg23.present_route']);assert.equal(actions[0].context.source,'pg233-route-content');assert.equal(actions[1].context.source,'pg233-route-content');assert.match(result.speech,/réunies dans l’espace Voyage/);
+});

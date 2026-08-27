@@ -29,5 +29,5 @@ test('les clés restent exclusivement côté Vercel et le navigateur ne reçoit 
 });
 
 test('le portrait de chargement et le contrôleur Realtime sont disponibles dans le cache 2.3.2',()=>{
-  assert.match(sw,/liveavatar-realtime-controller\.js/);assert.match(sw,/events-browser\.mjs/);assert.match(sw,/Pocket-Guide-LiveAvatar-1080x1920\.jpg/);assert.match(sw,/pocketguide-v23-liveavatar-realtime-2-3-2-c/);assert.doesNotMatch(sw,/liveavatar-embed-controller/);
+  assert.match(sw,/liveavatar-realtime-controller\.js/);assert.match(sw,/events-browser\.mjs/);assert.match(sw,/Pocket-Guide-LiveAvatar-1080x1920\.jpg/);assert.match(sw,/pocketguide-v23-atomic-runtime-2-3-3-d/);assert.doesNotMatch(sw,/liveavatar-embed-controller/);
 });

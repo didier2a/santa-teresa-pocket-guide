@@ -6,7 +6,7 @@ if [ -z "${VERCEL_GIT_PREVIOUS_SHA:-}" ] || ! git cat-file -e "${VERCEL_GIT_PREV
 fi
 
 git diff --quiet "${VERCEL_GIT_PREVIOUS_SHA}" HEAD -- \
-  api/ engine/ js/pg23/ js/pg233/ assets/companion/ vendor/liveavatar/ \
+  api/ engine/ data/ js/pg16/ js/pg17/ js/pg18/ js/pg2/ js/pg21/ js/pg22/ js/pg23/ js/pg233/ assets/companion/ vendor/liveavatar/ \
   pocketguide-v23.html pocketguide-v23.css pocketguide-v233.css \
   manifest-v23.webmanifest manifest-v233.webmanifest service-worker.js \
   scripts/vercel-ignore-build.sh vercel.json \
