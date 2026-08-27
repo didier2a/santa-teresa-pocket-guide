@@ -15,24 +15,25 @@ test('Pocket Guide 2.3.2 publie Claire comme seule identité',()=>{
 });
 
 test('Claire locale est imposée sans flux LiveAvatar',()=>{
-  assert.equal(config.defaultMode,'local');assert.equal(config.local.displayName,'Claire');assert.equal(config.local.ready,true);assert.equal(config.local.packVersion,'5');assert.equal(config.live.enabled,false);
+  assert.equal(config.defaultMode,'local');assert.equal(config.local.displayName,'Claire');assert.equal(config.local.ready,true);assert.equal(config.local.packVersion,'6');assert.equal(config.live.enabled,false);
   assert.match(controller,/requested:'local'/);assert.match(controller,/fetchImpl\.bind\(globalThis\)/);assert.match(controller,/CONFIG_URL=new URL/);assert.doesNotMatch(controller,/LiveAvatar|manual-live|auto-live/);
 });
 
 test('le premier rendu 3D ne dépend pas du téléchargement hors ligne ni de Head Audio',()=>{
   assert.match(controller,/Boolean\(this\.config\?\.local\?\.enabled&&this\.config\.local\.ready\)/);
   assert.match(engine,/supported\(\)\{return Boolean\(this\.host&&this\.capabilities\(\)\.webgl\)/);
+  assert.match(engine,/await this\.prepareHost\(\)/);assert.match(engine,/getContext\('webgl2'/);assert.match(engine,/1\.35\/deviceRatio/);
   assert.match(engine,/void this\.installAudio\(session\)/);
-  assert.match(engine,/TALKING_HEAD_MODULE/);for(const source of [talkingHead,retargeter,dynamicBones]){assert.doesNotMatch(source,/from ['"]three(?:\/|['"])/);assert.match(source,/\.\.\/three-0\.180\.0\//);}
+  assert.match(engine,/TALKING_HEAD_MODULE/);assert.match(talkingHead,/antialias: false/);assert.match(talkingHead,/powerPreference: 'low-power'/);for(const source of [talkingHead,retargeter,dynamicBones]){assert.doesNotMatch(source,/from ['"]three(?:\/|['"])/);assert.match(source,/\.\.\/three-0\.180\.0\//);}
 });
 
 test('le pack mobile télécharge en parallèle avec délai, reprise et cache',()=>{
-  assert.equal(pack.version,'5');assert.equal(pack.cacheName,'pocketguide-local-avatar-v5');assert.ok(pack.assets.length>=19);assert.equal(pack.assets.find(asset=>asset.url.endsWith('/three.core.min.js'))?.bytes,381125);
+  assert.equal(pack.version,'6');assert.equal(pack.cacheName,'pocketguide-local-avatar-v6');assert.ok(pack.assets.length>=19);assert.equal(pack.assets.find(asset=>asset.url.endsWith('/three.core.min.js'))?.bytes,381125);assert.equal(pack.assets.find(asset=>asset.url.endsWith('/talkinghead.mjs'))?.bytes,219691);
   assert.match(manager,/timeoutMs=18000/);assert.match(manager,/fetchImpl\.bind\(globalThis\)/);assert.match(manager,/retries=1/);assert.match(manager,/concurrency=4/);assert.match(manager,/AbortController/);assert.match(manager,/Promise\.allSettled/);assert.match(manager,/target\.match\(url\)/);
 });
 
 test('le service worker 2.3.2 installe uniquement des ressources publiées',()=>{
-  assert.match(sw,/APP_VERSION='8\.3\.10'/);assert.match(sw,/pocketguide-v23-claire-2-3-2-f/);assert.match(sw,/pocketguide-local-avatar-v5/);assert.match(sw,/endsWith\('\/pocketguide-v23'\)/);assert.doesNotMatch(sw,/docs\/PG23_/);
+  assert.match(sw,/APP_VERSION='8\.3\.11'/);assert.match(sw,/pocketguide-v23-claire-2-3-2-g/);assert.match(sw,/pocketguide-local-avatar-v6/);assert.match(sw,/endsWith\('\/pocketguide-v23'\)/);assert.doesNotMatch(sw,/docs\/PG23_/);
 });
 
 test('le bundle Cloudflare exclut les sources et publie la route Claire',async()=>{

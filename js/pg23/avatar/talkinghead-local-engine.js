@@ -5,12 +5,21 @@ const TALKING_HEAD_MODULE='../../../vendor/avatar-local/talkinghead-1.7.0/talkin
 const HEAD_AUDIO_WORKLET='./vendor/avatar-local/headaudio-0.1.0/headworklet.min.mjs';
 const HEAD_AUDIO_MODEL='./vendor/avatar-local/headaudio-0.1.0/model-en-mixed.bin';
 const deadline=(promise,ms,label)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label)),ms))]);
+const nextFrame=()=>new Promise(resolve=>globalThis.requestAnimationFrame?globalThis.requestAnimationFrame(()=>resolve()):setTimeout(resolve,16));
 
 export class TalkingHeadLocalEngine{
   constructor({bus=eventBus}={}){this.bus=bus;this.id='local';this.host=null;this.portrait=null;this.audioBus=null;this.config=null;this.head=null;this.headAudio=null;this.active=false;this.audioReady=false;this.audioError='';this.lastError='';this.startedAt=0;this.session=0;}
   install({host,portrait,audioBus,config}={}){this.host=host;this.portrait=portrait;this.audioBus=audioBus;this.config=config||{};return this;}
   capabilities(){return{offline:true,networkVideo:false,webgl:Boolean(globalThis.WebGLRenderingContext),audioWorklet:Boolean(globalThis.AudioWorkletNode)};}
   supported(){return Boolean(this.host&&this.capabilities().webgl);}
+  async prepareHost(){
+    this.host.hidden=false;this.host.removeAttribute('aria-hidden');this.host.style.visibility='hidden';this.host.replaceChildren();
+    await nextFrame();await nextFrame();
+    const rect=this.host.getBoundingClientRect();if(rect.width<2||rect.height<2)throw new Error(`Zone 3D sans dimensions (${Math.round(rect.width)} × ${Math.round(rect.height)})`);
+    const canvas=document.createElement('canvas'),options={alpha:true,antialias:false,powerPreference:'low-power',failIfMajorPerformanceCaveat:false};
+    const gl=canvas.getContext('webgl2',options);if(!gl)throw new Error(`WebGL2 indisponible (${Math.round(rect.width)} × ${Math.round(rect.height)})`);
+    try{gl.getExtension('WEBGL_lose_context')?.loseContext();}catch{}this.host.style.visibility='';return rect;
+  }
   async installAudio(session){
     try{
       const audioCtx=this.audioBus?.ensureContext?.();if(!audioCtx||!this.capabilities().audioWorklet)throw new Error('Synchronisation audio indisponible sur ce navigateur');
@@ -24,15 +33,17 @@ export class TalkingHeadLocalEngine{
     if(this.active)return{active:true,reused:true};if(!this.config?.ready)throw new Error('Le modèle 3D local n’est pas prêt');if(!this.supported())throw new Error('WebGL est indisponible sur ce navigateur');
     const session=++this.session;
     try{
+      await this.prepareHost();
       let audioCtx;try{audioCtx=this.audioBus?.ensureContext?.()||undefined;}catch(error){this.audioError=String(error?.message||error);audioCtx=undefined;}
       const {TalkingHead}=await deadline(import(TALKING_HEAD_MODULE),45000,'Chargement Talking Head trop long');if(session!==this.session)throw new Error('Démarrage Claire annulé');
-      this.head=new TalkingHead(this.host,{audioCtx,modelFPS:Number(this.config.modelFPS)||24,modelPixelRatio:Number(this.config.modelPixelRatio)||1,cameraView:this.config.cameraView||'upper',cameraRotateEnable:false,cameraPanEnable:false,cameraZoomEnable:false,avatarIdleHeadMove:.28,avatarSpeakingHeadMove:.35});
+      const deviceRatio=Math.max(1,Number(globalThis.devicePixelRatio)||1),configuredRatio=Number(this.config.modelPixelRatio)||1,modelPixelRatio=Math.min(configuredRatio,1.35/deviceRatio);
+      this.head=new TalkingHead(this.host,{audioCtx,modelFPS:Number(this.config.modelFPS)||24,modelPixelRatio,cameraView:this.config.cameraView||'upper',cameraRotateEnable:false,cameraPanEnable:false,cameraZoomEnable:false,avatarIdleHeadMove:.28,avatarSpeakingHeadMove:.35});
       await deadline(this.head.showAvatar({url:this.config.modelUrl,body:'F',avatarMood:'neutral',lipsyncLang:'fr',baseline:{headRotateX:-.04,eyeBlinkLeft:.1,eyeBlinkRight:.1}}),45000,'Chargement du modèle Claire trop long');if(session!==this.session)throw new Error('Démarrage Claire annulé');
-      this.active=true;this.startedAt=Date.now();this.host.hidden=false;this.host.removeAttribute('aria-hidden');this.portrait?.setAttribute?.('aria-hidden','true');this.bus.emit('pg23.avatar.engine.active',{engine:this.id,identity:'Claire'});void this.installAudio(session);return{active:true,audioPending:true};
+      this.active=true;this.startedAt=Date.now();this.host.hidden=false;this.host.style.visibility='';this.host.removeAttribute('aria-hidden');this.portrait?.setAttribute?.('aria-hidden','true');this.bus.emit('pg23.avatar.engine.active',{engine:this.id,identity:'Claire'});void this.installAudio(session);return{active:true,audioPending:true};
     }catch(error){this.lastError=String(error?.message||error);console.error('[PocketGuide Claire 3D]',this.lastError);if(this.host)this.host.dataset.avatarError=this.lastError;await this.destroy();throw error;}
   }
   setPresence(state){if(!this.head)return;const mood=state==='arrived'?'happy':state==='error'?'sad':'neutral';try{this.head.setMood?.(mood);}catch{}}
   interrupt(){try{this.headAudio?.stop?.();}catch{}try{this.head?.stopSpeaking?.();}catch{}}
   diagnostic(){return{id:this.id,identity:'Claire',active:this.active,ready:Boolean(this.config?.ready),audioReady:this.audioReady,capabilities:this.capabilities(),startedAt:this.startedAt||null,error:this.lastError||null,audioError:this.audioError||null};}
-  async destroy(){this.session+=1;this.active=false;this.audioReady=false;if(this.headAudio){this.audioBus?.untap?.(this.headAudio);try{this.headAudio.stop();this.headAudio.disconnect();}catch{}}this.headAudio=null;try{this.head?.stop?.();}catch{}try{this.head?.dispose?.();}catch{}this.head=null;if(this.host){this.host.hidden=true;this.host.setAttribute('aria-hidden','true');this.host.replaceChildren();}this.portrait?.removeAttribute?.('aria-hidden');}
+  async destroy(){this.session+=1;this.active=false;this.audioReady=false;if(this.headAudio){this.audioBus?.untap?.(this.headAudio);try{this.headAudio.stop();this.headAudio.disconnect();}catch{}}this.headAudio=null;try{this.head?.stop?.();}catch{}try{this.head?.dispose?.();}catch{}this.head=null;if(this.host){this.host.hidden=true;this.host.style.visibility='';this.host.setAttribute('aria-hidden','true');this.host.replaceChildren();}if(this.portrait){this.portrait.hidden=false;this.portrait.removeAttribute('aria-hidden');}}
 }
