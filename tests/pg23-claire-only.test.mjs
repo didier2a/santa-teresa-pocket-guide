@@ -35,7 +35,7 @@ test('le service worker 2.3.2 installe uniquement des ressources publiées',()=>
 });
 
 test('le bundle Cloudflare exclut les sources et publie la route Claire',async()=>{
-  assert.match(build,/assets\/avatar-local\/references/);assert.match(build,/_redirects/);assert.match(build,/Pocket Guide V2\.3\.2/);
+  assert.match(build,/assets\/avatar-local\/references/);assert.doesNotMatch(build,/writeFile\(path\.join\(output, '_redirects'\)/);assert.match(build,/Pocket Guide V2\.3\.2/);
   assert.match(worker,/\.infoserv2a\.workers\.dev/);assert.match(worker,/\.pages\.dev/);
   const model=await stat(new URL('../assets/avatar-local/models/claire-rocketbox.glb',import.meta.url));assert.equal(model.size,pack.model.bytes);
 });
