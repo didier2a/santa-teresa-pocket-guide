@@ -6,7 +6,12 @@ const read=path=>readFile(new URL(`../${path}`,import.meta.url),'utf8');
 const [html,css,configText,packText,controller,manager,engine,threeStage,talkingHead,retargeter,dynamicBones,scenes,sw,build,worker,diagnosticHtml,diagnosticJs]=await Promise.all([
   read('pocketguide-v23.html'),read('pocketguide-v23.css'),read('data/v23-avatar-config.json'),read('assets/avatar-local/avatar-pack-v1.json'),read('js/pg23/avatar/avatar-engine-controller.js'),read('js/pg23/avatar/avatar-pack-manager.js'),read('js/pg23/avatar/talkinghead-local-engine.js'),read('js/pg23/avatar/claire-three-stage.js'),read('vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs'),read('vendor/avatar-local/talkinghead-1.7.0/retargeter.mjs'),read('vendor/avatar-local/talkinghead-1.7.0/dynamicbones.mjs'),read('js/pg23/scenes/living-scene-engine.js'),read('service-worker.js'),read('scripts/cloudflare/build-preview.mjs'),read('cloudflare/pocketguide-v2-worker.js'),read('claire-diagnostic-v10.html'),read('js/pg23/avatar/claire-diagnostic-v10.js')
 ]);
+const stageModule=await import(new URL('../js/pg23/avatar/claire-three-stage.js',import.meta.url));
 const config=JSON.parse(configText),pack=JSON.parse(packText);
+
+test('le renderer Claire est un module JavaScript réellement importable',()=>{
+  assert.equal(typeof stageModule.ClaireThreeStage,'function');
+});
 
 test('Pocket Guide 2.3.2 publie Claire comme seule identité',()=>{
   assert.match(html,/data-pg-version="2\.3\.2"/);assert.match(html,/Claire · guide 3D locale/);assert.match(html,/id="retryClaire"/);
