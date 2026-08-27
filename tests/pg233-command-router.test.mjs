@@ -22,6 +22,7 @@ function fixture({gps='unknown',items=[]}={}){
 
 test('la guide reconnaît les quatre priorités fonctionnelles 2.3.3',()=>{
   assert.equal(classifyPocketGuideCommand('Crée-moi un itinéraire de deux heures à Bonifacio').type,'create_itinerary');
+  assert.equal(classifyPocketGuideCommand('Je veux modifier mon itinéraire').type,'edit_itinerary');
   assert.equal(classifyPocketGuideCommand('Guide-moi par GPS étape par étape').type,'start_guidance');
   assert.equal(classifyPocketGuideCommand('Montre-moi la carte, les photos et les fiches du parcours').type,'show_route_content');
   assert.equal(classifyPocketGuideCommand('Ouvre mes voyages sauvegardés').type,'open_saved_journeys');

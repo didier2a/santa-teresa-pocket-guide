@@ -55,7 +55,7 @@ export function classifyPocketGuideCommand(text,{pendingProposal=false,planningA
 
   if(new RegExp(`\\b(?:raccourcis?|reduis|moins de temps)\\b[\\s\\S]{0,45}\\b${ROUTE_WORD}\\b|\\b${ROUTE_WORD}\\b[\\s\\S]{0,35}\\b(?:plus court|moins long)\\b`,'i').test(value))return{type:'shorten_route'};
   if(/\b(?:saute|ignore|passe)\b[\s\S]{0,24}\b(?:cette|l')?\s*etape\b/.test(value))return{type:'skip_step'};
-  if(new RegExp(`\\b(?:modifie|change|ajoute|retire|supprime|deplace|inverse|reordonne|decale|remplace)\\b[\\s\\S]{0,80}\\b${ROUTE_WORD}|\\b${ROUTE_WORD}\\b[\\s\\S]{0,60}\\b(?:ajoute|retire|supprime|deplace|inverse|change)`,'i').test(value))return{type:'edit_itinerary'};
+  if(new RegExp(`\\b(?:modifie|modifier|change|changer|ajoute|ajouter|retire|retirer|supprime|supprimer|deplace|deplacer|inverse|inverser|reordonne|reordonner|decale|decaler|remplace|remplacer)\\b[\\s\\S]{0,80}\\b${ROUTE_WORD}|\\b${ROUTE_WORD}\\b[\\s\\S]{0,60}\\b(?:ajoute|ajouter|retire|retirer|supprime|supprimer|deplace|deplacer|inverse|inverser|change|changer)`,'i').test(value))return{type:'edit_itinerary'};
   if(new RegExp(`\\b(?:cree|creer|prepare|preparer|organise|nouveau|nouvelle|autre)\\b[\\s\\S]{0,60}\\b${ROUTE_WORD}\\b|\\b${ROUTE_WORD}\\b[\\s\\S]{0,36}\\b(?:ici|autour de moi|a |au |aux |en )`,'i').test(value))return{type:'create_itinerary'};
   if(/\b(?:montre|affiche|presente|ouvre)\b[\s\S]{0,32}\b(?:itineraire|parcours|etapes|voyage)\b/.test(value))return{type:'present_route'};
   return null;
