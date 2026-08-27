@@ -37,7 +37,7 @@ export class AvatarEngineController{
     return this;
   }
   packInstalled(){const installed=avatarPackManager.installed(),expected=String(this.config?.local?.packVersion||'');return Boolean(installed&&(!expected||String(installed.version)===expected));}
-  async localReady(){if(!this.config?.local?.enabled||!this.config.local.ready)return false;return this.packInstalled()||globalThis.navigator?.onLine!==false;}
+  async localReady(){return Boolean(this.config?.local?.enabled&&this.config.local.ready);}
   async decision(){if(await this.localReady())return{mode:'local',reason:this.packInstalled()?'local-installed':'local-network'};return{mode:'portrait',reason:'local-not-ready'};}
   async apply(){
     const decision=await this.decision();this.lastDecision=decision;const target=decision.mode;

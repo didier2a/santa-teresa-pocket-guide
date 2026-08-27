@@ -20,7 +20,7 @@ test('Claire locale est imposée sans flux LiveAvatar',()=>{
 });
 
 test('le premier rendu 3D ne dépend pas du téléchargement hors ligne ni de Head Audio',()=>{
-  assert.match(controller,/packInstalled\(\)\|\|globalThis\.navigator\?\.onLine!==false/);
+  assert.match(controller,/Boolean\(this\.config\?\.local\?\.enabled&&this\.config\.local\.ready\)/);
   assert.match(engine,/supported\(\)\{return Boolean\(this\.host&&this\.capabilities\(\)\.webgl\)/);
   assert.match(engine,/void this\.installAudio\(session\)/);
 });
