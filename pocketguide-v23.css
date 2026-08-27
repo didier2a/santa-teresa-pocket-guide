@@ -1,4 +1,4 @@
-@import url("./pocketguide-v22.css?v=2.3.2");
+@import url("./pocketguide-v22.css?v=2.3.2.2");
 
 :root{--living-glow:rgba(121,220,207,.18);--living-gold:rgba(234,203,130,.2);--scene-surface:linear-gradient(145deg,rgba(8,43,48,.93),rgba(3,24,28,.91))}
 html{scroll-padding-bottom:150px}
@@ -34,6 +34,10 @@ html{scroll-padding-bottom:150px}
 .living-app[data-view="companion"] .view--companion{display:block}
 .living-app[data-portrait="hero"] .sensor-row,.living-app[data-portrait="hero"] .place-story{display:none}
 .living-app .moment-panel{z-index:9;right:14px;bottom:calc(var(--nav-height) + 28px + env(safe-area-inset-bottom));max-width:min(620px,calc(100% - 28px));padding:18px;border:1px solid rgba(255,255,255,.14);border-radius:25px;background:linear-gradient(145deg,rgba(4,27,31,.76),rgba(4,20,24,.58));box-shadow:0 18px 50px rgba(0,0,0,.27);backdrop-filter:blur(20px)}
+.living-app .moment-panel[hidden]{display:none!important}
+.moment-panel__close{position:absolute;z-index:2;top:9px;right:9px;display:grid;width:38px;height:38px;place-items:center;border:1px solid rgba(255,255,255,.18);border-radius:50%;background:rgba(3,20,24,.74);color:#fff;font-size:1.35rem;line-height:1;cursor:pointer}
+.moment-restore{position:absolute;z-index:10;left:14px;bottom:calc(var(--nav-height) + 22px + env(safe-area-inset-bottom));min-height:46px;padding:0 16px;border:1px solid rgba(234,203,130,.36);border-radius:999px;background:rgba(5,31,35,.9);box-shadow:0 14px 34px rgba(0,0,0,.34);color:var(--sand);font-size:.7rem;font-weight:900;backdrop-filter:blur(18px)}
+.moment-restore[hidden]{display:none!important}
 .living-app .moment-panel h2{font-size:clamp(2rem,10vw,4.8rem)}
 .living-app[data-portrait="hero"] .presence-dock{display:none}
 .living-app .more-actions,.living-app .conversation-toggle,.living-app .conversation{margin-inline:12px}

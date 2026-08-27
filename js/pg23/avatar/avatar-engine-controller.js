@@ -9,8 +9,11 @@ const REASONS={
   'local-active':'Claire 3D locale active',
   'local-not-ready':'Claire se prépare · connexion requise au premier lancement',
   'local-install-failed':'Téléchargement interrompu · Claire peut être relancée',
-  'local-runtime-failed':'Claire n’a pas pu démarrer · touchez Réessayer'
+  'local-runtime-failed':'Claire n’a pas pu démarrer · touchez Réessayer',
+  'config-failed':'Configuration de Claire indisponible · touchez Réessayer'
 };
+
+const CONFIG_URL=new URL('../../../data/v23-avatar-config.json',import.meta.url).href;
 
 class ClaireFallbackEngine{
   constructor(){this.id='portrait';this.root=null;this.portrait=null;this.active=false;}
@@ -23,10 +26,10 @@ class ClaireFallbackEngine{
 }
 
 export class AvatarEngineController{
-  constructor({bus=eventBus,fetchImpl=globalThis.fetch}={}){this.bus=bus;this.fetchImpl=fetchImpl;this.config=null;this.activeId='';this.engines=new Map();this.nodes={};this.unsubs=[];this.installed=false;this.lastDecision=null;this.packInstallPromise=null;}
+  constructor({bus=eventBus,fetchImpl=globalThis.fetch}={}){this.bus=bus;this.fetchImpl=typeof fetchImpl==='function'?fetchImpl.bind(globalThis):null;this.config=null;this.configError='';this.activeId='';this.engines=new Map();this.nodes={};this.unsubs=[];this.installed=false;this.lastDecision=null;this.packInstallPromise=null;}
   async install({root,portrait,host,audioBus,status,retry}={}){
     if(this.installed)return this;this.installed=true;this.nodes={root,portrait,host,status,retry};
-    try{const response=await this.fetchImpl('./data/v23-avatar-config.json',{cache:'no-store'});if(!response.ok)throw new Error(`Configuration ${response.status}`);this.config=await response.json();}catch{this.config={defaultMode:'local',fallbackMode:'portrait',local:{enabled:false,ready:false},live:{enabled:false}};}
+    try{if(!this.fetchImpl)throw new Error('Fetch indisponible');const response=await this.fetchImpl(CONFIG_URL,{cache:'no-store'});if(!response.ok)throw new Error(`Configuration ${response.status}`);this.config=await response.json();this.configError='';}catch(error){this.configError=String(error?.message||error);this.config={defaultMode:'local',fallbackMode:'portrait',local:{enabled:false,ready:false},live:{enabled:false}};this.bus.emit('pg23.avatar.config.failed',{url:CONFIG_URL,message:this.configError});}
     this.engines.set('portrait',new ClaireFallbackEngine().install({root,portrait}));
     this.engines.set('local',new TalkingHeadLocalEngine({bus:this.bus}).install({host,portrait,audioBus,config:this.config.local}));
     retry?.addEventListener('click',()=>void this.retry());
@@ -38,7 +41,7 @@ export class AvatarEngineController{
   }
   packInstalled(){const installed=avatarPackManager.installed(),expected=String(this.config?.local?.packVersion||'');return Boolean(installed&&(!expected||String(installed.version)===expected));}
   async localReady(){return Boolean(this.config?.local?.enabled&&this.config.local.ready);}
-  async decision(){if(await this.localReady())return{mode:'local',reason:this.packInstalled()?'local-installed':'local-network'};return{mode:'portrait',reason:'local-not-ready'};}
+  async decision(){if(await this.localReady())return{mode:'local',reason:this.packInstalled()?'local-installed':'local-network'};return{mode:'portrait',reason:this.configError?'config-failed':'local-not-ready'};}
   async apply(){
     const decision=await this.decision();this.lastDecision=decision;const target=decision.mode;
     if(this.activeId!==target){
@@ -57,11 +60,11 @@ export class AvatarEngineController{
   async setMode(){return this.apply();}
   renderStatus(state=''){
     if(this.nodes.status)this.nodes.status.textContent=REASONS[this.lastDecision?.reason]||'Claire 3D locale';
-    const failed=['local-runtime-failed','local-install-failed'].includes(this.lastDecision?.reason);if(this.nodes.retry)this.nodes.retry.hidden=!failed;
+    const failed=['local-runtime-failed','local-install-failed','config-failed'].includes(this.lastDecision?.reason);if(this.nodes.retry)this.nodes.retry.hidden=!failed;
     if(this.nodes.root)this.nodes.root.dataset.avatarEngine=state||((this.activeId==='local')?'local':failed?'failed':this.activeId||'preparing');
   }
   interrupt(){this.engines.get(this.activeId)?.interrupt?.();}
-  diagnostic(){return{requested:'local',identity:'Claire',active:this.activeId,decision:this.lastDecision,packInstalled:this.packInstalled(),local:this.engines.get('local')?.diagnostic?.()};}
+  diagnostic(){return{requested:'local',identity:'Claire',active:this.activeId,decision:this.lastDecision,configUrl:CONFIG_URL,configReady:Boolean(this.config?.local?.ready),configError:this.configError||null,packInstalled:this.packInstalled(),local:this.engines.get('local')?.diagnostic?.()};}
   async destroy(){for(const off of this.unsubs.splice(0))off?.();for(const engine of this.engines.values())await engine.destroy?.();this.engines.clear();this.packInstallPromise=null;this.installed=false;}
 }
 

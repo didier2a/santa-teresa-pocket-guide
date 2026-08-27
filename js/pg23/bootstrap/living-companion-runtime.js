@@ -9,7 +9,7 @@ import {unifiedVoiceService} from '../../pg22/audio/unified-audio-pack.js';
 import {livingAvatarRuntime,LipSyncLabRuntime} from '../avatar/living-avatar-runtime.js';
 import {avatarEngineController} from '../avatar/avatar-engine-controller.js';
 import {livingPresenceMachine} from '../core/living-presence-machine.js';
-import {livingPerformanceMonitor} from '../performance/living-performance-monitor.js?v=2.3.2.1';
+import {livingPerformanceMonitor} from '../performance/living-performance-monitor.js?v=2.3.2.2';
 import {livingSceneEngine} from '../scenes/living-scene-engine.js';
 import {RoutePresentationDirector,attributionForPlace} from '../scenes/route-presentation-director.js';
 import {scrollDirector} from '../scenes/scroll-director.js';
@@ -96,6 +96,12 @@ async function activateVoice(){
 
 function installPrimaryExperience(){
   const welcome=$('#welcomeDialog');if(welcome?.open)welcome.close();const app=$('#companionApp');app.dataset.view='companion';app.dataset.portrait='hero';app.dataset.presence='ready';$('[data-view-panel="companion"]')?.removeAttribute('hidden');for(const panel of document.querySelectorAll('[data-view-panel]:not([data-view-panel="companion"])'))panel.hidden=true;
+  const panel=$('#momentPanel'),restore=$('#restoreMomentPanel');let collapseTimer=0;
+  const collapse=()=>{if(!panel||panel.hidden)return;panel.hidden=true;if(restore){restore.hidden=false;restore.setAttribute('aria-expanded','false');}};
+  const expand=()=>{if(!panel)return;panel.hidden=false;if(restore){restore.hidden=true;restore.setAttribute('aria-expanded','true');}};
+  $('#dismissMomentPanel')?.addEventListener('click',collapse);restore?.addEventListener('click',expand);
+  const scheduleCollapse=delay=>{clearTimeout(collapseTimer);collapseTimer=setTimeout(collapse,delay);};
+  scheduleCollapse(5500);eventBus.on('pg23.avatar.engine.active',()=>scheduleCollapse(1800));eventBus.on('pg23.avatar.engine.failed',expand);eventBus.on('pg23.avatar.config.failed',expand);
   const applyWelcome=()=>{if(!['welcome','ready'].includes(app.dataset.moment))return;setText('#momentEyebrow','Votre accompagnatrice audiovisuelle');setText('#momentTitle','Bonjour. Je suis avec vous.');setText('#momentMessage','Parlez-moi naturellement. Je ferai apparaître les images, la carte et les étapes pendant que je vous accompagne.');setText('#momentPrimary',activated?'Me parler':'Parler à ma guide');setText('#momentSecondary','Montre-moi l’itinéraire');};applyWelcome();eventBus.on('pg21.moment.changed',()=>queueMicrotask(applyWelcome));
   $('#momentPrimary')?.addEventListener('click',event=>{if(!['welcome','ready'].includes(app.dataset.moment))return;event.preventDefault();event.stopImmediatePropagation();void activateVoice();},{capture:true});$('#momentSecondary')?.addEventListener('click',event=>{if(!['welcome','ready'].includes(app.dataset.moment))return;event.preventDefault();event.stopImmediatePropagation();void companionOrchestrator21.ask('Montre-moi l’itinéraire préparé avec les photos de chaque étape.',{source:'primary-action',speak:true});},{capture:true});
 }

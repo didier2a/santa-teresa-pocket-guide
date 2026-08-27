@@ -12,7 +12,7 @@ async function digest(response){
 }
 
 export class AvatarPackManager{
-  constructor({fetchImpl=globalThis.fetch,cacheStorage=globalThis.caches,storage=globalThis.localStorage,bus=eventBus,timeoutMs=18000,retries=1,concurrency=4}={}){this.fetchImpl=fetchImpl;this.cacheStorage=cacheStorage;this.storage=storage;this.bus=bus;this.timeoutMs=timeoutMs;this.retries=retries;this.concurrency=concurrency;}
+  constructor({fetchImpl=globalThis.fetch,cacheStorage=globalThis.caches,storage=globalThis.localStorage,bus=eventBus,timeoutMs=18000,retries=1,concurrency=4}={}){this.fetchImpl=typeof fetchImpl==='function'?fetchImpl.bind(globalThis):null;this.cacheStorage=cacheStorage;this.storage=storage;this.bus=bus;this.timeoutMs=timeoutMs;this.retries=retries;this.concurrency=concurrency;}
   async fetchWithRetry(url,{cache='no-store'}={}){
     let lastError;
     for(let attempt=0;attempt<=this.retries;attempt+=1){
