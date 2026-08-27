@@ -1,4 +1,4 @@
-const APP_VERSION='8.3.15';
+const APP_VERSION='8.3.16';
 const CACHE='pocketguide-v15-2-multiplatform-a';
 const PG16_CACHE='pocketguide-v16-rc1-planner-hotfix1';
 const PG17_CACHE='pocketguide-v17-rc1-audiovisual6';
@@ -6,7 +6,7 @@ const PG18_CACHE='pocketguide-v18-rc1-local-journal6';
 const PG2_CACHE='pocketguide-v2-companion-rc1';
 const PG21_CACHE='pocketguide-v21-human-companion-rc1';
 const PG22_CACHE='pocketguide-v22-unified-audiovisual-2-2-1-pg231-hotfix2';
-const PG23_CACHE='pocketguide-v23-claire-2-3-2-k';
+const PG23_CACHE='pocketguide-v23-liveavatar-test-2-3-2-a';
 const AVATAR_CACHE='pocketguide-local-avatar-v9';
 const PG18_MEDIA_CACHE='pocketguide-v18-route-media';
 const MAP_CACHE='santa-teresa-map-v6';
@@ -50,8 +50,8 @@ const PG22_REQUIRED=[
 ];
 const PG23_REQUIRED=[
   ...PG22_REQUIRED.filter(url=>!url.includes('human-guide-v21.webp')&&!url.includes('human-guide-visemes-v22.png')),
-  './pocketguide-v23.html','./pocketguide-v23.css','./manifest-v23.webmanifest','./data/v23-avatar-config.json','./assets/avatar-local/avatar-pack-v1.json',
-  './js/pg23/avatar/living-avatar-runtime.js','./js/pg23/avatar/avatar-network-policy.js','./js/pg23/avatar/avatar-pack-manager.js','./js/pg23/avatar/claire-three-stage.js','./js/pg23/avatar/talkinghead-local-engine.js','./js/pg23/avatar/avatar-engine-controller.js','./js/pg23/core/living-presence-machine.js','./js/pg23/performance/living-performance-monitor.js','./js/pg23/storage/living-scene-store.js','./js/pg23/scenes/living-scene-engine.js','./js/pg23/scenes/route-presentation-director.js','./js/pg23/scenes/scroll-director.js','./js/pg23/bootstrap/living-companion-runtime.js','./js/pg23/bootstrap/app.js'
+  './pocketguide-v23.html','./pocketguide-v23.css','./manifest-v23.webmanifest','./data/v23-avatar-config.json','./assets/avatar-local/avatar-pack-v1.json','./assets/companion/Pocket-Guide-LiveAvatar-1080x1920.jpg',
+  './js/pg23/avatar/living-avatar-runtime.js','./js/pg23/avatar/avatar-network-policy.js','./js/pg23/avatar/avatar-pack-manager.js','./js/pg23/avatar/claire-three-stage.js','./js/pg23/avatar/talkinghead-local-engine.js','./js/pg23/avatar/avatar-engine-controller.js','./js/pg23/avatar/liveavatar-embed-controller.js','./js/pg23/core/living-presence-machine.js','./js/pg23/performance/living-performance-monitor.js','./js/pg23/storage/living-scene-store.js','./js/pg23/scenes/living-scene-engine.js','./js/pg23/scenes/route-presentation-director.js','./js/pg23/scenes/scroll-director.js','./js/pg23/bootstrap/living-companion-runtime.js','./js/pg23/bootstrap/app.js'
 ];
 const CORE=[
   './','./index.html','./engine.html','./v2.html','./pocketguide-15.html','./studio.html','./studio-146.html','./studio-147.html','./studio-148.html','./diagnostic.html','./diagnostic-s22.html','./styles.css','./v2.css','./v15.css','./v152.css','./v3.css','./v4b.css','./v5.css','./ar-v6.css','./ar-v148.css','./ar-v149.css','./manifest.webmanifest',

@@ -12,6 +12,15 @@ html{scroll-padding-bottom:150px}
 .avatar-3d-host{position:absolute;z-index:3;inset:0;display:block;overflow:hidden;background:radial-gradient(circle at 50% 28%,rgba(121,220,207,.12),transparent 55%)}
 .avatar-3d-host[hidden]{display:none}
 .avatar-3d-host canvas{display:block;width:100%!important;height:100%!important;touch-action:none}
+.liveavatar-embed-host{display:grid;place-items:center;background:#061b20;pointer-events:auto}
+.liveavatar-embed-frame{display:block;width:100%;height:100%;aspect-ratio:9/16;border:0;background:#061b20;pointer-events:auto}
+.liveavatar-embed-loading{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:10px;overflow:hidden;text-align:center;background:#061b20}
+.liveavatar-embed-loading img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.78}
+.liveavatar-embed-loading::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,21,25,.04),rgba(4,21,25,.76))}
+.liveavatar-embed-loading strong,.liveavatar-embed-loading small{position:relative;z-index:1}.liveavatar-embed-loading strong{margin-top:54svh;color:#fff5df;font-family:Georgia,"Times New Roman",serif;font-size:1.2rem}.liveavatar-embed-loading small{color:#d1e7e3;font-size:.66rem}
+.liveavatar-embed-error{display:grid;place-content:center;gap:8px;width:100%;height:100%;padding:24px;text-align:center;background:linear-gradient(180deg,#092d32,#04171b)}.liveavatar-embed-error strong{color:#fff5df;font-family:Georgia,"Times New Roman",serif}.liveavatar-embed-error small{color:#ffb9af}
+.human-guide[data-avatar-engine="embedded"],.human-guide[data-avatar-engine="embedded-loading"]{pointer-events:auto;filter:none}
+[data-avatar-engine="embedded"] .avatar-portrait,[data-avatar-engine="embedded-loading"] .avatar-portrait{display:none!important}
 [data-avatar-engine="local"] .avatar-portrait{opacity:0;pointer-events:none}
 [data-avatar-engine="failed"] .avatar-portrait{z-index:4;display:grid!important;opacity:1!important;visibility:visible!important}
 .human-guide .avatar-portrait>img,.lab-avatar .avatar-portrait>img{display:block;width:100%;height:100%;object-fit:fill;animation:none;transform:none}
