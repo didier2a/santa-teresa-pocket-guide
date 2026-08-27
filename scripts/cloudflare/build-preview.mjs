@@ -47,6 +47,6 @@ if (!index.includes('pocketguide-v23.html')) {
   );
 }
 
-await writeFile(path.join(output, '_headers'), '/service-worker.js\n  Cache-Control: no-cache, no-store, must-revalidate\n/assets/avatar-local/*\n  Cache-Control: public, max-age=31536000, immutable\n/vendor/avatar-local/*\n  Cache-Control: public, max-age=31536000, immutable\n');
+await writeFile(path.join(output, '_headers'), '/service-worker.js\n  Cache-Control: no-cache, no-store, must-revalidate\n/assets/avatar-local/*\n  Cache-Control: no-cache, must-revalidate\n/vendor/avatar-local/*\n  Cache-Control: no-cache, must-revalidate\n');
 
 console.log('Cloudflare bundle ready: Pocket Guide V2.3.2 + Claire-only local 3D.');

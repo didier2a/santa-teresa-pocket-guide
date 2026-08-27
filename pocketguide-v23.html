@@ -12,7 +12,10 @@
   <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="pocketguide-v23.css?v=2.3.2.8">
+  <link rel="stylesheet" href="pocketguide-v23.css?v=2.3.2.9">
+  <script>
+    if('serviceWorker'in navigator&&navigator.serviceWorker.controller){let claireReloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!claireReloading){claireReloading=true;location.reload();}});navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'}).then(registration=>registration.update()).catch(()=>{});}
+  </script>
   <script type="importmap">
     {"imports":{"three":"./vendor/avatar-local/three-0.180.0/build/three.module.min.js","three/addons/":"./vendor/avatar-local/three-0.180.0/addons/","talkinghead":"./vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs"}}
   </script>
@@ -336,6 +339,6 @@
   <pre id="debugPanel" class="debug-panel" hidden></pre>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script type="module" src="js/pg23/bootstrap/app.js?v=2.3.2.8"></script>
+  <script type="module" src="js/pg23/bootstrap/app.js?v=2.3.2.9"></script>
 </body>
 </html>

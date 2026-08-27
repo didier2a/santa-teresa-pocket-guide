@@ -108,7 +108,7 @@ test('Correction 7: current PWA build caches cross-platform assets and diagnosti
   assert.equal(manifest.start_url,'./pocketguide-15.html?app=7.2.0');
   assert.equal(manifest.orientation,'any');
   assert.equal(cfg.version,'1.5.2');
-  assert.match(sw,/APP_VERSION='8\.3\.5'/);
+  assert.match(sw,/APP_VERSION='8\.3\.13'/);
   assert.match(sw,/pocketguide-v15-2-multiplatform-a/);
   for(const asset of ['v152.css','platform-v152.js','offline-v152.js','diagnostic.html','diagnostic-v152.js'])assert.match(sw,new RegExp(asset.replace(/[.]/g,'\\.')));
   assert.match(sw,/pocketguide-v152-route-download/);
