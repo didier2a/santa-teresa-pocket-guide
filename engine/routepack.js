@@ -6,6 +6,43 @@ export function minutes(value){
   return h*60+m;
 }
 
+function referenceKey(value=''){
+  return String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+}
+
+function uniquePlace(matches=[]){
+  const unique=[...new Map(matches.filter(Boolean).map(place=>[place.id,place])).values()];
+  return unique.length===1?unique[0]:null;
+}
+
+export function reconcileRoutePackPlaceReferences(pack){
+  const repairs=[],unresolved=[];
+  const places=Array.isArray(pack?.places)?pack.places:[];
+  const byId=new Map(places.filter(place=>place?.id).map(place=>[place.id,place]));
+  const aliases=places.map(place=>({place,values:[referenceKey(place?.id),referenceKey(place?.name)].filter(Boolean)}));
+  const resolve=value=>{
+    const key=referenceKey(value);if(!key)return null;
+    const exact=uniquePlace(aliases.filter(item=>item.values.includes(key)).map(item=>item.place));if(exact)return exact;
+    if(key.length<4)return null;
+    const contained=aliases.flatMap(item=>item.values.some(alias=>alias.length>=4&&(key.includes(alias)||alias.includes(key)))?[item.place]:[]);
+    return uniquePlace(contained);
+  };
+  const stationary=value=>/(^| )(pause|repos|cafe|dejeuner|diner|repas|pique nique|break)( |$)/.test(referenceKey(value));
+  for(const [di,day] of (pack?.days||[]).entries()){
+    let previousPlaceId=null;
+    for(const [ei,event] of (day?.events||[]).entries()){
+      const path=`days[${di}].events[${ei}].placeId`,from=String(event?.placeId||'');
+      if(byId.has(from)){previousPlaceId=from;continue;}
+      const candidates=[event?.placeId,event?.place,event?.title].map(resolve).filter(Boolean);
+      let place=uniquePlace(candidates),reason='alias';
+      if(!place&&previousPlaceId&&stationary(`${event?.type||''} ${event?.title||''}`)){place=byId.get(previousPlaceId)||null;reason='stationary-previous';}
+      if(place){event.placeId=place.id;previousPlaceId=place.id;repairs.push({path,from,to:place.id,reason});}
+      else unresolved.push({path,value:from});
+    }
+  }
+  return {pack,repairs,unresolved};
+}
+
 export function legacyTripToRoutePack(legacy){
   const trip=legacy?.trip||{};
   const slug=String(trip.title||'route').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,64)||'route';
@@ -73,7 +110,8 @@ export function validateRoutePack(pack){
       if(Number.isFinite(start)&&Number.isFinite(end)&&end<=start)err('EVENT_RANGE','heure de fin doit être après le début',path);
       if(Number.isFinite(start)&&start<previousEnd)err('EVENT_OVERLAP','chevauchement détecté',path);
       if(Number.isFinite(end))previousEnd=Math.max(previousEnd,end);
-      if(event?.placeId&&!placeIds.has(event.placeId))err('PLACE_REF','placeId référence un lieu inconnu',`${path}.placeId`);
+      if(!event?.placeId)err('PLACE_REF_REQUIRED','placeId est obligatoire',`${path}.placeId`);
+      else if(!placeIds.has(event.placeId))err('PLACE_REF','placeId référence un lieu inconnu',`${path}.placeId`);
       if(['bus','train','ferry','flight','avion','navette'].includes(String(event?.type||'').toLowerCase())&&!event.locked&&!event.fixed)warn('TRANSPORT_UNLOCKED','transport horaire non marqué fixed/locked',path);
     }
   }
