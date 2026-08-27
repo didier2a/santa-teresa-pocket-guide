@@ -22,9 +22,9 @@
     ]
   },
   "assets": [
-    {"url":"./vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs","bytes":219509},
-    {"url":"./vendor/avatar-local/talkinghead-1.7.0/retargeter.mjs","bytes":9646},
-    {"url":"./vendor/avatar-local/talkinghead-1.7.0/dynamicbones.mjs","bytes":33959},
+    {"url":"./vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs","bytes":219623},
+    {"url":"./vendor/avatar-local/talkinghead-1.7.0/retargeter.mjs","bytes":9683},
+    {"url":"./vendor/avatar-local/talkinghead-1.7.0/dynamicbones.mjs","bytes":33996},
     {"url":"./vendor/avatar-local/talkinghead-1.7.0/playback-worklet.js","bytes":8345},
     {"url":"./vendor/avatar-local/headaudio-0.1.0/headaudio.min.mjs","bytes":6443},
     {"url":"./vendor/avatar-local/headaudio-0.1.0/headworklet.min.mjs","bytes":13237},

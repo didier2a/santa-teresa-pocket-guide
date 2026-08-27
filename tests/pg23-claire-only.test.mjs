@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile,stat} from 'node:fs/promises';
 
 const read=path=>readFile(new URL(`../${path}`,import.meta.url),'utf8');
-const [html,css,configText,packText,controller,manager,engine,scenes,sw,build,worker]=await Promise.all([
-  read('pocketguide-v23.html'),read('pocketguide-v23.css'),read('data/v23-avatar-config.json'),read('assets/avatar-local/avatar-pack-v1.json'),read('js/pg23/avatar/avatar-engine-controller.js'),read('js/pg23/avatar/avatar-pack-manager.js'),read('js/pg23/avatar/talkinghead-local-engine.js'),read('js/pg23/scenes/living-scene-engine.js'),read('service-worker.js'),read('scripts/cloudflare/build-preview.mjs'),read('cloudflare/pocketguide-v2-worker.js')
+const [html,css,configText,packText,controller,manager,engine,talkingHead,retargeter,dynamicBones,scenes,sw,build,worker]=await Promise.all([
+  read('pocketguide-v23.html'),read('pocketguide-v23.css'),read('data/v23-avatar-config.json'),read('assets/avatar-local/avatar-pack-v1.json'),read('js/pg23/avatar/avatar-engine-controller.js'),read('js/pg23/avatar/avatar-pack-manager.js'),read('js/pg23/avatar/talkinghead-local-engine.js'),read('vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs'),read('vendor/avatar-local/talkinghead-1.7.0/retargeter.mjs'),read('vendor/avatar-local/talkinghead-1.7.0/dynamicbones.mjs'),read('js/pg23/scenes/living-scene-engine.js'),read('service-worker.js'),read('scripts/cloudflare/build-preview.mjs'),read('cloudflare/pocketguide-v2-worker.js')
 ]);
 const config=JSON.parse(configText),pack=JSON.parse(packText);
 
@@ -23,6 +23,7 @@ test('le premier rendu 3D ne dépend pas du téléchargement hors ligne ni de He
   assert.match(controller,/Boolean\(this\.config\?\.local\?\.enabled&&this\.config\.local\.ready\)/);
   assert.match(engine,/supported\(\)\{return Boolean\(this\.host&&this\.capabilities\(\)\.webgl\)/);
   assert.match(engine,/void this\.installAudio\(session\)/);
+  assert.match(engine,/TALKING_HEAD_MODULE/);for(const source of [talkingHead,retargeter,dynamicBones]){assert.doesNotMatch(source,/from ['"]three(?:\/|['"])/);assert.match(source,/\.\.\/three-0\.180\.0\//);}
 });
 
 test('le pack mobile télécharge en parallèle avec délai, reprise et cache',()=>{
@@ -31,7 +32,7 @@ test('le pack mobile télécharge en parallèle avec délai, reprise et cache',(
 });
 
 test('le service worker 2.3.2 installe uniquement des ressources publiées',()=>{
-  assert.match(sw,/APP_VERSION='8\.3\.7'/);assert.match(sw,/pocketguide-v23-claire-2-3-2-c/);assert.match(sw,/pocketguide-local-avatar-v3/);assert.match(sw,/endsWith\('\/pocketguide-v23'\)/);assert.doesNotMatch(sw,/docs\/PG23_/);
+  assert.match(sw,/APP_VERSION='8\.3\.8'/);assert.match(sw,/pocketguide-v23-claire-2-3-2-d/);assert.match(sw,/pocketguide-local-avatar-v3/);assert.match(sw,/endsWith\('\/pocketguide-v23'\)/);assert.doesNotMatch(sw,/docs\/PG23_/);
 });
 
 test('le bundle Cloudflare exclut les sources et publie la route Claire',async()=>{

@@ -9,7 +9,7 @@ import {unifiedVoiceService} from '../../pg22/audio/unified-audio-pack.js';
 import {livingAvatarRuntime,LipSyncLabRuntime} from '../avatar/living-avatar-runtime.js';
 import {avatarEngineController} from '../avatar/avatar-engine-controller.js';
 import {livingPresenceMachine} from '../core/living-presence-machine.js';
-import {livingPerformanceMonitor} from '../performance/living-performance-monitor.js?v=2.3.2.3';
+import {livingPerformanceMonitor} from '../performance/living-performance-monitor.js?v=2.3.2.4';
 import {livingSceneEngine} from '../scenes/living-scene-engine.js';
 import {RoutePresentationDirector,attributionForPlace} from '../scenes/route-presentation-director.js';
 import {scrollDirector} from '../scenes/scroll-director.js';

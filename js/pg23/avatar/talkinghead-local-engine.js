@@ -1,6 +1,7 @@
 import {eventBus} from '../../pg16/core/event-bus.js';
 
 const HEAD_AUDIO_MODULE='../../../vendor/avatar-local/headaudio-0.1.0/headaudio.min.mjs';
+const TALKING_HEAD_MODULE='../../../vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs';
 const HEAD_AUDIO_WORKLET='./vendor/avatar-local/headaudio-0.1.0/headworklet.min.mjs';
 const HEAD_AUDIO_MODEL='./vendor/avatar-local/headaudio-0.1.0/model-en-mixed.bin';
 const deadline=(promise,ms,label)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label)),ms))]);
@@ -24,7 +25,7 @@ export class TalkingHeadLocalEngine{
     const session=++this.session;
     try{
       let audioCtx;try{audioCtx=this.audioBus?.ensureContext?.()||undefined;}catch(error){this.audioError=String(error?.message||error);audioCtx=undefined;}
-      const {TalkingHead}=await deadline(import('talkinghead'),45000,'Chargement Talking Head trop long');if(session!==this.session)throw new Error('Démarrage Claire annulé');
+      const {TalkingHead}=await deadline(import(TALKING_HEAD_MODULE),45000,'Chargement Talking Head trop long');if(session!==this.session)throw new Error('Démarrage Claire annulé');
       this.head=new TalkingHead(this.host,{audioCtx,modelFPS:Number(this.config.modelFPS)||24,modelPixelRatio:Number(this.config.modelPixelRatio)||1,cameraView:this.config.cameraView||'upper',cameraRotateEnable:false,cameraPanEnable:false,cameraZoomEnable:false,avatarIdleHeadMove:.28,avatarSpeakingHeadMove:.35});
       await deadline(this.head.showAvatar({url:this.config.modelUrl,body:'F',avatarMood:'neutral',lipsyncLang:'fr',baseline:{headRotateX:-.04,eyeBlinkLeft:.1,eyeBlinkRight:.1}}),45000,'Chargement du modèle Claire trop long');if(session!==this.session)throw new Error('Démarrage Claire annulé');
       this.active=true;this.startedAt=Date.now();this.host.hidden=false;this.host.removeAttribute('aria-hidden');this.portrait?.setAttribute?.('aria-hidden','true');this.bus.emit('pg23.avatar.engine.active',{engine:this.id,identity:'Claire'});void this.installAudio(session);return{active:true,audioPending:true};
