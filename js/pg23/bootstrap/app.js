@@ -11,6 +11,6 @@ const identityObserver=new MutationObserver(reclaimShellIdentity);
 for(const node of [document.querySelector('.identity strong'),document.querySelector('title')].filter(Boolean))identityObserver.observe(node,{childList:true,characterData:true,subtree:true});
 
 await import('../../pg22/bootstrap/app.js?v=2.3.2.10');
-const {installLivingCompanion}=await import('./living-companion-runtime.js?v=2.3.2.13');
+const {installLivingCompanion}=await import('./living-companion-runtime.js?v=2.3.2.14');
 installLivingCompanion();
 reclaimShellIdentity();

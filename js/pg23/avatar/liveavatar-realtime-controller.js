@@ -2,7 +2,7 @@ import {eventBus} from '../../pg16/core/event-bus.js';
 
 const DEFAULT_API_BASE='https://santa-teresa-pocket-guide.vercel.app';
 const PORTRAIT_URL='assets/companion/Pocket-Guide-LiveAvatar-1080x1920.jpg';
-const SDK_URL='https://unpkg.com/@heygen/liveavatar-web-sdk@0.0.18/dist/index.umd.js';
+const SDK_URL='https://unpkg.com/@heygen/liveavatar-web-sdk@0.0.18/dist/index.esm.js';
 let sdkPromise=null;
 
 export function liveAvatarRealtimeRequested(search=globalThis.location?.search||''){
@@ -15,17 +15,10 @@ function apiOverride(search=globalThis.location?.search||''){
   try{const url=new URL(value);return url.protocol==='https:'?url.origin:'';}catch{return'';}
 }
 
-function loadSdk(documentImpl){
-  if(globalThis.LiveAvatarSDK?.LiveAvatarSession)return Promise.resolve(globalThis.LiveAvatarSDK);
+function loadSdk(){
   if(sdkPromise)return sdkPromise;
-  sdkPromise=new Promise((resolve,reject)=>{
-    if(!documentImpl)return reject(new Error('Document navigateur absent'));
-    const existing=documentImpl.querySelector?.(`script[src="${SDK_URL}"]`);
-    const script=existing||documentImpl.createElement('script');
-    const ready=()=>globalThis.LiveAvatarSDK?.LiveAvatarSession?resolve(globalThis.LiveAvatarSDK):reject(new Error('SDK LiveAvatar invalide'));
-    script.addEventListener('load',ready,{once:true});
-    script.addEventListener('error',()=>reject(new Error('SDK LiveAvatar indisponible')),{once:true});
-    if(!existing){script.src=SDK_URL;script.crossOrigin='anonymous';script.dataset.pocketguideLiveavatar='realtime';documentImpl.head.append(script);}
+  sdkPromise=import(SDK_URL).then(sdk=>{
+    if(!sdk?.LiveAvatarSession)throw new Error('SDK LiveAvatar invalide');return sdk;
   }).catch(error=>{sdkPromise=null;throw error;});
   return sdkPromise;
 }
@@ -101,7 +94,7 @@ export class LiveAvatarRealtimeController{
       this.loading=true;this.error='';const {root,status,retry,host}=this.nodes;if(root)root.dataset.avatarEngine='liveavatar-loading';if(status)status.textContent='Connexion à LiveAvatar et OpenAI Realtime…';if(retry)retry.hidden=true;this.loadingView();this.emitStatus('connecting','Connexion à Pocket Guide…');
       try{
         if(!this.fetchImpl||!this.document||!host)throw new Error('Navigateur incompatible');
-        const [sdk,base]=await Promise.all([loadSdk(this.document),this.apiBase()]);
+        const [sdk,base]=await Promise.all([loadSdk(),this.apiBase()]);
         const response=await this.fetchImpl(`${base}/api/liveavatar-session`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
         const payload=await response.json().catch(()=>({}));if(!response.ok)throw new Error(payload?.error||`LiveAvatar HTTP ${response.status}`);if(!payload?.sessionToken)throw new Error('Jeton de session LiveAvatar absent');
         const video=this.createVideo();host.replaceChildren(video);this.video=video;this.sdk=sdk;

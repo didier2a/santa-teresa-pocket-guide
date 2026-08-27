@@ -44,7 +44,7 @@ test('le pack mobile télécharge en parallèle avec délai, reprise et cache',(
 });
 
 test('le service worker 2.3.2 installe uniquement des ressources publiées',()=>{
-  assert.match(sw,/APP_VERSION='8\.3\.17'/);assert.match(sw,/pocketguide-v23-liveavatar-realtime-2-3-2-b/);assert.match(sw,/pocketguide-local-avatar-v9/);assert.match(sw,/claire-three-stage\.js/);assert.match(sw,/endsWith\('\/pocketguide-v23'\)/);assert.doesNotMatch(sw,/docs\/PG23_/);
+  assert.match(sw,/APP_VERSION='8\.3\.18'/);assert.match(sw,/pocketguide-v23-liveavatar-realtime-2-3-2-c/);assert.match(sw,/pocketguide-local-avatar-v9/);assert.match(sw,/claire-three-stage\.js/);assert.match(sw,/endsWith\('\/pocketguide-v23'\)/);assert.doesNotMatch(sw,/docs\/PG23_/);
 });
 
 test('le bundle Cloudflare exclut les sources et publie la route Claire',async()=>{
