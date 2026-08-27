@@ -187,6 +187,8 @@ class TalkingHead {
       avatarOnly: false,
       avatarOnlyScene: null,
       avatarOnlyCamera: null,
+      rendererCanvas: null,
+      rendererContext: null,
       statsNode: null,
       statsStyle: null
     };
@@ -837,7 +839,7 @@ class TalkingHead {
       this.scene = this.opt.avatarOnlyScene;
       this.camera = this.opt.avatarOnlyCamera;
     } else {
-      this.renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: 'low-power', failIfMajorPerformanceCaveat: false });
+      this.renderer = new THREE.WebGLRenderer({ canvas: this.opt.rendererCanvas || undefined, context: this.opt.rendererContext || undefined, antialias: false, alpha: true, powerPreference: 'low-power', failIfMajorPerformanceCaveat: false });
       this.renderer.setPixelRatio( this.opt.modelPixelRatio * window.devicePixelRatio );
       this.renderer.setSize(this.nodeAvatar.clientWidth, this.nodeAvatar.clientHeight);
       this.renderer.outputColorSpace = THREE.SRGBColorSpace;

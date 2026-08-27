@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "version": "6",
-  "cacheName": "pocketguide-local-avatar-v6",
+  "version": "7",
+  "cacheName": "pocketguide-local-avatar-v7",
   "ready": true,
   "status": "claire-only-ready",
   "model": {
@@ -22,7 +22,7 @@
     ]
   },
   "assets": [
-    {"url":"./vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs","bytes":219691},
+    {"url":"./vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs","bytes":219842},
     {"url":"./vendor/avatar-local/talkinghead-1.7.0/retargeter.mjs","bytes":9683},
     {"url":"./vendor/avatar-local/talkinghead-1.7.0/dynamicbones.mjs","bytes":33996},
     {"url":"./vendor/avatar-local/talkinghead-1.7.0/playback-worklet.js","bytes":8345},
