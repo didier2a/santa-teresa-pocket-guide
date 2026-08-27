@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {GuideCommandRouter,buildRouteRevisionPrompt,classifyPocketGuideCommand} from '../js/pg233/core/guide-command-router.js';
+import {GuideCommandRouter,classifyPocketGuideCommand} from '../js/pg233/core/guide-command-router.js';
+import {buildRouteRevisionPrompt} from '../js/pg16/planner/planner-engine.js';
 
 const pack={id:'santa-test',title:'Santa Test',timezone:'Europe/Rome',places:[{id:'rena',name:'Rena Bianca',lat:41.24,lng:9.18,description:'La plage du centre.',heroImage:'rena.jpg'}],days:[{date:'2026-09-17',events:[{id:'e1',title:'La plage',placeId:'rena',time:'10:00',end:'11:00'}]}]};
 

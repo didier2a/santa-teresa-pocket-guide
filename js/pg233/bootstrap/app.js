@@ -42,6 +42,7 @@ function installCapabilityPanel(){
 
 function showPlanner(mode='edit'){
   const dialog=$('#plannerDialog'),prompt=$('#plannerPrompt');if(!dialog)return false;
+  dialog.dataset.plannerMode=mode;
   setText('#plannerStatus',mode==='edit'?'Décrivez précisément ce qu’il faut ajouter, retirer, déplacer ou changer.':'Décrivez la destination, la durée, le rythme et vos envies.');
   if(prompt&&!prompt.value)prompt.placeholder=mode==='edit'?'Ex. Ajoute Rena Bianca après la tour et retire la pause café.':'Ex. Crée une promenade de deux heures à Bonifacio avec histoire et panoramas.';
   if(!dialog.open){dialog.classList.add('living-surface');if(typeof dialog.show==='function')dialog.show();else dialog.setAttribute('open','');}

@@ -15,13 +15,13 @@ const ROUTEPACK_SCHEMA={
   }
 };
 
-function systemPrompt(){return `Tu es PocketGuide AI Planner V1.4.8, un planificateur touristique terrain. Transforme la demande en RoutePack V1.0 exécutable. Utilise la recherche web pour vérifier les lieux et informations qui peuvent changer. Priorités: cohérence géographique, journées réalistes, horaires non chevauchants, étapes à pied regroupées, contraintes explicites de l'utilisateur, coordonnées plausibles et sources publiques. N'invente pas d'horaire d'ouverture précis si tu ne peux pas le vérifier. Chaque event.placeId doit référencer exactement un places[].id. Les événements d'une journée doivent être triés et ne pas se chevaucher. Les IDs sont en minuscules ASCII avec tirets. heroImage peut être vide: PocketGuide V1.4.8 enrichit ensuite automatiquement les lieux avec des médias publics attribués. sourceUrl doit être une URL de source publique pertinente. meta.prompt doit reprendre fidèlement la demande utilisateur. Le résultat est un brouillon validable, jamais une garantie de disponibilité. Réponds uniquement selon le schéma fourni.`}
+function systemPrompt(){return `Tu es PocketGuide AI Planner V1.4.8, un planificateur touristique terrain. Transforme la demande en RoutePack V1.0 exécutable. Utilise la recherche web pour vérifier les lieux et informations qui peuvent changer. Priorités: cohérence géographique, journées réalistes, horaires non chevauchants, étapes à pied regroupées, contraintes explicites de l'utilisateur, coordonnées plausibles et sources publiques. Si la demande contient « PARCOURS ACTUEL À RÉVISER », il s'agit d'une modification: conserve toutes les étapes et tous les lieux existants qui ne sont pas explicitement modifiés, préserve leurs identifiants et applique uniquement le changement demandé. N'invente pas d'horaire d'ouverture précis si tu ne peux pas le vérifier. Chaque event.placeId doit référencer exactement un places[].id. Les événements d'une journée doivent être triés et ne pas se chevaucher. Les IDs sont en minuscules ASCII avec tirets. heroImage peut être vide: PocketGuide V1.4.8 enrichit ensuite automatiquement les lieux avec des médias publics attribués. sourceUrl doit être une URL de source publique pertinente. meta.prompt doit reprendre seulement la demande explicite du voyageur, sans recopier le bloc de contexte. Le résultat est un brouillon validable, jamais une garantie de disponibilité. Réponds uniquement selon le schéma fourni.`}
 
 export default async function handler(req,res){
   if(!guard(req,res))return;
   try{
     const body=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
-    const prompt=String(body.prompt||'').trim().slice(0,6000);
+    const prompt=String(body.prompt||'').trim().slice(0,18000);
     if(prompt.length<8)return res.status(400).json({error:'Décrivez un peu plus votre voyage.'});
     const destination=String(body.destination||'').trim().slice(0,100);
     const timezone=String(body.timezone||'Europe/Paris').trim().slice(0,80);

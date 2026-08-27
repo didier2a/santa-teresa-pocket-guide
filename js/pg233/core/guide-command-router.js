@@ -2,7 +2,7 @@ import {pocketGuideState} from '../../pg16/core/pocketguide-state.js';
 import {eventBus} from '../../pg16/core/event-bus.js';
 import {actionRegistry} from '../../pg16/core/action-registry.js';
 import {proposalManager} from '../../pg16/core/proposal-manager.js';
-import {plannerEngine} from '../../pg16/planner/planner-engine.js';
+import {buildRouteRevisionPrompt,plannerEngine} from '../../pg16/planner/planner-engine.js';
 import {humanGuide} from '../../pg16/guide/human-guide.js';
 import {walkingGuidanceEngine} from '../../pg17/guidance/walking-guidance-engine.js';
 import {itineraryManager} from '../../pg18/itineraries/itinerary-manager.js';
@@ -79,12 +79,7 @@ function routeStatusSpeech(state,guidance){
   if(currentName)parts.push(`L’étape actuelle est ${currentName}`);if(nextName)parts.push(`la suivante sera ${nextName}`);if(Number.isFinite(route.remainingMinutes))parts.push(`il reste environ ${Math.round(route.remainingMinutes)} minutes`);
   const instruction=guidance?.lastSnapshot?.instruction;return`${parts.join(', ')||`Le parcours « ${pack.title} » est prêt`}.${instruction?` ${instruction}`:''}`;
 }
-function revisionPack(pack={}){
-  return{title:pack.title||'',timezone:pack.timezone||'',start:pack.start||'',end:pack.end||'',days:(pack.days||[]).map(day=>({date:day.date,label:day.label,events:(day.events||[]).map(event=>({id:event.id,time:event.time,end:event.end,title:event.title,type:event.type,placeId:event.placeId,navigationMode:event.navigationMode}))})),places:(pack.places||[]).map(place=>({id:place.id,name:place.name,lat:place.lat,lng:place.lng,note:place.note,description:place.description,mustSee:Boolean(place.mustSee),priority:place.priority??null}))};
-}
-export function buildRouteRevisionPrompt(instruction,pack){
-  return`Modifie le parcours actuel selon cette instruction explicite du voyageur : ${String(instruction||'').trim()}\n\nConserve toutes les étapes, contraintes et informations qui ne sont pas explicitement modifiées. Produis un nouveau RoutePack complet et cohérent, qui sera présenté comme une proposition avant confirmation.\n\nPARCOURS ACTUEL À RÉVISER :\n${JSON.stringify(revisionPack(pack))}`;
-}
+export {buildRouteRevisionPrompt};
 function genericEditRequest(text=''){
   const value=normalizeCommand(text).replace(/\b(?:s'il te plait|stp|merci)\b/g,'').trim();
   return /^(?:je veux |peux tu |tu peux )?(?:modifier|modifie|changer|change) (?:mon |le |l')?(?:itineraire|parcours|voyage)$/.test(value);

@@ -5,6 +5,12 @@ import {eventBus} from '../core/event-bus.js';
 
 function currentRouteSummary(){const route=pocketGuideState.select('route');return {id:route?.activeId||null,title:route?.title||null,currentEventId:route?.currentEventId||null,completedEventIds:route?.completedEventIds||[],skippedEventIds:route?.skippedEventIds||[],remainingMinutes:route?.remainingMinutes??null};}
 function normalize(value=''){return String(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();}
+function revisionPack(pack={}){
+  return{title:pack.title||'',timezone:pack.timezone||'',start:pack.start||'',end:pack.end||'',days:(pack.days||[]).map(day=>({date:day.date,label:day.label,events:(day.events||[]).map(event=>({id:event.id,time:event.time,end:event.end,title:event.title,type:event.type,place:event.place,placeId:event.placeId,navigationMode:event.navigationMode}))})),places:(pack.places||[]).map(place=>({id:place.id,name:place.name,lat:place.lat,lng:place.lng,note:place.note,description:place.description,mustSee:Boolean(place.mustSee),priority:place.priority??null}))};
+}
+export function buildRouteRevisionPrompt(instruction,pack){
+  return`Modifie le parcours actuel selon cette instruction explicite du voyageur : ${String(instruction||'').trim()}\n\nConserve toutes les étapes, contraintes et informations qui ne sont pas explicitement modifiées. Produis un nouveau RoutePack complet et cohérent, qui sera présenté comme une proposition avant confirmation.\n\nPARCOURS ACTUEL À RÉVISER :\n${JSON.stringify(revisionPack(pack))}`;
+}
 function extractDurationMinutes(text=''){
   const value=String(text).toLowerCase();
   let match=value.match(/(?:dans\s+)?(?:l['’]heure(?:\s+qui\s+suit)?|une\s+heure|1\s*h(?:eure)?)/i);if(match)return 60;

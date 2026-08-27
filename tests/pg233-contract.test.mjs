@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
 const read=path=>readFile(new URL(`../${path}`,import.meta.url),'utf8');
-const [manifestText,css,sw,vercelText,page,shell,bootstrap,router,controller,endpoint]=await Promise.all([
-  read('manifest-v233.webmanifest'),read('pocketguide-v233.css'),read('service-worker.js'),read('vercel.json'),read('pocketguide-v23.html'),read('js/pg23/bootstrap/app.js'),read('js/pg233/bootstrap/app.js'),read('js/pg233/core/guide-command-router.js'),read('js/pg23/avatar/liveavatar-realtime-controller.js'),read('api/liveavatar-session.js')
+const [manifestText,css,sw,vercelText,page,shell,bootstrap,router,controller,endpoint,app21]=await Promise.all([
+  read('manifest-v233.webmanifest'),read('pocketguide-v233.css'),read('service-worker.js'),read('vercel.json'),read('pocketguide-v23.html'),read('js/pg23/bootstrap/app.js'),read('js/pg233/bootstrap/app.js'),read('js/pg233/core/guide-command-router.js'),read('js/pg23/avatar/liveavatar-realtime-controller.js'),read('api/liveavatar-session.js'),read('js/pg21/bootstrap/app.js')
 ]);
 
 test('PocketGuide 2.3.3 possède une URL et une installation PWA stables',()=>{
@@ -36,6 +36,10 @@ test('itinéraire, GPS, contenus et stockage sont reliés aux moteurs existants'
   for(const dependency of ['plannerEngine','walkingGuidanceEngine','itineraryManager','livingSceneEngine','actionRegistry'])assert.match(router,new RegExp(dependency));
   for(const action of ['ui.open_map','pg23.present_route','ui.open_memories','ui.open_companion'])assert.match(router,new RegExp(action.replace('.','\\.')));
   assert.match(router,/proposalManager/);assert.match(router,/saveCurrent\('pg233-command'\)/);
+});
+
+test('le formulaire distingue une création d’une révision qui conserve le parcours actif',()=>{
+  assert.match(page,/data-planner-mode="create"/);assert.match(bootstrap,/dialog\.dataset\.plannerMode=mode/);assert.match(app21,/editMode\?buildRouteRevisionPrompt\(prompt,pack\):prompt/);assert.match(app21,/\(pack\.places\|\|\[\]\)\.length/);
 });
 
 test('le mode 2.3.3 et ses modules sont disponibles hors ligne sans altérer le cache 2.3.2',()=>{
