@@ -43,8 +43,11 @@ const index = await readFile(indexPath, 'utf8');
 if (!index.includes('pocketguide-v23.html')) {
   await writeFile(
     indexPath,
-    '<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=./pocketguide-v23.html"><title>Pocket Guide</title><a href="./pocketguide-v23.html">Ouvrir Pocket Guide V2.3.1</a></html>\n',
+    '<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=./pocketguide-v23.html"><title>Pocket Guide</title><a href="./pocketguide-v23.html">Ouvrir Pocket Guide V2.3.2 avec Claire</a></html>\n',
   );
 }
 
-console.log('Cloudflare preview bundle ready: Pocket Guide V2.3.1 + Claire local 3D.');
+await writeFile(path.join(output, '_redirects'), '/pocketguide-v23 /pocketguide-v23.html 200\n');
+await writeFile(path.join(output, '_headers'), '/service-worker.js\n  Cache-Control: no-cache, no-store, must-revalidate\n/assets/avatar-local/*\n  Cache-Control: public, max-age=31536000, immutable\n/vendor/avatar-local/*\n  Cache-Control: public, max-age=31536000, immutable\n');
+
+console.log('Cloudflare bundle ready: Pocket Guide V2.3.2 + Claire-only local 3D.');

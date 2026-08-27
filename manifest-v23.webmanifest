@@ -1,7 +1,7 @@
 {
-  "name": "PocketGuide V2.3.1 · Compagnon vivant",
-  "short_name": "PocketGuide 2.3.1",
-  "description": "Accompagnatrice audiovisuelle principale avec visage synchronisé et voyage présenté au rythme de la conversation.",
+  "name": "PocketGuide V2.3.2 · Claire 3D locale",
+  "short_name": "PocketGuide 2.3.2",
+  "description": "Claire, accompagnatrice 3D locale et économe en données, présente le voyage au rythme de la conversation.",
   "id": "./pocketguide-v23.html",
   "start_url": "./pocketguide-v23.html?source=pwa",
   "scope": "./",

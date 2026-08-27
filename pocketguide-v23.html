@@ -4,26 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#071f24">
-  <meta name="description" content="PocketGuide V2.3 — votre accompagnatrice vivante met en scène le voyage au rythme de la conversation.">
+  <meta name="description" content="PocketGuide V2.3.2 — Claire, votre accompagnatrice 3D locale, met en scène le voyage au rythme de la conversation.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="PocketGuide V2.3">
+  <meta name="apple-mobile-web-app-title" content="PocketGuide V2.3.2">
   <link rel="manifest" href="manifest-v23.webmanifest">
   <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="pocketguide-v23.css?v=2.3.1.3">
+  <link rel="stylesheet" href="pocketguide-v23.css?v=2.3.2.1">
   <script type="importmap">
     {"imports":{"three":"./vendor/avatar-local/three-0.180.0/build/three.module.min.js","three/addons/":"./vendor/avatar-local/three-0.180.0/addons/","talkinghead":"./vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs"}}
   </script>
-  <title>PocketGuide V2.3.1 · Compagnon vivant</title>
+  <title>PocketGuide V2.3.2 · Claire 3D locale</title>
 </head>
 <body>
-  <main class="companion-app living-app" id="companionApp" data-presence="ready" data-view="companion" data-moment="welcome" data-portrait="hero" data-pg-version="2.3.1">
+  <main class="companion-app living-app" id="companionApp" data-presence="ready" data-view="companion" data-moment="welcome" data-portrait="hero" data-avatar-engine="preparing" data-pg-version="2.3.2">
     <header class="app-header">
       <button class="identity" id="homeIdentity" type="button" aria-label="Revenir au compagnon">
         <span class="identity-mark" aria-hidden="true">P</span>
-        <span><strong>PocketGuide 2.3.1</strong><small id="routeTitle">Votre guide personnelle</small></span>
+        <span><strong>PocketGuide 2.3.2</strong><small id="routeTitle">Claire · guide 3D locale</small></span>
       </button>
       <div class="life-status" aria-live="polite">
         <span class="life-dot" aria-hidden="true"></span>
@@ -37,8 +37,10 @@
         <div class="cinema-shade"></div>
         <figure class="human-guide" id="humanGuide" aria-label="Votre guide PocketGuide">
           <span class="human-guide__halo" aria-hidden="true"></span>
-          <span class="avatar-portrait" id="avatarPortrait">
-            <img src="assets/companion/human-guide-v21.webp" alt="Portrait stylisé de votre guide PocketGuide">
+          <span class="avatar-portrait claire-placeholder" id="avatarPortrait" role="status" aria-live="polite">
+            <span class="claire-mark" aria-hidden="true">C</span>
+            <strong>Claire se prépare</strong>
+            <small>Avatar 3D local · premier chargement</small>
             <span id="avatarMouth" class="avatar-mouth" data-viseme="neutral" aria-hidden="true"></span>
           </span>
           <span class="avatar-3d-host" id="avatar3dHost" aria-hidden="true" hidden></span>
@@ -92,7 +94,7 @@
         </header>
         <div class="scene-stream" id="sceneStream" aria-live="polite" aria-relevant="additions">
           <article class="living-scene living-scene--speech is-presented" data-scene-id="welcome" data-scene-type="speech">
-            <div class="scene-avatar" aria-hidden="true"><img src="assets/companion/human-guide-v21.webp" alt=""></div>
+            <div class="scene-avatar" aria-hidden="true"><span class="claire-mark">C</span></div>
             <div class="scene-copy"><span class="scene-kicker">Votre accompagnatrice</span><h3>Je suis avec vous.</h3><p>Parlez naturellement. Les cartes, les images et les étapes apparaîtront ici au rythme de notre échange.</p></div>
           </article>
         </div>
@@ -102,7 +104,7 @@
       <section class="presence-dock" aria-label="Dialogue avec votre compagnon">
         <button id="companionMic" class="presence" type="button" aria-pressed="false" aria-label="Parler à votre compagnon">
           <span class="presence-aura" aria-hidden="true"></span>
-          <span class="presence-core" aria-hidden="true"><img src="assets/companion/human-guide-v21.webp" alt=""></span>
+          <span class="presence-core" aria-hidden="true"><span class="claire-mark">C</span></span>
         </button>
         <div class="presence-copy">
           <strong id="presenceLabel">Je suis avec vous</strong>
@@ -120,16 +122,11 @@
           <button type="button" id="openAr">Voir en AR</button>
           <button type="button" id="openLipSyncLab">Tester le visage</button>
         </div>
-        <label class="avatar-mode-control" for="avatarModeSelect">
-          <span>Avatar économique</span>
-          <select id="avatarModeSelect">
-            <option value="auto">Auto · économie</option>
-            <option value="portrait">Portrait local</option>
-            <option value="local">3D locale</option>
-            <option value="live">LiveAvatar</option>
-          </select>
-          <small id="avatarModeStatus" aria-live="polite">Portrait local · consommation minimale</small>
-        </label>
+        <div class="avatar-mode-control" data-avatar-only="claire">
+          <span>Claire · avatar 3D embarqué</span>
+          <button id="retryClaire" class="avatar-retry" type="button" hidden>Réessayer</button>
+          <small id="avatarModeStatus" aria-live="polite">Initialisation de Claire…</small>
+        </div>
       </details>
 
       <button id="toggleConversation" class="conversation-toggle" type="button" aria-expanded="true">Conversation</button>
@@ -198,8 +195,8 @@
   </main>
 
   <dialog id="welcomeDialog" class="sheet sheet--welcome">
-    <div class="welcome-human"><img src="assets/companion/human-guide-v21.webp" alt="Votre guide PocketGuide"></div>
-    <span class="overline">PocketGuide V2.3.1</span>
+    <div class="welcome-human claire-card" aria-label="Claire, votre guide"><span class="claire-mark" aria-hidden="true">C</span><strong>Claire</strong></div>
+    <span class="overline">PocketGuide V2.3.2</span>
     <h2>Je marcherai à vos côtés.</h2>
     <p>Commençons par la voix. Je ne demanderai votre position qu’au départ du parcours, et la caméra restera fermée jusqu’à ce que vous choisissiez de regarder avec moi.</p>
     <div class="sheet-actions">
@@ -226,7 +223,7 @@
   </dialog>
 
   <dialog id="readyDialog" class="sheet sheet--welcome">
-    <div class="welcome-human welcome-human--small"><img src="assets/companion/human-guide-v21.webp" alt="Votre guide PocketGuide"></div>
+    <div class="welcome-human welcome-human--small claire-card" aria-label="Claire, votre guide"><span class="claire-mark" aria-hidden="true">C</span><strong>Claire</strong></div>
     <span class="overline">Votre excursion est prête</span>
     <h2>Voulez-vous que je vous la montre avant de partir&nbsp;?</h2>
     <p>Je peux lancer maintenant la visite photographique. Votre progression réelle ne sera pas modifiée.</p>
@@ -234,7 +231,7 @@
   </dialog>
 
   <dialog id="locationDialog" class="sheet sheet--welcome">
-    <div class="welcome-human welcome-human--small"><img src="assets/companion/human-guide-v21.webp" alt="Votre guide PocketGuide"></div>
+    <div class="welcome-human welcome-human--small claire-card" aria-label="Claire, votre guide"><span class="claire-mark" aria-hidden="true">C</span><strong>Claire</strong></div>
     <span class="overline">Au moment du départ</span>
     <h2>Puis-je vous situer&nbsp;?</h2>
     <p>Votre position sert uniquement à calculer la distance et les indications du parcours. Elle n’est pas envoyée avec vos photos ni conservée comme un souvenir personnel.</p>
@@ -290,8 +287,8 @@
     <p>Ce test fonctionne d’abord sans réseau. Vous devez voir la bouche changer nettement de forme sur le visage.</p>
     <div class="lab-avatar" id="labAvatar" data-avatar-state="speaking" data-portrait="lab">
       <span class="lab-avatar__halo" aria-hidden="true"></span>
-      <span class="avatar-portrait" id="labAvatarPortrait">
-        <img src="assets/companion/human-guide-v21.webp" alt="Portrait de contrôle de votre guide">
+      <span class="avatar-portrait claire-placeholder" id="labAvatarPortrait">
+        <span class="claire-mark" aria-hidden="true">C</span><strong>Claire</strong><small>Diagnostic 3D</small>
         <span id="labAvatarMouth" class="avatar-mouth" data-viseme="neutral" aria-hidden="true"></span>
       </span>
     </div>
@@ -300,7 +297,7 @@
       <div><dt>Visème</dt><dd id="labViseme">neutral</dd></div>
       <div><dt>Changements</dt><dd id="labChanges">0</dd></div>
       <div><dt>Visibilité</dt><dd id="labVisibility">À mesurer</dd></div>
-      <div><dt>Version</dt><dd id="labVersion">2.3.1</dd></div>
+      <div><dt>Version</dt><dd id="labVersion">2.3.2</dd></div>
       <div><dt>État</dt><dd id="labState">ready</dd></div>
       <div><dt>Mode</dt><dd id="labMode">lab</dd></div>
       <div><dt>Source</dt><dd id="labSource">silencieux</dd></div>
@@ -337,6 +334,6 @@
   <pre id="debugPanel" class="debug-panel" hidden></pre>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script type="module" src="js/pg23/bootstrap/app.js?v=2.3.1.3"></script>
+  <script type="module" src="js/pg23/bootstrap/app.js?v=2.3.2.1"></script>
 </body>
 </html>

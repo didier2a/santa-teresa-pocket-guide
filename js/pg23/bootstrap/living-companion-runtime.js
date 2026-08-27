@@ -9,12 +9,12 @@ import {unifiedVoiceService} from '../../pg22/audio/unified-audio-pack.js';
 import {livingAvatarRuntime,LipSyncLabRuntime} from '../avatar/living-avatar-runtime.js';
 import {avatarEngineController} from '../avatar/avatar-engine-controller.js';
 import {livingPresenceMachine} from '../core/living-presence-machine.js';
-import {livingPerformanceMonitor} from '../performance/living-performance-monitor.js?v=2.3.1.3';
+import {livingPerformanceMonitor} from '../performance/living-performance-monitor.js?v=2.3.2.1';
 import {livingSceneEngine} from '../scenes/living-scene-engine.js';
 import {RoutePresentationDirector,attributionForPlace} from '../scenes/route-presentation-director.js';
 import {scrollDirector} from '../scenes/scroll-director.js';
 
-const VERSION='2.3.1';
+const VERSION='2.3.2';
 const $=selector=>document.querySelector(selector);
 const PRESENT_ROUTE=/\b(?:montre(?:-moi)?|pr[ée]sente(?:-moi)?|affiche|voir|simule)\b[\s\S]{0,48}\b(?:itin[ée]raire|parcours|voyage|[ée]tapes?)\b|\b(?:itin[ée]raire|parcours)\b[\s\S]{0,36}\b(?:photos?|images?|visuel)/i;
 let hooksInstalled=false,previewHooked=false,semanticInstalled=false,realtimeToolInstalled=false,sceneBridgesInstalled=false,activated=false;
@@ -102,7 +102,7 @@ function installPrimaryExperience(){
 
 export function installLivingCompanion(){
   const app=$('#companionApp');pocketGuideState.patch({version:VERSION,ui:{panel:'companion'}},{source:'pg23-bootstrap',event:'pg23.version.ready'});livingPresenceMachine.install({app,avatar:$('#humanGuide'),label:$('#guideStateLabel')});livingAvatarRuntime.install({root:$('#humanGuide'),portrait:$('#avatarPortrait'),mouth:$('#avatarMouth')});livingSceneEngine.install({host:$('#sceneStream'),countHost:$('#sceneCount'),scopeId:currentRouteId()});scrollDirector.install({flow:$('#livingFlow'),resumeButton:$('#resumeScenes'),app});livingPerformanceMonitor.install({root:app});eventBus.on('pg23.scene.presented',payload=>scrollDirector.present(payload?.node));installActions();installConversationHook();installSemanticOrchestrator();installRealtimeTool();installSceneBridges();installPreviewHook();installPrimaryExperience();installVisibilityBudget();const lab=installLab();createRouteScene(routePack(),'pg23-ready');
-  void avatarEngineController.install({root:$('#humanGuide'),portrait:$('#avatarPortrait'),host:$('#avatar3dHost'),audioBus:unifiedVoiceService.bus,select:$('#avatarModeSelect'),status:$('#avatarModeStatus')});
-  const identity=$('.identity strong');if(identity)identity.textContent='PocketGuide 2.3.1';document.title='PocketGuide V2.3.1 · Compagnon vivant';
+  void avatarEngineController.install({root:$('#humanGuide'),portrait:$('#avatarPortrait'),host:$('#avatar3dHost'),audioBus:unifiedVoiceService.bus,status:$('#avatarModeStatus'),retry:$('#retryClaire')});
+  const identity=$('.identity strong');if(identity)identity.textContent='PocketGuide 2.3.2';document.title='PocketGuide V2.3.2 · Claire 3D locale';
   const diagnostic=()=>({...updateDiagnostic(),avatarEngine:avatarEngineController.diagnostic()});globalThis.__POCKETGUIDE_V23__={version:VERSION,avatar:livingAvatarRuntime,avatarEngine:avatarEngineController,presence:livingPresenceMachine,lab,scenes:livingSceneEngine,scroll:scrollDirector,presentation:presentationDirector,performance:livingPerformanceMonitor,diagnostic,spec:'G121-G150'};eventBus.emit('pg23.runtime.ready',{version:VERSION});return globalThis.__POCKETGUIDE_V23__;
 }

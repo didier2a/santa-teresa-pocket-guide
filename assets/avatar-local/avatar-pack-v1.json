@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0",
-  "version": "2",
-  "cacheName": "pocketguide-local-avatar-v2",
+  "version": "3",
+  "cacheName": "pocketguide-local-avatar-v3",
   "ready": true,
-  "status": "temporary-claire-ready",
+  "status": "claire-only-ready",
   "model": {
     "url": "./assets/avatar-local/models/claire-rocketbox.glb",
     "name": "Claire",
