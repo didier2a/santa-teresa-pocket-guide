@@ -6,18 +6,21 @@ const read=p=>readFile(new URL(p,root),'utf8');
 
 test('Vercel: le runtime PocketGuide 2.3.3 déclenche un déploiement, pas les anciennes pages isolées',async()=>{
   const cfg=JSON.parse(await read('vercel.json'));
+  const filter=await read('scripts/vercel-ignore-build.sh');
   assert.equal(typeof cfg.ignoreCommand,'string');
-  assert.match(cfg.ignoreCommand,/VERCEL_GIT_PREVIOUS_SHA/);
-  assert.match(cfg.ignoreCommand,/git diff --quiet/);
-  assert.match(cfg.ignoreCommand,/api\//);
-  assert.match(cfg.ignoreCommand,/engine\//);
-  assert.match(cfg.ignoreCommand,/js\/pg233\//);
-  assert.match(cfg.ignoreCommand,/pocketguide-v233\.css/);
-  assert.match(cfg.ignoreCommand,/manifest-v233\.webmanifest/);
-  assert.match(cfg.ignoreCommand,/service-worker\.js/);
-  assert.match(cfg.ignoreCommand,/vercel\.json/);
-  assert.doesNotMatch(cfg.ignoreCommand,/studio-148\.html/);
-  assert.doesNotMatch(cfg.ignoreCommand,/ar-v149\.css/);
+  assert.equal(cfg.ignoreCommand,'bash scripts/vercel-ignore-build.sh');
+  assert.ok(cfg.ignoreCommand.length<=256);
+  assert.match(filter,/VERCEL_GIT_PREVIOUS_SHA/);
+  assert.match(filter,/git diff --quiet/);
+  assert.match(filter,/api\//);
+  assert.match(filter,/engine\//);
+  assert.match(filter,/js\/pg233\//);
+  assert.match(filter,/pocketguide-v233\.css/);
+  assert.match(filter,/manifest-v233\.webmanifest/);
+  assert.match(filter,/service-worker\.js/);
+  assert.match(filter,/vercel\.json/);
+  assert.doesNotMatch(filter,/studio-148\.html/);
+  assert.doesNotMatch(filter,/ar-v149\.css/);
 });
 
 test('Vercel: les fonctions backend importantes ont une durée explicite',async()=>{
