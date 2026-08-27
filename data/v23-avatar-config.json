@@ -13,7 +13,7 @@
     "ready": true,
     "experimental": false,
     "displayName": "Claire",
-    "packVersion": "4",
+    "packVersion": "5",
     "packManifest": "./assets/avatar-local/avatar-pack-v1.json",
     "modelUrl": "./assets/avatar-local/models/claire-rocketbox.glb",
     "modelFPS": 24,

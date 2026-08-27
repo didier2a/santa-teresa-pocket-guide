@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "version": "4",
-  "cacheName": "pocketguide-local-avatar-v4",
+  "version": "5",
+  "cacheName": "pocketguide-local-avatar-v5",
   "ready": true,
   "status": "claire-only-ready",
   "model": {
@@ -30,6 +30,7 @@
     {"url":"./vendor/avatar-local/headaudio-0.1.0/headworklet.min.mjs","bytes":13237},
     {"url":"./vendor/avatar-local/headaudio-0.1.0/model-en-mixed.bin","bytes":14352},
     {"url":"./vendor/avatar-local/three-0.180.0/build/three.module.min.js","bytes":338908},
+    {"url":"./vendor/avatar-local/three-0.180.0/build/three.core.min.js","bytes":381125},
     {"url":"./vendor/avatar-local/three-0.180.0/addons/controls/OrbitControls.js","bytes":38729},
     {"url":"./vendor/avatar-local/three-0.180.0/addons/loaders/GLTFLoader.js","bytes":114765},
     {"url":"./vendor/avatar-local/three-0.180.0/addons/loaders/DRACOLoader.js","bytes":16807},
