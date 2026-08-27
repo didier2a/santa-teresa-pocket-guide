@@ -6,8 +6,8 @@ export default function handler(req,res){
   if(req.method!=='GET')return res.status(405).json({ok:false,error:'Méthode non autorisée'});
   return res.status(200).json({
     ok:true,
-    version:'1.4.9',
-    diagnosticRevision:'liveavatar-realtime-v2.4',
+    version:'1.4.10',
+    diagnosticRevision:'liveavatar-realtime-v2.4.1',
     openaiConfigured:Boolean(process.env.OPENAI_API_KEY),
     liveAvatarConfigured:Boolean(process.env.LIVEAVATAR_API_KEY||process.env.HEYGEN_API_KEY),
     liveAvatarIdentityConfigured:Boolean(process.env.HEYGEN_AVATAR_ID),
