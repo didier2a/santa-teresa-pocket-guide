@@ -4,17 +4,20 @@ import {readFile} from 'node:fs/promises';
 const root=new URL('../',import.meta.url);
 const read=p=>readFile(new URL(p,root),'utf8');
 
-test('Vercel: les changements frontend seuls ne déclenchent pas de build backend',async()=>{
+test('Vercel: le runtime PocketGuide 2.3.3 déclenche un déploiement, pas les anciennes pages isolées',async()=>{
   const cfg=JSON.parse(await read('vercel.json'));
   assert.equal(typeof cfg.ignoreCommand,'string');
   assert.match(cfg.ignoreCommand,/VERCEL_GIT_PREVIOUS_SHA/);
   assert.match(cfg.ignoreCommand,/git diff --quiet/);
   assert.match(cfg.ignoreCommand,/api\//);
   assert.match(cfg.ignoreCommand,/engine\//);
+  assert.match(cfg.ignoreCommand,/js\/pg233\//);
+  assert.match(cfg.ignoreCommand,/pocketguide-v233\.css/);
+  assert.match(cfg.ignoreCommand,/manifest-v233\.webmanifest/);
+  assert.match(cfg.ignoreCommand,/service-worker\.js/);
   assert.match(cfg.ignoreCommand,/vercel\.json/);
   assert.doesNotMatch(cfg.ignoreCommand,/studio-148\.html/);
   assert.doesNotMatch(cfg.ignoreCommand,/ar-v149\.css/);
-  assert.doesNotMatch(cfg.ignoreCommand,/service-worker\.js/);
 });
 
 test('Vercel: les fonctions backend importantes ont une durée explicite',async()=>{
