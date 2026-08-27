@@ -8,7 +8,7 @@ import {humanRealtimeCompanion} from '../../pg21/companion/human-realtime-compan
 import {unifiedVoiceService} from '../../pg22/audio/unified-audio-pack.js';
 import {livingAvatarRuntime,LipSyncLabRuntime} from '../avatar/living-avatar-runtime.js';
 import {avatarEngineController} from '../avatar/avatar-engine-controller.js';
-import {liveAvatarEmbedController,liveAvatarEmbeddedRequested} from '../avatar/liveavatar-embed-controller.js';
+import {liveAvatarRealtimeController,liveAvatarRealtimeRequested} from '../avatar/liveavatar-realtime-controller.js';
 import {livingPresenceMachine} from '../core/living-presence-machine.js';
 import {livingPerformanceMonitor} from '../performance/living-performance-monitor.js?v=2.3.2.10';
 import {livingSceneEngine} from '../scenes/living-scene-engine.js';
@@ -18,7 +18,7 @@ import {scrollDirector} from '../scenes/scroll-director.js';
 const VERSION='2.3.2';
 const $=selector=>document.querySelector(selector);
 const PRESENT_ROUTE=/\b(?:montre(?:-moi)?|pr[ée]sente(?:-moi)?|affiche|voir|simule)\b[\s\S]{0,48}\b(?:itin[ée]raire|parcours|voyage|[ée]tapes?)\b|\b(?:itin[ée]raire|parcours)\b[\s\S]{0,36}\b(?:photos?|images?|visuel)/i;
-let hooksInstalled=false,previewHooked=false,semanticInstalled=false,realtimeToolInstalled=false,sceneBridgesInstalled=false,activated=false;
+let hooksInstalled=false,previewHooked=false,semanticInstalled=false,realtimeToolInstalled=false,sceneBridgesInstalled=false,liveConversationInstalled=false,activated=false;
 
 function allEvents(pack){return(pack?.days||[]).flatMap(day=>day.events||[]);}
 function routePack(){return pocketGuideState.select('route.pack')||null;}
@@ -50,6 +50,18 @@ function installActions(){
 function installSemanticOrchestrator(){
   if(semanticInstalled)return;semanticInstalled=true;const original=companionOrchestrator21.ask.bind(companionOrchestrator21);
   companionOrchestrator21.ask=async function(text,options={}){const value=String(text||'').trim();if(!PRESENT_ROUTE.test(value))return original(value,options);this.turn('user',value,{source:options.source||'text'});const reply='Bien sûr. Je reste avec vous pendant que les étapes et leurs photographies apparaissent dans l’ordre du parcours.';this.turn('companion',reply,{source:'pg23-presentation'});livingPresenceMachine.transition('presenting',{source:'companion',reason:'explicit-route-request',label:'Je vous montre le parcours',portrait:'guide'});void unifiedVoiceService.speak(reply,{routeId:currentRouteId(),key:'presentation-intro'});const result=await actionRegistry.execute('pg23.present_route',{speak:false},{source:'companion-intent'});return{type:'PRESENTATION',text:reply,execution:result};};
+}
+
+function installLiveAvatarConversation(controller){
+  if(liveConversationInstalled)return;liveConversationInstalled=true;humanRealtimeCompanion.disconnect();
+  const inheritedAsk=companionOrchestrator21.ask.bind(companionOrchestrator21);
+  companionOrchestrator21.startVoice=async()=>({mode:'liveavatar-realtime',connected:await controller.toggleListening()});
+  companionOrchestrator21.toggleListening=()=>controller.toggleListening();
+  companionOrchestrator21.interrupt=()=>{unifiedVoiceService.interrupt();controller.interrupt();};
+  companionOrchestrator21.ask=async function(text,options={}){
+    const value=String(text||'').trim();if(!value)return null;if(PRESENT_ROUTE.test(value))return inheritedAsk(value,options);
+    this.turn('user',value,{source:options.source||'text'});const sent=await controller.message(value);return{type:'LIVEAVATAR_REALTIME',sent};
+  };
 }
 
 function installRealtimeTool(){
@@ -92,7 +104,7 @@ function installVisibilityBudget(){
 }
 
 async function activateVoice(){
-  unifiedVoiceService.unlock();activated=true;livingPresenceMachine.transition('listening',{source:'user',reason:'primary-action',label:'Je vous écoute',portrait:'hero'});const active=await companionOrchestrator21.toggleListening();if(!active&&!humanRealtimeCompanion.connected){const greeting='Bonjour. Je suis avec vous. Dites-moi simplement ce que vous souhaitez vivre aujourd’hui.';void unifiedVoiceService.speak(greeting,{routeId:currentRouteId(),key:'welcome'});}return active;
+  unifiedVoiceService.unlock();activated=true;livingPresenceMachine.transition('listening',{source:'user',reason:'primary-action',label:'Je vous écoute',portrait:'hero'});const active=await companionOrchestrator21.toggleListening();if(!active&&!humanRealtimeCompanion.connected&&!liveAvatarRealtimeRequested()){const greeting='Bonjour. Je suis avec vous. Dites-moi simplement ce que vous souhaitez vivre aujourd’hui.';void unifiedVoiceService.speak(greeting,{routeId:currentRouteId(),key:'welcome'});}return active;
 }
 
 function installPrimaryExperience(){
@@ -108,8 +120,8 @@ function installPrimaryExperience(){
 }
 
 export function installLivingCompanion(){
-  const app=$('#companionApp');pocketGuideState.patch({version:VERSION,ui:{panel:'companion'}},{source:'pg23-bootstrap',event:'pg23.version.ready'});livingPresenceMachine.install({app,avatar:$('#humanGuide'),label:$('#guideStateLabel')});livingAvatarRuntime.install({root:$('#humanGuide'),portrait:$('#avatarPortrait'),mouth:$('#avatarMouth')});livingSceneEngine.install({host:$('#sceneStream'),countHost:$('#sceneCount'),scopeId:currentRouteId()});scrollDirector.install({flow:$('#livingFlow'),resumeButton:$('#resumeScenes'),app});livingPerformanceMonitor.install({root:app});eventBus.on('pg23.scene.presented',payload=>scrollDirector.present(payload?.node));installActions();installConversationHook();installSemanticOrchestrator();installRealtimeTool();installSceneBridges();installPreviewHook();installPrimaryExperience();installVisibilityBudget();const lab=installLab();createRouteScene(routePack(),'pg23-ready');
-  const activeAvatarEngine=liveAvatarEmbeddedRequested()?liveAvatarEmbedController:avatarEngineController;void activeAvatarEngine.install({root:$('#humanGuide'),portrait:$('#avatarPortrait'),host:$('#avatar3dHost'),audioBus:unifiedVoiceService.bus,status:$('#avatarModeStatus'),retry:$('#retryClaire')});
-  const embedded=activeAvatarEngine===liveAvatarEmbedController,identity=$('.identity strong'),routeTitle=$('#routeTitle'),modeLabel=document.querySelector('[data-avatar-only="claire"]>span');if(identity)identity.textContent='PocketGuide 2.3.2';if(embedded){if(routeTitle)routeTitle.textContent='Pocket Guide · LiveAvatar';if(modeLabel)modeLabel.textContent='Pocket Guide · LiveAvatar Embedded';document.title='PocketGuide V2.3.2 · LiveAvatar Embedded';}else document.title='PocketGuide V2.3.2 · Claire 3D locale';
+  const app=$('#companionApp'),activeAvatarEngine=liveAvatarRealtimeRequested()?liveAvatarRealtimeController:avatarEngineController;pocketGuideState.patch({version:VERSION,ui:{panel:'companion'}},{source:'pg23-bootstrap',event:'pg23.version.ready'});livingPresenceMachine.install({app,avatar:$('#humanGuide'),label:$('#guideStateLabel')});livingAvatarRuntime.install({root:$('#humanGuide'),portrait:$('#avatarPortrait'),mouth:$('#avatarMouth')});livingSceneEngine.install({host:$('#sceneStream'),countHost:$('#sceneCount'),scopeId:currentRouteId()});scrollDirector.install({flow:$('#livingFlow'),resumeButton:$('#resumeScenes'),app});livingPerformanceMonitor.install({root:app});eventBus.on('pg23.scene.presented',payload=>scrollDirector.present(payload?.node));installActions();installConversationHook();installSemanticOrchestrator();installRealtimeTool();installSceneBridges();installPreviewHook();if(activeAvatarEngine===liveAvatarRealtimeController)installLiveAvatarConversation(activeAvatarEngine);installPrimaryExperience();installVisibilityBudget();const lab=installLab();createRouteScene(routePack(),'pg23-ready');
+  void activeAvatarEngine.install({root:$('#humanGuide'),portrait:$('#avatarPortrait'),host:$('#avatar3dHost'),audioBus:unifiedVoiceService.bus,status:$('#avatarModeStatus'),retry:$('#retryClaire'),onTurn:(role,text,meta)=>companionOrchestrator21.turn(role,text,meta),onStatus:payload=>companionOrchestrator21.onStatus?.(payload)});
+  const realtime=activeAvatarEngine===liveAvatarRealtimeController,identity=$('.identity strong'),routeTitle=$('#routeTitle'),modeLabel=document.querySelector('[data-avatar-only="claire"]>span');if(identity)identity.textContent='PocketGuide 2.3.2';if(realtime){if(routeTitle)routeTitle.textContent='Pocket Guide · LiveAvatar + OpenAI';if(modeLabel)modeLabel.textContent='Pocket Guide · OpenAI Realtime · marin';document.title='PocketGuide V2.3.2 · LiveAvatar Realtime';}else document.title='PocketGuide V2.3.2 · Claire 3D locale';
   const diagnostic=()=>({...updateDiagnostic(),avatarEngine:activeAvatarEngine.diagnostic()});globalThis.__POCKETGUIDE_V23__={version:VERSION,avatar:livingAvatarRuntime,avatarEngine:activeAvatarEngine,presence:livingPresenceMachine,lab,scenes:livingSceneEngine,scroll:scrollDirector,presentation:presentationDirector,performance:livingPerformanceMonitor,diagnostic,spec:'G121-G150'};eventBus.emit('pg23.runtime.ready',{version:VERSION});return globalThis.__POCKETGUIDE_V23__;
 }
