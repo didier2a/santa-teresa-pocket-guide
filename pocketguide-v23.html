@@ -12,7 +12,10 @@
   <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="pocketguide-v23.css?v=2.3.1">
+  <link rel="stylesheet" href="pocketguide-v23.css?v=2.3.1.3">
+  <script type="importmap">
+    {"imports":{"three":"./vendor/avatar-local/three-0.180.0/build/three.module.min.js","three/addons/":"./vendor/avatar-local/three-0.180.0/addons/","talkinghead":"./vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs"}}
+  </script>
   <title>PocketGuide V2.3.1 · Compagnon vivant</title>
 </head>
 <body>
@@ -38,6 +41,7 @@
             <img src="assets/companion/human-guide-v21.webp" alt="Portrait stylisé de votre guide PocketGuide">
             <span id="avatarMouth" class="avatar-mouth" data-viseme="neutral" aria-hidden="true"></span>
           </span>
+          <span class="avatar-3d-host" id="avatar3dHost" aria-hidden="true" hidden></span>
           <figcaption id="guideStateLabel">Je suis avec vous</figcaption>
         </figure>
         <section class="thinking-panel" id="thinkingPanel" aria-live="polite" hidden>
@@ -116,6 +120,16 @@
           <button type="button" id="openAr">Voir en AR</button>
           <button type="button" id="openLipSyncLab">Tester le visage</button>
         </div>
+        <label class="avatar-mode-control" for="avatarModeSelect">
+          <span>Avatar économique</span>
+          <select id="avatarModeSelect">
+            <option value="auto">Auto · économie</option>
+            <option value="portrait">Portrait local</option>
+            <option value="local">3D locale</option>
+            <option value="live">LiveAvatar</option>
+          </select>
+          <small id="avatarModeStatus" aria-live="polite">Portrait local · consommation minimale</small>
+        </label>
       </details>
 
       <button id="toggleConversation" class="conversation-toggle" type="button" aria-expanded="true">Conversation</button>
@@ -323,6 +337,6 @@
   <pre id="debugPanel" class="debug-panel" hidden></pre>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script type="module" src="js/pg23/bootstrap/app.js?v=2.3.1.2"></script>
+  <script type="module" src="js/pg23/bootstrap/app.js?v=2.3.1.3"></script>
 </body>
 </html>

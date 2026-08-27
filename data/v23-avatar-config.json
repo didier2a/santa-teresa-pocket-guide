@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "defaultMode": "auto",
+  "fallbackMode": "portrait",
+  "storageKey": "pocketguide.avatar.mode.v1",
+  "auto": {
+    "preferLocal": true,
+    "allowLiveOnCellular": false,
+    "requireExplicitLiveOptIn": true
+  },
+  "local": {
+    "enabled": true,
+    "ready": true,
+    "experimental": true,
+    "displayName": "Claire",
+    "packVersion": "2",
+    "packManifest": "./assets/avatar-local/avatar-pack-v1.json",
+    "modelUrl": "./assets/avatar-local/models/claire-rocketbox.glb",
+    "modelFPS": 24,
+    "modelPixelRatio": 1,
+    "cameraView": "upper",
+    "dynamicBones": false
+  },
+  "live": {
+    "enabled": false,
+    "sessionEndpoint": "/api/liveavatar-session",
+    "quality": "medium",
+    "stopWhenHidden": true
+  }
+}

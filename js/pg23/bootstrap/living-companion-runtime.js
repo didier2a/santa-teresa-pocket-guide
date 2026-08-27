@@ -7,8 +7,9 @@ import {companionOrchestrator21} from '../../pg21/companion/companion-orchestrat
 import {humanRealtimeCompanion} from '../../pg21/companion/human-realtime-companion.js';
 import {unifiedVoiceService} from '../../pg22/audio/unified-audio-pack.js';
 import {livingAvatarRuntime,LipSyncLabRuntime} from '../avatar/living-avatar-runtime.js';
+import {avatarEngineController} from '../avatar/avatar-engine-controller.js';
 import {livingPresenceMachine} from '../core/living-presence-machine.js';
-import {livingPerformanceMonitor} from '../performance/living-performance-monitor.js?v=2.3.1.2';
+import {livingPerformanceMonitor} from '../performance/living-performance-monitor.js?v=2.3.1.3';
 import {livingSceneEngine} from '../scenes/living-scene-engine.js';
 import {RoutePresentationDirector,attributionForPlace} from '../scenes/route-presentation-director.js';
 import {scrollDirector} from '../scenes/scroll-director.js';
@@ -101,6 +102,7 @@ function installPrimaryExperience(){
 
 export function installLivingCompanion(){
   const app=$('#companionApp');pocketGuideState.patch({version:VERSION,ui:{panel:'companion'}},{source:'pg23-bootstrap',event:'pg23.version.ready'});livingPresenceMachine.install({app,avatar:$('#humanGuide'),label:$('#guideStateLabel')});livingAvatarRuntime.install({root:$('#humanGuide'),portrait:$('#avatarPortrait'),mouth:$('#avatarMouth')});livingSceneEngine.install({host:$('#sceneStream'),countHost:$('#sceneCount'),scopeId:currentRouteId()});scrollDirector.install({flow:$('#livingFlow'),resumeButton:$('#resumeScenes'),app});livingPerformanceMonitor.install({root:app});eventBus.on('pg23.scene.presented',payload=>scrollDirector.present(payload?.node));installActions();installConversationHook();installSemanticOrchestrator();installRealtimeTool();installSceneBridges();installPreviewHook();installPrimaryExperience();installVisibilityBudget();const lab=installLab();createRouteScene(routePack(),'pg23-ready');
+  void avatarEngineController.install({root:$('#humanGuide'),portrait:$('#avatarPortrait'),host:$('#avatar3dHost'),audioBus:unifiedVoiceService.bus,select:$('#avatarModeSelect'),status:$('#avatarModeStatus')});
   const identity=$('.identity strong');if(identity)identity.textContent='PocketGuide 2.3.1';document.title='PocketGuide V2.3.1 · Compagnon vivant';
-  const diagnostic=()=>updateDiagnostic();globalThis.__POCKETGUIDE_V23__={version:VERSION,avatar:livingAvatarRuntime,presence:livingPresenceMachine,lab,scenes:livingSceneEngine,scroll:scrollDirector,presentation:presentationDirector,performance:livingPerformanceMonitor,diagnostic,spec:'G121-G150'};eventBus.emit('pg23.runtime.ready',{version:VERSION});return globalThis.__POCKETGUIDE_V23__;
+  const diagnostic=()=>({...updateDiagnostic(),avatarEngine:avatarEngineController.diagnostic()});globalThis.__POCKETGUIDE_V23__={version:VERSION,avatar:livingAvatarRuntime,avatarEngine:avatarEngineController,presence:livingPresenceMachine,lab,scenes:livingSceneEngine,scroll:scrollDirector,presentation:presentationDirector,performance:livingPerformanceMonitor,diagnostic,spec:'G121-G150'};eventBus.emit('pg23.runtime.ready',{version:VERSION});return globalThis.__POCKETGUIDE_V23__;
 }

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0",
+  "version": "2",
+  "cacheName": "pocketguide-local-avatar-v2",
+  "ready": true,
+  "status": "temporary-claire-ready",
+  "model": {
+    "url": "./assets/avatar-local/models/claire-rocketbox.glb",
+    "name": "Claire",
+    "role": "temporary-female-avatar",
+    "source": "Microsoft Rocketbox Female_Adult_17_facial",
+    "license": "MIT",
+    "required": true,
+    "available": true,
+    "bytes": 975504,
+    "sha256": "a869cc38a324e6fdec6b089bd47e60bee3112065c69e715190cd820c14c64539",
+    "maxBytes": 12582912,
+    "requirements": [
+      "Mixamo-compatible rig",
+      "52 ARKit blendshapes",
+      "15 Oculus visemes"
+    ]
+  },
+  "assets": [
+    {"url":"./vendor/avatar-local/talkinghead-1.7.0/talkinghead.mjs","bytes":219509},
+    {"url":"./vendor/avatar-local/talkinghead-1.7.0/retargeter.mjs","bytes":9646},
+    {"url":"./vendor/avatar-local/talkinghead-1.7.0/dynamicbones.mjs","bytes":33959},
+    {"url":"./vendor/avatar-local/talkinghead-1.7.0/playback-worklet.js","bytes":8345},
+    {"url":"./vendor/avatar-local/headaudio-0.1.0/headaudio.min.mjs","bytes":6443},
+    {"url":"./vendor/avatar-local/headaudio-0.1.0/headworklet.min.mjs","bytes":13237},
+    {"url":"./vendor/avatar-local/headaudio-0.1.0/model-en-mixed.bin","bytes":14352},
+    {"url":"./vendor/avatar-local/three-0.180.0/build/three.module.min.js","bytes":338908},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/controls/OrbitControls.js","bytes":38703},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/loaders/GLTFLoader.js","bytes":114739},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/loaders/DRACOLoader.js","bytes":16781},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/loaders/FBXLoader.js","bytes":104876},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/libs/meshopt_decoder.module.js","bytes":24848},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/libs/stats.module.js","bytes":3514},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/libs/fflate.module.js","bytes":89384},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/environments/RoomEnvironment.js","bytes":4899},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/utils/BufferGeometryUtils.js","bytes":35539},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/curves/NURBSCurve.js","bytes":3888},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/curves/NURBSUtils.js","bytes":10802}
+  ]
+}
