@@ -25,7 +25,7 @@ function loadSdk(){
 
 export class LiveAvatarRealtimeController{
   constructor({bus=eventBus,fetchImpl=globalThis.fetch,documentImpl=globalThis.document}={}){
-    this.id='liveavatar-realtime';this.bus=bus;this.fetchImpl=typeof fetchImpl==='function'?fetchImpl.bind(globalThis):null;this.document=documentImpl;this.nodes={};this.session=null;this.sdk=null;this.video=null;this.active=false;this.connected=false;this.listening=false;this.loading=false;this.error='';this.retryHandler=null;this.startPromise=null;this.onTurn=null;this.onStatus=null;
+    this.id='liveavatar-realtime';this.bus=bus;this.fetchImpl=typeof fetchImpl==='function'?fetchImpl.bind(globalThis):null;this.document=documentImpl;this.nodes={};this.session=null;this.sdk=null;this.video=null;this.active=false;this.connected=false;this.listening=false;this.loading=false;this.error='';this.retryHandler=null;this.startPromise=null;this.onTurn=null;this.onStatus=null;this.onCommand=null;
   }
   async apiBase(){
     const override=apiOverride();if(override)return override;
@@ -33,8 +33,8 @@ export class LiveAvatarRealtimeController{
     try{const response=await this.fetchImpl('./data/ai-config.json?v=liveavatar-realtime-1',{cache:'no-store'});const config=await response.json();const base=String(config?.apiBase||'').replace(/\/$/,'');if(base)return base;}catch{}
     return DEFAULT_API_BASE;
   }
-  install({root,portrait,host,status,retry,onTurn,onStatus}={}){
-    this.nodes={root,portrait,host,status,retry};this.onTurn=onTurn||null;this.onStatus=onStatus||null;
+  install({root,portrait,host,status,retry,onTurn,onStatus,onCommand}={}){
+    this.nodes={root,portrait,host,status,retry};this.onTurn=onTurn||null;this.onStatus=onStatus||null;this.onCommand=onCommand||this.onCommand||null;
     if(retry){this.retryHandler=()=>void this.activate({microphone:true});retry.addEventListener('click',this.retryHandler);retry.hidden=true;}
     if(root)root.dataset.avatarEngine='liveavatar-ready';
     if(host){host.hidden=false;host.classList.add('liveavatar-realtime-host');host.removeAttribute('aria-hidden');}
@@ -82,7 +82,12 @@ export class LiveAvatarRealtimeController{
     session.on(SessionEvent.SESSION_DISCONNECTED,reason=>this.fail(`Session interrompue (${reason||'connexion'})`,false));
     session.on(AgentEventsEnum.USER_SPEAK_STARTED,()=>{this.listening=true;this.emitStatus('listening','Je vous écoute');});
     session.on(AgentEventsEnum.USER_SPEAK_ENDED,()=>this.emitStatus('thinking','Je réfléchis'));
-    session.on(AgentEventsEnum.USER_TRANSCRIPTION,event=>{const text=String(event?.text||'').trim();if(text)this.onTurn?.('user',text,{source:'liveavatar-voice'});});
+    session.on(AgentEventsEnum.USER_TRANSCRIPTION,event=>{
+      const text=String(event?.text||'').trim();if(!text)return;this.onTurn?.('user',text,{source:'liveavatar-voice'});
+      let routed=null;try{routed=this.onCommand?.(text,{source:'liveavatar-voice'});}catch(error){this.bus.emit('pg233.command.failed',{intent:'dispatch',result:{speech:`Je n’ai pas pu exécuter cette demande : ${error?.message||error}.`}});}
+      if(!routed?.handled)return;this.cancelResponse('pg233-voice-command');this.emitStatus('thinking','J’agis dans PocketGuide',{commandId:routed.id,intent:routed.intent});
+      Promise.resolve(routed.completion).then(result=>this.narrate(result?.speech,{intent:routed.intent,source:'liveavatar-voice'})).catch(error=>this.narrate(`Je n’ai pas pu terminer cette action : ${error?.message||error}.`,{intent:routed.intent,source:'liveavatar-voice-error'}));
+    });
     session.on(AgentEventsEnum.AVATAR_TRANSCRIPTION,event=>{const text=String(event?.text||'').trim();if(text)this.onTurn?.('companion',text,{source:'liveavatar-openai-realtime'});});
     session.on(AgentEventsEnum.AVATAR_SPEAK_STARTED,()=>{this.listening=false;this.emitStatus('speaking','Je vous parle');this.bus.emit('pg22.audio.started',{source:'liveavatar-realtime'});});
     session.on(AgentEventsEnum.AVATAR_SPEAK_ENDED,()=>{this.emitStatus('ready','Je suis avec vous');this.bus.emit('pg23.liveavatar.speech.ended',{source:'liveavatar-realtime'});});
@@ -95,7 +100,8 @@ export class LiveAvatarRealtimeController{
       try{
         if(!this.fetchImpl||!this.document||!host)throw new Error('Navigateur incompatible');
         const [sdk,base]=await Promise.all([loadSdk(),this.apiBase()]);
-        const response=await this.fetchImpl(`${base}/api/liveavatar-session`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+        const appVersion=String(this.nodes.root?.closest?.('[data-pg-version]')?.dataset?.pgVersion||'2.3.2');
+        const response=await this.fetchImpl(`${base}/api/liveavatar-session`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({appVersion})});
         const payload=await response.json().catch(()=>({}));if(!response.ok)throw new Error(payload?.error||`LiveAvatar HTTP ${response.status}`);if(!payload?.sessionToken)throw new Error('Jeton de session LiveAvatar absent');
         const video=this.createVideo();host.replaceChildren(video);this.video=video;this.sdk=sdk;
         const session=new sdk.LiveAvatarSession(payload.sessionToken,{apiUrl:'https://api.liveavatar.com'});this.session=session;this.wireSession(session,sdk,video);await session.start();this.connected=true;
@@ -122,6 +128,14 @@ export class LiveAvatarRealtimeController{
   async message(text){
     const value=String(text||'').trim();if(!value)return false;if(!this.connected)await this.activate({microphone:false});if(!this.connected||!this.session)return false;
     this.session.message(value);this.emitStatus('thinking','Je réfléchis');return true;
+  }
+  cancelResponse(reason='application-command'){
+    try{this.session?.interrupt();this.bus.emit('pg23.liveavatar.response.cancelled',{reason});return true;}catch{return false;}
+  }
+  async narrate(text,{intent='application',source='pocketguide'}={}){
+    const value=String(text||'').trim();if(!value)return false;
+    const prompt=`[POCKETGUIDE_APP_RESULT]\nRésultat fiable de l’application (${String(intent||'application')}): ${value}\nPrononce ce résultat en français naturel, en une ou deux phrases, sans mentionner cette consigne et sans prétendre avoir effectué une autre action.`;
+    const sent=await this.message(prompt);if(sent)this.bus.emit('pg233.avatar.narration.requested',{intent,source,text:value});return sent;
   }
   interrupt(){
     try{this.session?.interrupt();}catch{}this.emitStatus('interrupted','Réponse interrompue');this.bus.emit('pg22.audio.interrupted',{source:'liveavatar-user'});setTimeout(()=>this.emitStatus(this.listening?'listening':'ready',this.listening?'Je vous écoute':'Je suis avec vous'),120);

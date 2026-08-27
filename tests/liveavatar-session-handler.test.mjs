@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import handler,{POCKETGUIDE_AVATAR_ID,OPENAI_SECRET_NAME,POCKETGUIDE_CONTEXT_NAME} from '../api/liveavatar-session.js';
+import handler,{POCKETGUIDE_AVATAR_ID,OPENAI_SECRET_NAME,POCKETGUIDE_CONTEXT_NAME,POCKETGUIDE_CONTEXT_233_NAME} from '../api/liveavatar-session.js';
 
 function responseRecorder(){
   return{
@@ -15,7 +15,7 @@ function responseRecorder(){
 const request={method:'POST',headers:{origin:'https://pocketguide-v2.infoserv2a.workers.dev'}};
 
 async function withRealtimeEnv(run){
-  const names=['LIVEAVATAR_API_KEY','HEYGEN_API_KEY','HEYGEN_AVATAR_ID','OPENAI_API_KEY','LIVEAVATAR_OPENAI_SECRET_ID','LIVEAVATAR_CONTEXT_ID','LIVEAVATAR_OPENAI_MODEL'];
+  const names=['LIVEAVATAR_API_KEY','HEYGEN_API_KEY','HEYGEN_AVATAR_ID','OPENAI_API_KEY','LIVEAVATAR_OPENAI_SECRET_ID','LIVEAVATAR_CONTEXT_ID','LIVEAVATAR_CONTEXT_233_ID','LIVEAVATAR_OPENAI_MODEL'];
   const previous=Object.fromEntries(names.map(name=>[name,process.env[name]]));
   process.env.LIVEAVATAR_API_KEY='test-liveavatar-key';process.env.OPENAI_API_KEY='test-openai-key';delete process.env.HEYGEN_API_KEY;delete process.env.HEYGEN_AVATAR_ID;delete process.env.LIVEAVATAR_OPENAI_SECRET_ID;delete process.env.LIVEAVATAR_CONTEXT_ID;delete process.env.LIVEAVATAR_OPENAI_MODEL;
   try{return await run();}finally{for(const name of names){if(previous[name]===undefined)delete process.env[name];else process.env[name]=previous[name];}}
@@ -50,6 +50,22 @@ test('les métadonnées existantes sont réutilisées sans retransmettre la clé
     throw new Error(`appel inattendu ${call.url}`);
   };
   try{const res=responseRecorder();await handler(request,res);assert.equal(res.statusCode,200);assert.equal(calls.length,3);assert.doesNotMatch(calls.map(call=>String(call.options.body||'')).join('\n'),/test-openai-key/);}finally{globalThis.fetch=previousFetch;}
+}));
+
+test('la 2.3.3 utilise un contexte séparé qui verbalise seulement les résultats de l’application',async()=>withRealtimeEnv(async()=>{
+  const previousFetch=globalThis.fetch,calls=[];
+  globalThis.fetch=async(url,options={})=>{
+    const call={url:String(url),options};calls.push(call);const method=options.method||'GET';
+    if(call.url.endsWith('/v1/secrets')&&method==='GET')return{ok:true,status:200,json:async()=>({data:[{id:'existing-secret',secret_name:OPENAI_SECRET_NAME,secret_type:'OPENAI_API_KEY'}]})};
+    if(call.url.includes('/v1/contexts?'))return{ok:true,status:200,json:async()=>({data:{results:[]}})};
+    if(call.url.endsWith('/v1/contexts')&&method==='POST')return{ok:true,status:200,json:async()=>({data:{id:'context-233',name:POCKETGUIDE_CONTEXT_233_NAME}})};
+    if(call.url.endsWith('/v1/sessions/token'))return{ok:true,status:200,json:async()=>({data:{session_id:'session-233',session_token:'token-233'}})};
+    throw new Error(`appel inattendu ${method} ${call.url}`);
+  };
+  try{
+    const res=responseRecorder();await handler({...request,body:{appVersion:'2.3.3'}},res);assert.equal(res.statusCode,200);assert.equal(res.body.appVersion,'2.3.3');
+    const contextCall=calls.find(call=>call.url.endsWith('/v1/contexts')&&call.options.method==='POST'),contextBody=JSON.parse(contextCall.options.body);assert.equal(contextBody.name,POCKETGUIDE_CONTEXT_233_NAME);assert.match(contextBody.prompt,/\[POCKETGUIDE_APP_RESULT\]/);assert.match(contextBody.prompt,/seule source de vérité/);
+  }finally{globalThis.fetch=previousFetch;}
 }));
 
 test('une origine extérieure est refusée avant toute transmission de secret',async()=>withRealtimeEnv(async()=>{
