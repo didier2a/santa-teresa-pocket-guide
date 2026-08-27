@@ -49,7 +49,7 @@ export class AvatarEngineController{
       const engine=this.engines.get(target)||this.engines.get('portrait');
       if(target==='local'){this.lastDecision={mode:'local',reason:'local-loading'};this.renderStatus('preparing');}
       try{await engine.activate();this.activeId=engine.id;this.lastDecision={mode:this.activeId,reason:this.activeId==='local'?'local-active':decision.reason};}
-      catch(error){await engine.destroy?.();const fallback=this.engines.get('portrait');await fallback.activate();this.activeId='portrait';this.lastDecision={mode:'portrait',reason:'local-runtime-failed'};this.bus.emit('pg23.avatar.engine.failed',{engine:target,message:String(error?.message||error)});}
+      catch(error){const message=String(error?.message||error);await engine.destroy?.();const fallback=this.engines.get('portrait');await fallback.activate();this.activeId='portrait';this.lastDecision={mode:'portrait',reason:'local-runtime-failed',message};if(this.nodes.root)this.nodes.root.dataset.avatarError=message;this.bus.emit('pg23.avatar.engine.failed',{engine:target,message});}
     }
     this.renderStatus();this.bus.emit('pg23.avatar.mode.changed',{requested:'local',active:this.activeId,reason:this.lastDecision?.reason});return this.diagnostic();
   }
@@ -59,7 +59,7 @@ export class AvatarEngineController{
   async retry(){if(this.nodes.retry)this.nodes.retry.hidden=true;this.lastDecision={mode:'local',reason:'local-loading'};this.renderStatus('preparing');const result=await this.ensureLocalPack({onProgress:progress=>{if(this.nodes.status)this.nodes.status.textContent=`Nouvelle tentative · ${progress.index}/${progress.total}`;}});if(result.installed&&this.activeId!=='local')await this.apply();return result;}
   async setMode(){return this.apply();}
   renderStatus(state=''){
-    if(this.nodes.status)this.nodes.status.textContent=REASONS[this.lastDecision?.reason]||'Claire 3D locale';
+    if(this.nodes.status){this.nodes.status.textContent=REASONS[this.lastDecision?.reason]||'Claire 3D locale';this.nodes.status.title=this.lastDecision?.message||this.configError||'';}
     const failed=['local-runtime-failed','local-install-failed','config-failed'].includes(this.lastDecision?.reason);if(this.nodes.retry)this.nodes.retry.hidden=!failed;
     if(this.nodes.root)this.nodes.root.dataset.avatarEngine=state||((this.activeId==='local')?'local':failed?'failed':this.activeId||'preparing');
   }

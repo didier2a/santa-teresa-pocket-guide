@@ -23,11 +23,12 @@ export class TalkingHeadLocalEngine{
     if(this.active)return{active:true,reused:true};if(!this.config?.ready)throw new Error('Le modèle 3D local n’est pas prêt');if(!this.supported())throw new Error('WebGL est indisponible sur ce navigateur');
     const session=++this.session;
     try{
-      const audioCtx=this.audioBus?.ensureContext?.()||undefined,{TalkingHead}=await deadline(import('talkinghead'),45000,'Chargement Talking Head trop long');if(session!==this.session)throw new Error('Démarrage Claire annulé');
+      let audioCtx;try{audioCtx=this.audioBus?.ensureContext?.()||undefined;}catch(error){this.audioError=String(error?.message||error);audioCtx=undefined;}
+      const {TalkingHead}=await deadline(import('talkinghead'),45000,'Chargement Talking Head trop long');if(session!==this.session)throw new Error('Démarrage Claire annulé');
       this.head=new TalkingHead(this.host,{audioCtx,modelFPS:Number(this.config.modelFPS)||24,modelPixelRatio:Number(this.config.modelPixelRatio)||1,cameraView:this.config.cameraView||'upper',cameraRotateEnable:false,cameraPanEnable:false,cameraZoomEnable:false,avatarIdleHeadMove:.28,avatarSpeakingHeadMove:.35});
       await deadline(this.head.showAvatar({url:this.config.modelUrl,body:'F',avatarMood:'neutral',lipsyncLang:'fr',baseline:{headRotateX:-.04,eyeBlinkLeft:.1,eyeBlinkRight:.1}}),45000,'Chargement du modèle Claire trop long');if(session!==this.session)throw new Error('Démarrage Claire annulé');
       this.active=true;this.startedAt=Date.now();this.host.hidden=false;this.host.removeAttribute('aria-hidden');this.portrait?.setAttribute?.('aria-hidden','true');this.bus.emit('pg23.avatar.engine.active',{engine:this.id,identity:'Claire'});void this.installAudio(session);return{active:true,audioPending:true};
-    }catch(error){this.lastError=String(error?.message||error);await this.destroy();throw error;}
+    }catch(error){this.lastError=String(error?.message||error);console.error('[PocketGuide Claire 3D]',this.lastError);if(this.host)this.host.dataset.avatarError=this.lastError;await this.destroy();throw error;}
   }
   setPresence(state){if(!this.head)return;const mood=state==='arrived'?'happy':state==='error'?'sad':'neutral';try{this.head.setMood?.(mood);}catch{}}
   interrupt(){try{this.headAudio?.stop?.();}catch{}try{this.head?.stopSpeaking?.();}catch{}}
