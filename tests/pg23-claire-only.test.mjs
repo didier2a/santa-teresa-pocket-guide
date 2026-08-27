@@ -15,7 +15,7 @@ test('Pocket Guide 2.3.2 publie Claire comme seule identité',()=>{
 });
 
 test('Claire locale est imposée sans flux LiveAvatar',()=>{
-  assert.equal(config.defaultMode,'local');assert.equal(config.local.displayName,'Claire');assert.equal(config.local.ready,true);assert.equal(config.local.packVersion,'3');assert.equal(config.live.enabled,false);
+  assert.equal(config.defaultMode,'local');assert.equal(config.local.displayName,'Claire');assert.equal(config.local.ready,true);assert.equal(config.local.packVersion,'4');assert.equal(config.live.enabled,false);
   assert.match(controller,/requested:'local'/);assert.match(controller,/fetchImpl\.bind\(globalThis\)/);assert.match(controller,/CONFIG_URL=new URL/);assert.doesNotMatch(controller,/LiveAvatar|manual-live|auto-live/);
 });
 
@@ -27,12 +27,12 @@ test('le premier rendu 3D ne dépend pas du téléchargement hors ligne ni de He
 });
 
 test('le pack mobile télécharge en parallèle avec délai, reprise et cache',()=>{
-  assert.equal(pack.version,'3');assert.equal(pack.cacheName,'pocketguide-local-avatar-v3');assert.ok(pack.assets.length>=18);
+  assert.equal(pack.version,'4');assert.equal(pack.cacheName,'pocketguide-local-avatar-v4');assert.ok(pack.assets.length>=18);
   assert.match(manager,/timeoutMs=18000/);assert.match(manager,/fetchImpl\.bind\(globalThis\)/);assert.match(manager,/retries=1/);assert.match(manager,/concurrency=4/);assert.match(manager,/AbortController/);assert.match(manager,/Promise\.allSettled/);assert.match(manager,/target\.match\(url\)/);
 });
 
 test('le service worker 2.3.2 installe uniquement des ressources publiées',()=>{
-  assert.match(sw,/APP_VERSION='8\.3\.8'/);assert.match(sw,/pocketguide-v23-claire-2-3-2-d/);assert.match(sw,/pocketguide-local-avatar-v3/);assert.match(sw,/endsWith\('\/pocketguide-v23'\)/);assert.doesNotMatch(sw,/docs\/PG23_/);
+  assert.match(sw,/APP_VERSION='8\.3\.9'/);assert.match(sw,/pocketguide-v23-claire-2-3-2-e/);assert.match(sw,/pocketguide-local-avatar-v4/);assert.match(sw,/endsWith\('\/pocketguide-v23'\)/);assert.doesNotMatch(sw,/docs\/PG23_/);
 });
 
 test('le bundle Cloudflare exclut les sources et publie la route Claire',async()=>{

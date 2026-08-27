@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 54906)
-Total output lines: 4895
-
 /**
 * MIT License
 *
@@ -1351,7 +1348,607 @@ class TalkingHead {
         maxv: (this.mtMaxVExceptions.hasOwnProperty(x) ? this.mtMaxVExceptions[x] : this.mtMaxVDefault) / 1000,
         limit: this.mtLimits.hasOwnProperty(x) ? this.mtLimits[x] : null,
         onchange: this.mtOnchange.hasOwnProperty(x) ? this.mtOnchange[x] : null,
-        baseline: (this.avatar.baseline?.hasOwnProperty(x) && !x.startsWith("head") && !x.startsWith("body") && !x.star…4906 tokens truncated…**
+        baseline: (this.avatar.baseline?.hasOwnProperty(x) && !x.startsWith("head") && !x.startsWith("body") && !x.startsWith("eyeBlink")) ? this.avatar.baseline[x] : (this.mtBaselineExceptions.hasOwnProperty(x) ? this.mtBaselineExceptions[x] : this.mtBaselineDefault ),
+        ms: [], is: []
+      };
+      mtTemp[x].value = mtTemp[x].baseline;
+      mtTemp[x].applied = mtTemp[x].baseline;
+
+      // Copy previous values
+      const y = this.mtAvatar[x];
+      if ( y ) {
+        [ 'fixed','system','systemd','realtime','base','v','value','applied' ].forEach( z => {
+          mtTemp[x][z] = y[z];
+        });
+      }
+
+      // Find relevant meshes
+      this.morphs.forEach( y => {
+        const ndx = y.morphTargetDictionary[x];
+        if ( ndx !== undefined ) {
+          mtTemp[x].ms.push(y.morphTargetInfluences);
+          mtTemp[x].is.push(ndx);
+          y.morphTargetInfluences[ndx] = mtTemp[x].applied;
+        }
+      });
+
+    });
+    this.mtAvatar = mtTemp;
+
+    // Objects for needed properties
+    this.poseAvatar = { props: {} };
+    this.posePropNames.forEach( x => {
+      const ids = x.split('.');
+      const o = this.armature.getObjectByName(ids[0]);
+      this.poseAvatar.props[x] = o[ids[1]];
+      if ( this.poseBase.props.hasOwnProperty(x) ) {
+        this.poseAvatar.props[x].copy( this.poseBase.props[x] );
+      } else {
+        this.poseBase.props[x] = this.poseAvatar.props[x].clone();
+      }
+
+      // Make sure the target has the delta properties, because we need it as a basis
+      if ( this.poseDelta.props.hasOwnProperty(x) && !this.poseTarget.props.hasOwnProperty(x) ) {
+        this.poseTarget.props[x] = this.poseAvatar.props[x].clone();
+      }
+
+      // Take target pose
+      this.poseTarget.props[x].t = this.animClock;
+      this.poseTarget.props[x].d = 2000;
+    });
+
+    // Reset IK bone positions
+    this.ikMesh.traverse( x => {
+      if (x.isBone) {
+        x.position.copy( this.armature.getObjectByName(x.name).position );
+      }
+    });
+
+    if ( this.isAvatarOnly ) {
+      if ( this.scene ) {
+        this.scene.add( this.armature );
+      }
+    } else {
+      // Add avatar to scene
+      this.scene.add(gltf.scene);
+
+      // Add lights
+      this.scene.add( this.lightAmbient );
+      this.scene.add( this.lightDirect );
+      this.scene.add( this.lightSpot );
+      this.lightSpot.target = this.armature.getObjectByName('Head');
+    }
+
+    // Setup Dynamic Bones
+    if ( avatar.hasOwnProperty("modelDynamicBones") ) {
+      try {
+        this.dynamicbones.setup(this.scene, this.armature, avatar.modelDynamicBones );
+      }
+      catch(error) {
+        console.error("Dynamic bones setup failed: " + error);
+      }
+    }
+
+    // Find objects that we need in the animate function
+    this.objectLeftToeBase = this.armature.getObjectByName('LeftToeBase');
+    this.objectRightToeBase = this.armature.getObjectByName('RightToeBase');
+    this.objectLeftEye = this.armature.getObjectByName('LeftEye');
+    this.objectRightEye = this.armature.getObjectByName('RightEye');
+    this.objectLeftArm = this.armature.getObjectByName('LeftArm');
+    this.objectRightArm = this.armature.getObjectByName('RightArm');
+    this.objectHips = this.armature.getObjectByName('Hips');
+    this.objectHead = this.armature.getObjectByName('Head');
+    this.objectNeck = this.armature.getObjectByName('Neck');
+
+    // Estimate avatar height based on eye level
+    const plEye = new THREE.Vector3();
+    this.objectLeftEye.getWorldPosition(plEye);
+    this.avatarHeight = plEye.y + 0.2;
+
+    // Skeleton helper, FOR TESTING ONLY
+    if ( this.avatar.skeletonHelper ) {
+      const skeletonHelper = new THREE.SkeletonHelper(this.armature);
+      this.scene.add(skeletonHelper);
+    }
+
+    // Set pose, view and start animation
+    if ( !this.viewName ) this.setView( this.opt.cameraView );
+    this.setMood( this.avatar.avatarMood || this.moodName || this.opt.avatarMood );
+    this.start();
+
+  }
+
+  /**
+  * Get view names.
+  * @return {string[]} Supported view names.
+  */
+  getViewNames() {
+    return ['full', 'mid', 'upper', 'head'];
+  }
+
+  /**
+  * Get current view.
+  * @return {string} View name.
+  */
+  getView() {
+    return this.viewName;
+  }
+
+  /**
+  * Fit 3D object to the view.
+  * @param {string} [view=null] Camera view. If null, reset current view
+  * @param {Object} [opt=null] Options
+  */
+  setView(view, opt = null) {
+    view = view || this.viewName;
+    if ( view !== 'full' && view !== 'upper' && view !== 'head' && view !== 'mid' ) return;
+    if ( !this.armature ) {
+      this.opt.cameraView = view;
+      return;
+    }
+
+    this.viewName = view || this.viewName;
+    opt = opt || {};
+
+    // In avatarOnly mode we do not control the camera
+    if ( this.isAvatarOnly ) return;
+
+    // Camera controls
+    const cameraX = opt.hasOwnProperty("cameraX") ? opt.cameraX : this.opt.cameraX;
+    const cameraY = opt.hasOwnProperty("cameraY") ? opt.cameraY : this.opt.cameraY;
+    const cameraDistance = opt.hasOwnProperty("cameraDistance") ? opt.cameraDistance : this.opt.cameraDistance;
+    const cameraRotateX = opt.hasOwnProperty("cameraRotateX") ? opt.cameraRotateX : this.opt.cameraRotateX;
+    const cameraRotateY = opt.hasOwnProperty("cameraRotateY") ? opt.cameraRotateY : this.opt.cameraRotateY;
+
+    const fov = this.camera.fov * ( Math.PI / 180 );
+    let x = - cameraX * Math.tan( fov / 2 );
+    let y = ( 1 - cameraY) * Math.tan( fov / 2 );
+    let z = cameraDistance;
+
+    switch(this.viewName) {
+    case 'head':
+      z += 2;
+      y = y * z + 4 * this.avatarHeight / 5;
+      break;
+    case 'upper':
+      z += 4.5;
+      y = y * z + 2 * this.avatarHeight / 3;
+      break;
+    case 'mid':
+      z += 8;
+      y = y * z + this.avatarHeight / 3;
+      break;
+    default:
+      z += 12;
+      y = y * z;
+    }
+
+    x = x * z;
+
+    this.controlsEnd = new THREE.Vector3(x, y, 0);
+    this.cameraEnd = new THREE.Vector3(x, y, z).applyEuler( new THREE.Euler( cameraRotateX, cameraRotateY, 0 ) );
+
+    if ( this.cameraClock === null ) {
+      this.controls.target.copy( this.controlsEnd );
+      this.camera.position.copy( this.cameraEnd );
+    }
+    this.controlsStart = this.controls.target.clone();
+    this.cameraStart = this.camera.position.clone();
+    this.cameraClock = 0;
+
+  }
+
+  /**
+  * Change light colors and intensities.
+  * @param {Object} opt Options
+  */
+  setLighting(opt) {
+    if ( this.isAvatarOnly ) return;
+    opt = opt || {};
+
+    // Ambient light
+    if ( opt.hasOwnProperty("lightAmbientColor") ) {
+      this.lightAmbient.color.set( new THREE.Color( opt.lightAmbientColor ) );
+    }
+    if ( opt.hasOwnProperty("lightAmbientIntensity") ) {
+      this.lightAmbient.intensity = opt.lightAmbientIntensity;
+      this.lightAmbient.visible = (opt.lightAmbientIntensity !== 0);
+    }
+
+    // Directional light
+    if ( opt.hasOwnProperty("lightDirectColor") ) {
+      this.lightDirect.color.set( new THREE.Color( opt.lightDirectColor ) );
+    }
+    if ( opt.hasOwnProperty("lightDirectIntensity") ) {
+      this.lightDirect.intensity = opt.lightDirectIntensity;
+      this.lightDirect.visible = (opt.lightDirectIntensity !== 0);
+    }
+    if ( opt.hasOwnProperty("lightDirectPhi") && opt.hasOwnProperty("lightDirectTheta") ) {
+      this.lightDirect.position.setFromSphericalCoords(2, opt.lightDirectPhi, opt.lightDirectTheta);
+    }
+
+    // Spot light
+    if ( opt.hasOwnProperty("lightSpotColor") ) {
+      this.lightSpot.color.set( new THREE.Color( opt.lightSpotColor ) );
+    }
+    if ( opt.hasOwnProperty("lightSpotIntensity") ) {
+      this.lightSpot.intensity = opt.lightSpotIntensity;
+      this.lightSpot.visible = (opt.lightSpotIntensity !== 0);
+    }
+    if ( opt.hasOwnProperty("lightSpotPhi") && opt.hasOwnProperty("lightSpotTheta") ) {
+      this.lightSpot.position.setFromSphericalCoords( 2, opt.lightSpotPhi, opt.lightSpotTheta );
+      this.lightSpot.position.add( new THREE.Vector3(0,1.5,0) );
+    }
+    if ( opt.hasOwnProperty("lightSpotDispersion") ) {
+      this.lightSpot.angle = opt.lightSpotDispersion;
+    }
+  }
+
+  /**
+  * Render scene.
+  */
+  render() {
+    if ( this.isRunning && !this.isAvatarOnly ) {
+      this.renderer.render( this.scene, this.camera );
+    }
+  }
+
+  /**
+  * Resize avatar.
+  */
+  onResize() {
+    if ( !this.isAvatarOnly ) {
+      this.camera.aspect = this.nodeAvatar.clientWidth / this.nodeAvatar.clientHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize( this.nodeAvatar.clientWidth, this.nodeAvatar.clientHeight );
+      this.controls.update();
+      this.render();
+    }
+  }
+
+  /**
+  * Update avatar pose.
+  * @param {number} t High precision timestamp in ms.
+  */
+  updatePoseBase(t) {
+    for( const [key,val] of Object.entries(this.poseTarget.props) ) {
+      const o = this.poseAvatar.props[key];
+      if (o) {
+        let alpha = (t - val.t) / val.d;
+        if ( alpha > 1 || !this.poseBase.props.hasOwnProperty(key) ) {
+          o.copy(val);
+        } else {
+          if ( o.isQuaternion ) {
+            o.copy( this.poseBase.props[key].slerp(val, this.easing(alpha) ));
+          } else if ( o.isVector3 ) {
+            o.copy( this.poseBase.props[key].lerp(val, this.easing(alpha) ));
+          }
+        }
+      }
+    }
+  }
+
+  /**
+  * Update avatar pose deltas
+  */
+  updatePoseDelta() {
+    for( const [key,d] of Object.entries(this.poseDelta.props) ) {
+      if ( d.x === 0 && d.y === 0 && d.z === 0 ) continue;
+      e.set(d.x,d.y,d.z);
+      const o = this.poseAvatar.props[key];
+      if ( o.isQuaternion ) {
+        q.setFromEuler(e);
+        o.multiply(q);
+      } else if ( o.isVector3 ) {
+        o.add( e );
+      }
+    }
+  }
+
+  /**
+  * Update morph target values.
+  * @param {number} dt Delta time in ms.
+  */
+  updateMorphTargets(dt) {
+
+    for( let [mt,o] of Object.entries(this.mtAvatar) ) {
+
+      if ( !o.needsUpdate ) continue;
+
+      // Alternative target (priority order):
+      // - fixed: Fixed value, typically user controlled
+      // - realtime: Realtime value, overriding everything except fixed
+      // - system: System value, which overrides animations
+      // - newvalue: Animation value
+      // - baseline: Baseline value when none of the above applies
+      let target = null;
+      let newvalue = null;
+      if ( o.fixed !== null ) {
+        target = o.fixed;
+        o.system = null;
+        o.systemd = null;
+        o.newvalue = null;
+        if ( o.ref && o.ref.hasOwnProperty(mt) ) delete o.ref[mt];
+        o.ref = null;
+        o.base = null;
+        if ( o.value === target ) {
+          o.needsUpdate = false;
+          continue;
+        }
+      } else if ( o.realtime !== null ) {
+        o.ref = null;
+        o.base = null;
+        newvalue = o.realtime;
+      } else if ( o.system !== null ) {
+        target = o.system;
+        o.newvalue = null;
+        if ( o.ref && o.ref.hasOwnProperty(mt) ) delete o.ref[mt];
+        o.ref = null;
+        o.base = null;
+        if ( o.systemd !== null ) {
+          if ( o.systemd === 0 ) {
+            target = null;
+            o.system = null;
+            o.systemd = null;
+          } else {
+            o.systemd -= dt;
+            if ( o.systemd < 0 ) o.systemd= 0;
+            if ( o.value === target ) {
+              target = null;
+            }
+          }
+        } else if ( o.value === target ) {
+          target = null;
+          o.system = null;
+        }
+      } else if ( o.newvalue !== null ) {
+        o.ref = null;
+        o.base = null;
+        newvalue = o.newvalue;
+        o.newvalue = null;
+      } else if ( o.base !== null ) {
+        target = o.base;
+        o.ref = null;
+        if ( o.value === target ) {
+          target = null;
+          o.base = null;
+          o.needsUpdate = false;
+        }
+      } else {
+        o.ref = null;
+        if ( o.baseline !== null && o.value !== o.baseline ) {
+          target = o.baseline;
+          o.base = o.baseline;
+        } else {
+          o.needsUpdate = false;
+        }
+      }
+
+      // Calculate new value using exponential smoothing
+      if ( target !== null ) {
+        let diff = target - o.value;
+        if ( diff >= 0 ) {
+          if ( diff < 0.005 ) {
+            newvalue = target;
+            o.v = 0;
+          } else {
+            if ( o.v < o.maxv ) o.v += o.acc * dt;
+            if ( o.v >= 0 ) {
+              newvalue = o.value + diff * ( 1 - Math.exp(- o.v * dt) );
+            } else {
+              newvalue = o.value + o.v * dt * ( 1 - Math.exp(o.v * dt) );
+            }
+          }
+        } else {
+          if ( diff > -0.005 ) {
+            newvalue = target;
+            o.v = 0;
+          } else {
+            if ( o.v > -o.maxv ) o.v -= o.acc * dt;
+            if ( o.v >= 0 ) {
+              newvalue = o.value + o.v * dt * ( 1 - Math.exp(- o.v * dt) );
+            } else {
+              newvalue = o.value + diff * ( 1 - Math.exp( o.v * dt) );
+            }
+          }
+        }
+      }
+
+      // Check limits and whether we need to actually update the morph target
+      if ( o.limit !== null ) {
+        if ( newvalue !== null && newvalue !== o.value ) {
+          o.value = newvalue;
+          if ( o.onchange !== null ) o.onchange(newvalue);
+        }
+        newvalue = o.limit(o.value);
+        if ( newvalue === o.applied ) continue;
+      } else {
+        if ( newvalue === null || newvalue === o.value ) continue;
+        o.value = newvalue;
+        if ( o.onchange !== null ) o.onchange(newvalue);
+      }
+
+      o.applied = newvalue;
+      if ( o.applied < o.min ) o.applied = o.min;
+      if ( o.applied > o.max ) o.applied = o.max;
+
+      // Apply value
+      switch(mt) {
+
+      case 'headRotateX':
+        this.poseDelta.props['Head.quaternion'].x = o.applied + this.mtAvatar['bodyRotateX'].applied + (this.avatar?.baseline?.headRotateX || 0);
+        break;
+
+      case 'headRotateY':
+        this.poseDelta.props['Head.quaternion'].y = o.applied + this.mtAvatar['bodyRotateY'].applied;
+        break;
+
+      case 'headRotateZ':
+        this.poseDelta.props['Head.quaternion'].z = o.applied + this.mtAvatar['bodyRotateZ'].applied;
+        break;
+
+      case 'bodyRotateX':
+        this.poseDelta.props['Head.quaternion'].x = o.applied + this.mtAvatar['headRotateX'].applied + (this.avatar?.baseline?.headRotateX || 0);
+        this.poseDelta.props['Spine1.quaternion'].x = o.applied/2;
+        this.poseDelta.props['Spine.quaternion'].x = o.applied/8;
+        this.poseDelta.props['Hips.quaternion'].x = o.applied/24;
+        break;
+
+      case 'bodyRotateY':
+        this.poseDelta.props['Head.quaternion'].y = o.applied + this.mtAvatar['headRotateY'].applied;
+        this.poseDelta.props['Spine1.quaternion'].y = o.applied/2;
+        this.poseDelta.props['Spine.quaternion'].y = o.applied/2;
+        this.poseDelta.props['Hips.quaternion'].y = o.applied/4;
+        this.poseDelta.props['LeftUpLeg.quaternion'].y = o.applied/2;
+        this.poseDelta.props['RightUpLeg.quaternion'].y = o.applied/2;
+        this.poseDelta.props['LeftLeg.quaternion'].y = o.applied/4;
+        this.poseDelta.props['RightLeg.quaternion'].y = o.applied/4;
+        break;
+
+      case 'bodyRotateZ':
+        this.poseDelta.props['Head.quaternion'].z = o.applied + this.mtAvatar['headRotateZ'].applied;
+        this.poseDelta.props['Spine1.quaternion'].z = o.applied/12;
+        this.poseDelta.props['Spine.quaternion'].z = o.applied/12;
+        this.poseDelta.props['Hips.quaternion'].z = o.applied/24;
+        break;
+
+      case 'handFistLeft':
+      case 'handFistRight':
+        const side = mt.substring(8);
+        ['HandThumb', 'HandIndex','HandMiddle',
+        'HandRing', 'HandPinky'].forEach( (x,i) => {
+          if ( i === 0 ) {
+            this.poseDelta.props[side+x+'1.quaternion'].x = 0;
+            this.poseDelta.props[side+x+'2.quaternion'].z = (side === 'Left' ? -1 : 1) * o.applied;
+            this.poseDelta.props[side+x+'3.quaternion'].z = (side === 'Left' ? -1 : 1) * o.applied;
+          } else {
+            this.poseDelta.props[side+x+'1.quaternion'].x = o.applied;
+            this.poseDelta.props[side+x+'2.quaternion'].x = 1.5 * o.applied;
+            this.poseDelta.props[side+x+'3.quaternion'].x = 1.5 * o.applied;
+          }
+        });
+        break;
+
+      case 'chestInhale':
+        const scale = o.applied/20;
+        const d = { x: scale, y: (scale/2), z: (3 * scale) };
+        const dneg = { x: (1/(1+scale) - 1), y: (1/(1 + scale/2) - 1), z: (1/(1 + 3 * scale) - 1) };
+        this.poseDelta.props['Spine1.scale'] = d;
+        this.poseDelta.props['Neck.scale'] = dneg;
+        this.poseDelta.props['LeftArm.scale'] = dneg;
+        this.poseDelta.props['RightArm.scale'] = dneg;
+        break;
+
+      default:
+        for( let i=0,l=o.ms.length; i<l; i++ ) {
+          o.ms[i][o.is[i]] = o.applied;
+        }
+
+      }
+    }
+  }
+
+  /**
+  * Get given pose as a string.
+  * @param {Object} pose Pose
+  * @param {number} [prec=1000] Precision used in values
+  * @return {string} Pose as a string
+  */
+  getPoseString(pose,prec=1000){
+    let s = '{';
+    Object.entries(pose).forEach( (x,i) => {
+      const ids = x[0].split('.');
+      if ( ids[1] === 'position' || ids[1] === 'rotation' || ids[1] === 'quaternion' ) {
+        const key = (ids[1] === 'quaternion' ? (ids[0]+'.rotation') : x[0]);
+        const val = (x[1].isQuaternion ? new THREE.Euler().setFromQuaternion(x[1]) : x[1]);
+        s += (i?", ":"") + "'" + key + "':{";
+        s += 'x:' + Math.round(val.x * prec) / prec;
+        s += ', y:' + Math.round(val.y * prec) / prec;
+        s += ', z:' + Math.round(val.z * prec) / prec;
+        s += '}';
+      }
+    });
+    s += '}';
+    return s;
+  }
+
+
+  /**
+  * Return pose template property taking into account mirror pose and gesture.
+  * @param {string} key Property key
+  * @return {Quaternion|Vector3} Position or rotation
+  */
+  getPoseTemplateProp(key) {
+
+    const ids = key.split('.');
+    let target = ids[0] + '.' + (ids[1] === 'rotation' ? 'quaternion' : ids[1]);
+
+    if ( this.gesture && this.gesture.hasOwnProperty(target) ) {
+      return this.gesture[target].clone();
+    } else {
+      let source = ids[0] + '.' + (ids[1] === 'quaternion' ? 'rotation' : ids[1]);
+      if ( !this.poseWeightOnLeft ) {
+        if ( source.startsWith('Left') ) {
+          source = 'Right' + source.substring(4);
+          target = 'Right' + target.substring(4);
+        } else if ( source.startsWith('Right') ) {
+          source = 'Left' + source.substring(5);
+          target = 'Left' + target.substring(5);
+        }
+      }
+
+      // Get value
+      let val;
+      if ( this.poseTarget.template.props.hasOwnProperty(target) ) {
+        const o = {};
+        o[target] = this.poseTarget.template.props[target];
+        val = this.propsToThreeObjects( o )[target];
+      } else if ( this.poseTarget.template.props.hasOwnProperty(source) ) {
+        const o = {};
+        o[source] = this.poseTarget.template.props[source];
+        val = this.propsToThreeObjects( o )[target];
+      }
+
+      // Mirror
+      if ( val && !this.poseWeightOnLeft && val.isQuaternion ) {
+        val.x *= -1;
+        val.w *= -1;
+      }
+
+      return val;
+    }
+  }
+
+  /**
+  * Change body weight from current leg to another.
+  * @param {Object} p Pose properties
+  * @return {Object} Mirrored pose.
+  */
+  mirrorPose(p) {
+    const r = {};
+    for( let [key,val] of Object.entries(p) ) {
+
+      // Create a mirror image
+      if ( val.isQuaternion ) {
+        if ( key.startsWith('Left') ) {
+          key = 'Right' + key.substring(4);
+        } else if ( key.startsWith('Right') ) {
+          key = 'Left' + key.substring(5);
+        }
+        val.x *= -1;
+        val.w *= -1;
+      }
+
+      r[key] = val.clone();
+
+      // Custom properties
+      r[key].t = val.t;
+      r[key].d = val.d;
+    }
+    return r;
+  }
+
+  /**
   * Create a new pose.
   * @param {Object} template Pose template
   * @param {numeric} [ms=2000] Transition duration in ms

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "version": "3",
-  "cacheName": "pocketguide-local-avatar-v3",
+  "version": "4",
+  "cacheName": "pocketguide-local-avatar-v4",
   "ready": true,
   "status": "claire-only-ready",
   "model": {
@@ -30,16 +30,16 @@
     {"url":"./vendor/avatar-local/headaudio-0.1.0/headworklet.min.mjs","bytes":13237},
     {"url":"./vendor/avatar-local/headaudio-0.1.0/model-en-mixed.bin","bytes":14352},
     {"url":"./vendor/avatar-local/three-0.180.0/build/three.module.min.js","bytes":338908},
-    {"url":"./vendor/avatar-local/three-0.180.0/addons/controls/OrbitControls.js","bytes":38703},
-    {"url":"./vendor/avatar-local/three-0.180.0/addons/loaders/GLTFLoader.js","bytes":114739},
-    {"url":"./vendor/avatar-local/three-0.180.0/addons/loaders/DRACOLoader.js","bytes":16781},
-    {"url":"./vendor/avatar-local/three-0.180.0/addons/loaders/FBXLoader.js","bytes":104876},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/controls/OrbitControls.js","bytes":38729},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/loaders/GLTFLoader.js","bytes":114765},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/loaders/DRACOLoader.js","bytes":16807},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/loaders/FBXLoader.js","bytes":104902},
     {"url":"./vendor/avatar-local/three-0.180.0/addons/libs/meshopt_decoder.module.js","bytes":24848},
     {"url":"./vendor/avatar-local/three-0.180.0/addons/libs/stats.module.js","bytes":3514},
     {"url":"./vendor/avatar-local/three-0.180.0/addons/libs/fflate.module.js","bytes":89384},
-    {"url":"./vendor/avatar-local/three-0.180.0/addons/environments/RoomEnvironment.js","bytes":4899},
-    {"url":"./vendor/avatar-local/three-0.180.0/addons/utils/BufferGeometryUtils.js","bytes":35539},
-    {"url":"./vendor/avatar-local/three-0.180.0/addons/curves/NURBSCurve.js","bytes":3888},
-    {"url":"./vendor/avatar-local/three-0.180.0/addons/curves/NURBSUtils.js","bytes":10802}
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/environments/RoomEnvironment.js","bytes":4925},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/utils/BufferGeometryUtils.js","bytes":35565},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/curves/NURBSCurve.js","bytes":3914},
+    {"url":"./vendor/avatar-local/three-0.180.0/addons/curves/NURBSUtils.js","bytes":10828}
   ]
 }
