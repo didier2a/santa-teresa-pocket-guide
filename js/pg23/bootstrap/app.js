@@ -3,7 +3,7 @@ const V233_MODE=initialParams.get('v233')==='1'||/\/pocketguide-2\.3\.3\/?$/i.te
 if(V233_MODE&&!initialParams.has('liveavatar')){const url=new URL(location.href);url.searchParams.set('liveavatar','1');history.replaceState(history.state,'',url);}
 if(V233_MODE){
   const manifest=document.querySelector('link[rel="manifest"]');if(manifest)manifest.href='manifest-v233.webmanifest';
-  if(!document.querySelector('link[data-pg233-style]')){const style=document.createElement('link');style.rel='stylesheet';style.href='pocketguide-v233.css?v=2.3.3.1';style.dataset.pg233Style='true';document.head.append(style);}
+  if(!document.querySelector('link[data-pg233-style]')){const style=document.createElement('link');style.rel='stylesheet';style.href='pocketguide-v233.css?v=2.3.3.2';style.dataset.pg233Style='true';document.head.append(style);}
 }
 const SHELL_VERSION=V233_MODE?'2.3.3':'2.3.2';
 const SHELL_IDENTITY=`PocketGuide ${SHELL_VERSION}`;
@@ -22,4 +22,4 @@ await import('../../pg22/bootstrap/app.js?v=2.3.2.10');
 const {installLivingCompanion}=await import('./living-companion-runtime.js?v=2.3.2.14');
 installLivingCompanion();
 reclaimShellIdentity();
-if(V233_MODE){const {installPocketGuide233}=await import('../../pg233/bootstrap/app.js?v=2.3.3.1');installPocketGuide233();reclaimShellIdentity();}
+if(V233_MODE){const {installPocketGuide233}=await import('../../pg233/bootstrap/app.js?v=2.3.3.2');installPocketGuide233();reclaimShellIdentity();}
