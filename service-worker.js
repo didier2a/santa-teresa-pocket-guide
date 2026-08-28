@@ -55,7 +55,7 @@ const PG23_REQUIRED=[
   './js/pg23/avatar/living-avatar-runtime.js','./js/pg23/avatar/avatar-network-policy.js','./js/pg23/avatar/avatar-pack-manager.js','./js/pg23/avatar/claire-three-stage.js','./js/pg23/avatar/talkinghead-local-engine.js','./js/pg23/avatar/avatar-engine-controller.js','./js/pg23/avatar/liveavatar-realtime-controller.js','./js/pg23/core/living-presence-machine.js','./js/pg23/performance/living-performance-monitor.js','./js/pg23/storage/living-scene-store.js','./js/pg23/scenes/living-scene-engine.js','./js/pg23/scenes/route-presentation-director.js','./js/pg23/scenes/scroll-director.js','./js/pg23/bootstrap/living-companion-runtime.js','./js/pg23/bootstrap/app.js','./vendor/liveavatar/events-browser.mjs'
 ];
 const PG233_REQUIRED=[
-  './manifest-v233.webmanifest','./pocketguide-v233.css','./js/pg233/core/guide-command-router.js','./js/pg233/core/client-diagnostics.js','./js/pg233/bootstrap/app.js'
+  './manifest-v233.webmanifest','./pocketguide-v233.css','./js/pg233/core/guide-command-router.js','./js/pg233/core/client-diagnostics.js','./js/pg233/ui/main-navigation.js','./js/pg233/bootstrap/app.js'
 ];
 const CORE=[
   './','./index.html','./engine.html','./v2.html','./pocketguide-15.html','./studio.html','./studio-146.html','./studio-147.html','./studio-148.html','./diagnostic.html','./diagnostic-s22.html','./styles.css','./v2.css','./v15.css','./v152.css','./v3.css','./v4b.css','./v5.css','./ar-v6.css','./ar-v148.css','./ar-v149.css','./manifest.webmanifest',
