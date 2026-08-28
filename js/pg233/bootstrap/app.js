@@ -4,6 +4,7 @@ import {companionOrchestrator21} from '../../pg21/companion/companion-orchestrat
 import {liveAvatarRealtimeController,liveAvatarRealtimeRequested} from '../../pg23/avatar/liveavatar-realtime-controller.js';
 import {guideCommandRouter} from '../core/guide-command-router.js';
 import {reportClientDiagnostic} from '../core/client-diagnostics.js';
+import {installMainNavigation} from '../ui/main-navigation.js';
 
 const VERSION='2.3.3';
 const $=selector=>document.querySelector(selector);
@@ -83,7 +84,7 @@ function installStatusBridge(){
 }
 
 export function installPocketGuide233(){
-  if(installed)return globalThis.__POCKETGUIDE_V233__;installed=true;updateIdentity();installCapabilityPanel();installCommandBridge();installStatusBridge();installRouteContentBridge();
+  if(installed)return globalThis.__POCKETGUIDE_V233__;installed=true;updateIdentity();installMainNavigation();installCapabilityPanel();installCommandBridge();installStatusBridge();installRouteContentBridge();
   setText('#momentEyebrow','Votre guide opérationnelle');setText('#momentMessage','Demandez-moi de créer ou modifier l’itinéraire, de vous guider par GPS, d’afficher les lieux ou de reprendre un voyage sauvegardé.');
   const runtime={version:VERSION,commands:guideCommandRouter,avatar:liveAvatarRealtimeController,showPlanner,narrate,capabilities:Object.freeze(['itinerary','gps-guidance','route-content','saved-journeys'])};globalThis.__POCKETGUIDE_V233__=runtime;eventBus.emit('pg233.runtime.ready',{version:VERSION,capabilities:runtime.capabilities});void reportClientDiagnostic('runtime.ready',{status:'ready'});return runtime;
 }
