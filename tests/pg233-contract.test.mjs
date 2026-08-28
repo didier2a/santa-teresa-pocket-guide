@@ -44,6 +44,6 @@ test('le formulaire distingue une création d’une révision qui conserve le pa
 
 test('le mode 2.3.3 et ses modules sont disponibles hors ligne sans altérer le cache 2.3.2',()=>{
   assert.match(sw,/APP_VERSION='8\.3\.20'/);assert.match(sw,/PG23_CACHE='pocketguide-v23-atomic-runtime-2-3-3-d'/);assert.match(sw,/PG233_CACHE='pocketguide-v233-application-guide-2-3-3-b'/);assert.match(sw,/isAtomicRuntimeAsset/);
-  for(const asset of ['manifest-v233.webmanifest','pocketguide-v233.css','guide-command-router.js','pg233/bootstrap/app.js'])assert.match(sw,new RegExp(asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+  for(const asset of ['manifest-v233.webmanifest','pocketguide-v233.css','guide-command-router.js','pg233/ui/main-navigation.js','pg233/bootstrap/app.js'])assert.match(sw,new RegExp(asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   assert.match(sw,/pocketguide-2\.3\.3/);
 });
