@@ -8,7 +8,7 @@ const normalize=value=>String(value||'').toLocaleLowerCase('fr-FR').normalize('N
 
 async function waitForBase(){for(let i=0;i<100&&!window.__POCKETGUIDE_15__;i++)await sleep(50);return window.__POCKETGUIDE_15__||null;}
 function addTurn(role,text){if(!text)return;const host=document.querySelector('#conversationLog');if(!host)return;const turn=document.createElement('div');turn.className=`turn turn--${role==='companion'?'assistant':role}`;turn.textContent=String(text);const meta=document.createElement('small');meta.textContent=`${role==='user'?'Vous':'PocketGuide'} · ${new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`;turn.append(meta);host.append(turn);host.scrollTop=host.scrollHeight;if(role!=='user')document.querySelector('#guideAnswer').textContent=String(text);}
-function ensureStyle(){if(document.querySelector('link[data-pg152-companion]'))return;const link=document.createElement('link');link.rel='stylesheet';link.href='./v152-companion.css?v=4.0.0-preview.7';link.dataset.pg152Companion='1';document.head.append(link);}
+function ensureStyle(){if(document.querySelector('link[data-pg152-companion]'))return;const link=document.createElement('link');link.rel='stylesheet';link.href='./v152-companion.css?v=4.0.0-preview.8';link.dataset.pg152Companion='1';document.head.append(link);}
 function makeMount(){
   const terrain=document.querySelector('#terrainMedia');if(!terrain)return null;terrain.dataset.companion='liveavatar-v3';
   const root=document.createElement('div');root.id='pg152Companion';root.className='pg152-companion';root.dataset.pgVersion='4.0.0';
@@ -40,7 +40,7 @@ function routeCapability(app,text){
 
 async function install(){
   const app=await waitForBase();if(!app)throw new Error('Base PocketGuide 1.5.2 indisponible');ensureStyle();const nodes=makeMount();if(!nodes)throw new Error('Terrain PocketGuide 1.5.2 indisponible');
-  const bus=new EventBus(),sdk=createCompanionWebSdk({bus,fetchImpl:fetch,documentImpl:document,locationImpl:location,sessionEndpoint:'/api/companion-session',clientVersion:'4.0.0-preview.7'});
+  const bus=new EventBus(),sdk=createCompanionWebSdk({bus,fetchImpl:fetch,documentImpl:document,locationImpl:location,sessionEndpoint:'/api/companion-session',clientVersion:'4.0.0-preview.8',appVersion:'1.5.2'});
   sdk.install({root:nodes.root,portrait:nodes.portrait,host:nodes.host,status:nodes.status,retry:nodes.retry,onCapability:text=>routeCapability(app,text),onStatus:payload=>setVoiceUi(nodes,payload),onTurn:(role,text)=>addTurn(role,text)});
   const voice=document.querySelector('#voiceMain'),interrupt=document.querySelector('#interruptBtn'),start=document.querySelector('#startGuide');
   if(voice)voice.onclick=async()=>{const diagnostic=sdk.diagnostic();if(['speaking','thinking'].includes(nodes.terrain.dataset.companionPresence))await sdk.interrupt('v152-user');else await sdk.startListening();};
@@ -48,7 +48,7 @@ async function install(){
   if(start)start.onclick=async()=>{document.querySelector('#permissionSheet').hidden=true;if(app.state.gpsWatch===null)document.querySelector('#gpsBtn')?.click();await sdk.startListening();};
   let plannerResume=false;document.querySelector('#planVoiceBtn')?.addEventListener('click',async()=>{const planner=window.__POCKETGUIDE_PLANNER_VOICE__;if(!planner?.active)plannerResume=await sdk.suspendMicrophone();else{for(let i=0;i<30&&planner.active;i++)await sleep(100);await sdk.resumeMicrophone(plannerResume);plannerResume=false;}},{capture:true});
   window.addEventListener('beforeunload',()=>void sdk.destroy(),{once:true});
-  window.__POCKETGUIDE_COMPANION__={version:'0.3.0-v152-bridge',baseVersion:'1.5.2',sdk,bus,routeCapability:text=>routeCapability(app,text),diagnostic:()=>({base:'1.5.2-final',mapOwner:'pocketguide-v1-5',conversationOwner:'liveavatar-v3',...sdk.diagnostic()})};
+  window.__POCKETGUIDE_COMPANION__={version:'0.3.1-v152-context',baseVersion:'1.5.2',sdk,bus,routeCapability:text=>routeCapability(app,text),diagnostic:()=>({base:'1.5.2-final',mapOwner:'pocketguide-v1-5',conversationOwner:'liveavatar-v3',...sdk.diagnostic()})};
   document.documentElement.dataset.pocketguideRuntime='1.5.2+companion';setVoiceUi(nodes,{value:'ready',connected:false});
 }
 

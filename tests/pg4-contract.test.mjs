@@ -20,7 +20,7 @@ test('la navigation S22 reste stable et immédiatement tactile',()=>{
   assert.match(bootstrap,/state\.patch\(\{view\},\{source:'navigation-touch'\}\)/);
   assert.match(html,/Votre carte apparaîtra ici/);
   assert.match(html,/Aucun parcours actif/);
-  assert.match(sw,/V4_VERSION='4\.0\.0-preview\.7'/);
+  assert.match(sw,/V4_VERSION='4\.0\.0-preview\.8'/);
 });
 
 test('Avatar + Audio V3 est industrialisé derrière Provider, Controller et SDK',()=>{

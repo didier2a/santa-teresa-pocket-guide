@@ -7,6 +7,7 @@ export const POCKETGUIDE_AVATAR_ID='664ff8bb-4932-4644-91f8-b90975d6f549';
 export const OPENAI_SECRET_NAME='PocketGuide OpenAI Realtime';
 export const POCKETGUIDE_CONTEXT_NAME='PocketGuide 2.3.2 Realtime';
 export const POCKETGUIDE_CONTEXT_233_NAME='PocketGuide 2.3.3 Application Realtime';
+export const POCKETGUIDE_CONTEXT_152_NAME='PocketGuide 1.5.2 Companion Realtime';
 
 const POCKETGUIDE_CONTEXT=`Tu incarnes PocketGuide 2.3.2, une accompagnatrice numérique de voyage chaleureuse, cultivée, élégante et attentive. Tu ne te présentes jamais comme une personne physique. Tu parles exclusivement en français naturel avec la voix configurée par OpenAI Realtime.
 
@@ -20,7 +21,16 @@ Lorsqu'un message commence par [POCKETGUIDE_APP_RESULT], il contient le résulta
 
 Réponds brièvement pendant la marche. N'invente jamais une position, une distance, une direction, un horaire, un état de capteur ou un fait touristique. Les modifications de parcours restent des propositions jusqu'à confirmation explicite. Tu peux être interrompue naturellement et tu ne répètes pas inutilement ta réponse.`;
 
+const POCKETGUIDE_CONTEXT_152=`Tu incarnes le Companion de PocketGuide 1.5.2, une accompagnatrice numérique de voyage chaleureuse, cultivée, élégante et attentive. Tu ne te présentes jamais comme une personne physique. Tu parles exclusivement en français naturel avec la voix configurée par OpenAI Realtime.
+
+Le moteur natif PocketGuide 1.5.2 reste l'unique source de vérité pour le RoutePack, les étapes, les horaires, les cartes, le GPS, la Geo-AR, les médias, les capteurs, le mode hors ligne et les voyages sauvegardés. Le SDK Companion traduit en parallèle certaines demandes vocales explicites en actions de l'application. Tu ne prétends jamais qu'une action a réussi avant que son résultat soit visible dans l'application.
+
+Les actions actuellement raccordées sont l'ouverture de Guide, Carte, Parcours ou Créer, l'activation du GPS ou de la Geo-AR, le raccourcissement du parcours, le saut de la prochaine étape et la sélection d'un lieu nommé. Les autres modifications du RoutePack ne sont pas encore disponibles : explique cette limite au lieu d'inventer un succès.
+
+Réponds brièvement pendant la marche, généralement en une ou deux phrases. N'invente jamais une position, une distance, une direction, un horaire, un état de capteur ou un fait touristique. Les modifications de parcours restent des propositions jusqu'à confirmation explicite. Tu peux être interrompue naturellement et tu ne répètes pas inutilement ta réponse.`;
+
 function contextFor(appVersion){
+  if(appVersion==='1.5.2')return{name:POCKETGUIDE_CONTEXT_152_NAME,prompt:POCKETGUIDE_CONTEXT_152,openingText:'Bonjour. Je suis Pocket Guide. La base 1.5.2 est prête et je peux vous accompagner.',configuredId:process.env.LIVEAVATAR_CONTEXT_152_ID};
   return appVersion==='2.3.3'?{name:POCKETGUIDE_CONTEXT_233_NAME,prompt:POCKETGUIDE_CONTEXT_233,openingText:'Bonjour. Je suis Pocket Guide. Je peux agir avec vous sur votre voyage.',configuredId:process.env.LIVEAVATAR_CONTEXT_233_ID}:{name:POCKETGUIDE_CONTEXT_NAME,prompt:POCKETGUIDE_CONTEXT,openingText:'Bonjour. Je suis Pocket Guide. Je vous écoute.',configuredId:process.env.LIVEAVATAR_CONTEXT_ID};
 }
 
@@ -96,7 +106,7 @@ export default async function handler(req,res){
   if(!process.env.OPENAI_API_KEY&&!process.env.LIVEAVATAR_OPENAI_SECRET_ID)return res.status(503).json({error:'OpenAI Realtime non configuré'});
 
   try{
-    const input=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{},appVersion=String(input.appVersion||'2.3.2')==='2.3.3'?'2.3.3':'2.3.2',context=contextFor(appVersion);
+    const input=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{},requestedVersion=String(input.appVersion||'2.3.2'),appVersion=['1.5.2','2.3.3'].includes(requestedVersion)?requestedVersion:'2.3.2',context=contextFor(appVersion);
     const [secretId,contextId]=await Promise.all([ensureOpenAISecret(key),ensurePocketGuideContext(key,context)]);
     const body={
       mode:'LITE',

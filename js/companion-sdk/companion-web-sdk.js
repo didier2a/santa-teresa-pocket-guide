@@ -1,7 +1,7 @@
 import {CompanionController} from './core/companion-controller.js';
 import {LiveAvatarV3Provider} from './providers/liveavatar-v3-provider.js';
 
-export const COMPANION_SDK_VERSION='0.2.0';
+export const COMPANION_SDK_VERSION='0.2.1';
 
 export class CompanionWebSdk{
   constructor({controller,bus=null}={}){
@@ -30,8 +30,8 @@ export class CompanionWebSdk{
   }
 }
 
-export function createCompanionWebSdk({bus,fetchImpl,documentImpl,locationImpl,sdkLoader,sessionEndpoint,clientVersion}={}){
-  const provider=new LiveAvatarV3Provider({bus,fetchImpl,documentImpl,locationImpl,sdkLoader,sessionEndpoint,clientVersion});
+export function createCompanionWebSdk({bus,fetchImpl,documentImpl,locationImpl,sdkLoader,sessionEndpoint,clientVersion,appVersion}={}){
+  const provider=new LiveAvatarV3Provider({bus,fetchImpl,documentImpl,locationImpl,sdkLoader,sessionEndpoint,clientVersion,appVersion});
   const controller=new CompanionController({provider,bus});
   return new CompanionWebSdk({controller,bus});
 }

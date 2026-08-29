@@ -26,7 +26,8 @@ export class LiveAvatarV3Provider{
     locationImpl=globalThis.location,
     sdkLoader=defaultSdkLoader,
     sessionEndpoint='/api/companion-session',
-    clientVersion='4.0.0-preview.6'
+    clientVersion='4.0.0-preview.6',
+    appVersion='2.3.3'
   }={}){
     this.id='liveavatar-v3';
     this.bus=bus;
@@ -36,6 +37,7 @@ export class LiveAvatarV3Provider{
     this.sdkLoader=sdkLoader;
     this.sessionEndpoint=sessionEndpoint;
     this.clientVersion=clientVersion;
+    this.appVersion=safeText(appVersion)||'2.3.3';
     this.nodes={};
     this.session=null;
     this.sdk=null;
@@ -233,7 +235,7 @@ export class LiveAvatarV3Provider{
         const response=await this.fetchImpl(`${base}${this.sessionEndpoint}`,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({appVersion:'2.3.3',clientVersion:this.clientVersion,engine:this.id})
+          body:JSON.stringify({appVersion:this.appVersion,clientVersion:this.clientVersion,engine:this.id})
         });
         const payload=await response.json().catch(()=>({}));
         if(!response.ok)throw new Error(payload?.error||`Companion HTTP ${response.status}`);
@@ -345,6 +347,7 @@ export class LiveAvatarV3Provider{
   diagnostic(){
     return{
       provider:this.id,
+      appVersion:this.appVersion,
       baseline:'v3-proven',
       active:this.active,
       connected:this.connected,

@@ -88,8 +88,21 @@ test('le SDK ouvre la session via l’API Companion et conserve les secrets côt
   assert.equal(requests[0].url,'https://preview.vercel.app/api/companion-session');
   const body=JSON.parse(requests[0].options.body);assert.equal(body.appVersion,'2.3.3');assert.equal(body.engine,'liveavatar-v3');
   assert.equal(requests[0].options.body.includes('OPENAI_API_KEY'),false);
-  assert.equal(sdk.diagnostic().sdkVersion,'0.2.0');
+  assert.equal(sdk.diagnostic().sdkVersion,'0.2.1');
   assert.equal(sdk.diagnostic().nativeAudio,true);
+});
+
+test('le clone 1.5.2 sélectionne son propre contexte Companion',async()=>{
+  FakeSession.instances.length=0;
+  const requests=[],doc=documentMock();
+  const sdk=createCompanionWebSdk({
+    appVersion:'1.5.2',fetchImpl:async(url,options)=>{requests.push({url,options});return{ok:true,status:200,json:async()=>({sessionToken:'ephemeral-token',sessionId:'session-152'})}},documentImpl:doc,
+    locationImpl:{hostname:'preview.vercel.app',origin:'https://preview.vercel.app'},sdkLoader:async()=>({...sdkEvents,LiveAvatarSession:FakeSession})
+  });
+  sdk.install({root:element(),portrait:element('img'),host:element(),status:element(),retry:element('button')});
+  assert.equal(await sdk.startListening(),true);
+  assert.equal(JSON.parse(requests[0].options.body).appVersion,'1.5.2');
+  assert.equal(sdk.diagnostic().appVersion,'1.5.2');
 });
 
 test('le SDK suspend et réarme le micro sans recréer la boucle conversationnelle',async()=>{

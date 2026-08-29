@@ -1,6 +1,6 @@
 const APP_VERSION='7.2.0';
-const CACHE='pocketguide-v15-2-multiplatform-a-companion-v4-b';
-const V4_VERSION='4.0.0-preview.7';
+const CACHE='pocketguide-v15-2-multiplatform-a-companion-v4-c';
+const V4_VERSION='4.0.0-preview.8';
 const MAP_CACHE='santa-teresa-map-v6';
 const ROUTE_DOWNLOAD_CACHE='pocketguide-v152-route-download';
 const REQUIRED=[
