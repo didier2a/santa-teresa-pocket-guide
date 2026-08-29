@@ -1,6 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
+    { "source": "/pocketguide-3-preview", "destination": "/pocketguide-v23.html?v3=1&v233=1&liveavatar=1" },
+    { "source": "/pocketguide-3-preview/", "destination": "/pocketguide-v23.html?v3=1&v233=1&liveavatar=1" },
     { "source": "/pocketguide-2.3.3", "destination": "/pocketguide-v23.html?v233=1&liveavatar=1" },
     { "source": "/pocketguide-2.3.3/", "destination": "/pocketguide-v23.html?v233=1&liveavatar=1" }
   ],
