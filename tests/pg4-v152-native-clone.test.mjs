@@ -6,6 +6,7 @@ const read=path=>fs.readFileSync(path,'utf8');
 const html=read('pocketguide-15.html');
 const base=read('js/pocketguide-v1-5.js');
 const bridge=read('js/pg4/companion-v152-bridge.js');
+const capabilities=read('js/pg4/v152-companion-capabilities.js');
 const broker=read('api/liveavatar-session.js');
 const sw=read('service-worker.js');
 const vercel=JSON.parse(read('vercel.json'));
@@ -41,13 +42,17 @@ test('le Companion est une greffe conditionnelle Provider Controller SDK',()=>{
   assert.match(broker,/LIVEAVATAR_CONTEXT_152_ID/);
   assert.match(bridge,/mapOwner:'pocketguide-v1-5'/);
   assert.match(bridge,/conversationOwner:'liveavatar-v3'/);
-  assert.match(bridge,/app\.showPanel\(view\)/);
-  assert.match(bridge,/app\.toolCall\('shorten_route'/);
+  assert.match(bridge,/V152CompanionCapabilities/);
+  assert.match(capabilities,/this\.app\.showPanel\(view\)/);
+  assert.match(capabilities,/this\.app\.toolCall\('shorten_route'/);
+  assert.match(capabilities,/planner\.confirm/);
+  assert.match(bridge,/companion\.capability\.failed/);
 });
 
 test('le service worker sert le clone 1.5.2 pour la route de preview',()=>{
-  assert.match(sw,/pocketguide-v15-2-multiplatform-a-companion-v4-c/);
+  assert.match(sw,/pocketguide-v15-2-multiplatform-a-companion-v4-d/);
   assert.match(sw,/pocketguide-4-preview'\)\)return'\.\/pocketguide-15\.html'/);
   assert.match(sw,/js\/pg4\/companion-v152-bridge\.js/);
+  assert.match(sw,/js\/pg4\/v152-companion-capabilities\.js/);
   assert.match(sw,/v152-companion\.css/);
 });
