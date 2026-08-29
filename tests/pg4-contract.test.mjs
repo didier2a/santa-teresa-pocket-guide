@@ -8,10 +8,11 @@ const html=read('pocketguide-v4.html'),css=read('pocketguide-v4.css'),bootstrap=
 test('la coque V4 reprend le blueprint S22 validé',()=>{
   assert.match(html,/data-pg-version="4\.0\.0"/);for(const id of ['avatarStage','avatar3dHost','voiceAction','guideScene','mapScene','routeScene','createScene'])assert.match(html,new RegExp(`id="${id}"`));
   for(const label of ['Guide','Carte','Parcours','Créer'])assert.match(html,new RegExp(`>${label}<`));assert.match(css,/width:min\(100%,360px\)/);assert.match(css,/height:100dvh/);assert.match(css,/min-height:44px/);assert.match(css,/--mint:#79dccf/);
+  assert.match(html,/id="avatarStage"[^>]+data-pg-version="2\.3\.3"/);assert.match(css,/\.avatar-shell\{position:absolute;inset:0;width:100%;height:100%;border-radius:0/);assert.doesNotMatch(css,/\.avatar-shell\{width:140px/);
 });
 
 test('Avatar + Audio reste isolé derrière un adaptateur V4',()=>{
-  assert.match(controller,/class LiveAvatarRealtimeController/);assert.match(controller,/voice:'marin'/);assert.match(controller,/session\.attach\(video\)/);assert.match(adapter,/new LiveAvatarRealtimeController/);assert.match(adapter,/liveavatar-session-v4/);assert.doesNotMatch(adapter,/OPENAI_API_KEY|LIVEAVATAR_API_KEY|HEYGEN_API_KEY/);assert.match(bootstrap,/AvatarAudioAdapter/);
+  assert.match(controller,/class LiveAvatarRealtimeController/);assert.match(controller,/voice:'marin'/);assert.match(controller,/session\.attach\(video\)/);assert.match(adapter,/new LiveAvatarRealtimeController/);assert.doesNotMatch(adapter,/liveavatar-session-v4|function v4Fetch/);assert.match(adapter,/diagnostic\(\)\.connected/);assert.doesNotMatch(adapter,/OPENAI_API_KEY|LIVEAVATAR_API_KEY|HEYGEN_API_KEY/);assert.match(bootstrap,/AvatarAudioAdapter/);
 });
 
 test('les secrets restent côté serveur et la preview Vercel est distincte',()=>{

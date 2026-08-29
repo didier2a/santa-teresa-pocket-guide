@@ -12,7 +12,7 @@
   <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="pocketguide-v4.css?v=4.0.0-preview.1">
+  <link rel="stylesheet" href="pocketguide-v4.css?v=4.0.0-preview.2">
   <script type="importmap">
     {"imports":{"events":"./vendor/liveavatar/events-browser.mjs"}}
   </script>
@@ -27,7 +27,7 @@
 
     <div class="pg4-panels" id="panelHost">
       <section class="pg4-panel is-active" data-view-panel="guide" aria-label="Compagnon">
-        <article class="avatar-stage" id="avatarStage" data-presence="ready">
+        <article class="avatar-stage" id="avatarStage" data-presence="ready" data-pg-version="2.3.3">
           <div class="avatar-shell" id="avatarRoot">
             <span class="avatar-portrait" id="avatarPortrait">
               <img src="assets/companion/Pocket-Guide-LiveAvatar-1080x1920.jpg" alt="Portrait de Pocket Guide">
@@ -86,8 +86,7 @@
 
   <div class="sr-only" id="liveRegion" aria-live="polite"></div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script type="module" src="js/pg4/bootstrap/app.js?v=4.0.0-preview.1"></script>
+  <script type="module" src="js/pg4/bootstrap/app.js?v=4.0.0-preview.2"></script>
   <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});</script>
 </body>
 </html>
-

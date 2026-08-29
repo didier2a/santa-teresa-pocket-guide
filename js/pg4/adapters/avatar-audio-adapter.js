@@ -1,16 +1,9 @@
 import {LiveAvatarRealtimeController} from '../../pg23/avatar/liveavatar-realtime-controller.js';
 
-function v4Fetch(fetchImpl){
-  return(input,options)=>{
-    if(typeof input!=='string')return fetchImpl(input,options);
-    return fetchImpl(input.replace(/\/api\/liveavatar-session$/,'/api/liveavatar-session-v4'),options);
-  };
-}
-
 export class AvatarAudioAdapter{
   constructor({bus,fetchImpl=globalThis.fetch,documentImpl=globalThis.document}={}){
     this.bus=bus;this.document=documentImpl;this.commandHandler=null;this.statusHandler=null;
-    this.controller=new LiveAvatarRealtimeController({bus,fetchImpl:v4Fetch(fetchImpl),documentImpl});
+    this.controller=new LiveAvatarRealtimeController({bus,fetchImpl,documentImpl});
   }
   install({root,portrait,host,status,retry,onCommand,onStatus,onTurn}={}){
     this.commandHandler=onCommand||null;this.statusHandler=onStatus||null;
@@ -21,6 +14,7 @@ export class AvatarAudioAdapter{
   interrupt(){return this.controller.interrupt();}
   async narrateEvidence(evidence){
     if(!evidence?.speech||!['succeeded','degraded'].includes(evidence.status))return false;
+    if(!this.controller.diagnostic().connected)return false;
     return this.controller.narrate(evidence.speech,{intent:evidence.capabilityId,source:evidence.source});
   }
   diagnostic(){return this.controller.diagnostic();}

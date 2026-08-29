@@ -9,7 +9,7 @@ import {registerV4Capabilities} from '../orchestrator/register-capabilities.js';
 import {V4Orchestrator} from '../orchestrator/v4-orchestrator.js';
 import {PlannerAdapter,mapModel} from '../adapters/planner-adapter.js';
 import {OfflineAdapter} from '../adapters/offline-adapter.js';
-import {AvatarAudioAdapter} from '../adapters/avatar-audio-adapter.js';
+import {AvatarAudioAdapter} from '../adapters/avatar-audio-adapter.js?v=4.0.0-preview.2';
 import {SceneDirector} from '../scenes/scene-director.js';
 
 const $=selector=>document.querySelector(selector);
@@ -74,6 +74,5 @@ if(restored){
 }
 if(mockRequested){$('#screenStatus').textContent='SIMULATION';$('#avatarModeStatus').textContent='Simulation Planner · LiveAvatar optionnel';}
 
-globalThis.__POCKETGUIDE_V4__={version:'4.0.0-preview.1',state,bus:v4EventBus,auditLog,evidenceBus,registry,router,planner,offline,avatar,scenes,orchestrator,mockRequested};
-v4EventBus.emit('pg4.runtime.ready',{version:'4.0.0-preview.1',base:'PocketGuide 1.5.2',mockRequested});
-
+globalThis.__POCKETGUIDE_V4__={version:'4.0.0-preview.2',state,bus:v4EventBus,auditLog,evidenceBus,registry,router,planner,offline,avatar,scenes,orchestrator,mockRequested};
+v4EventBus.emit('pg4.runtime.ready',{version:'4.0.0-preview.2',base:'PocketGuide 1.5.2',mockRequested});

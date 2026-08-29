@@ -21,7 +21,7 @@ export class StateStore{
 }
 
 export const initialV4State={
-  version:'4.0.0-preview.1',
+  version:'4.0.0-preview.2',
   presence:'ready',
   view:'guide',
   intent:null,
@@ -32,4 +32,3 @@ export const initialV4State={
   sensors:{microphone:'unknown',gps:'unknown',camera:'unknown',orientation:'unknown'},
   network:{online:typeof navigator==='undefined'?true:navigator.onLine!==false}
 };
-
