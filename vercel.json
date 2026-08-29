@@ -1,11 +1,18 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "if [ -z \"$VERCEL_GIT_PREVIOUS_SHA\" ]; then exit 1; fi; git diff --quiet \"$VERCEL_GIT_PREVIOUS_SHA\" HEAD -- api/ engine/ vercel.json package.json package-lock.json pnpm-lock.yaml yarn.lock",
+  "rewrites": [
+    {"source":"/pocketguide-4-preview","destination":"/pocketguide-v4.html?liveavatar=1"},
+    {"source":"/pocketguide-4-preview/","destination":"/pocketguide-v4.html?liveavatar=1"}
+  ],
+  "ignoreCommand": "if [ -z \"$VERCEL_GIT_PREVIOUS_SHA\" ]; then exit 1; fi; git diff --quiet \"$VERCEL_GIT_PREVIOUS_SHA\" HEAD -- api/ engine/ js/pg4/ js/pg23/avatar/liveavatar-realtime-controller.js vendor/liveavatar/ assets/companion/ data/routepacks/santa-teresa-v4-preview.json pocketguide-v4.html pocketguide-v4.css manifest-v4.webmanifest vercel.json package.json package-lock.json pnpm-lock.yaml yarn.lock",
   "functions": {
     "api/plan.js": { "maxDuration": 20 },
     "api/plan-status.js": { "maxDuration": 20 },
     "api/transcribe.js": { "maxDuration": 30 },
     "api/tts.js": { "maxDuration": 30 },
+    "api/liveavatar-session.js": { "maxDuration": 20 },
+    "api/liveavatar-session-v4.js": { "maxDuration": 20 },
+    "api/liveavatar-status.js": { "maxDuration": 20 },
     "api/validate-routepack.js": { "maxDuration": 30 }
   },
   "headers": [

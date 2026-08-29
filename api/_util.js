@@ -2,11 +2,15 @@ const ALLOWED_ORIGINS=new Set([
   'https://didier2a.github.io'
 ]);
 
+export function isAllowedOrigin(origin){
+  const value=String(origin||'');if(!value)return false;
+  let host='';try{host=new URL(value).hostname}catch{return false}
+  return ALLOWED_ORIGINS.has(value)||/\.vercel\.app$/i.test(host);
+}
+
 export function cors(req,res){
   const origin=String(req.headers.origin||'');
-  let host='';
-  try{host=new URL(origin||'https://invalid.local').hostname}catch{}
-  if(ALLOWED_ORIGINS.has(origin)||/\.vercel\.app$/i.test(host)){
+  if(isAllowedOrigin(origin)){
     res.setHeader('Access-Control-Allow-Origin',origin);
     res.setHeader('Vary','Origin');
   }
@@ -20,9 +24,7 @@ export function guard(req,res){
   if(req.method==='OPTIONS'){res.status(204).end();return false}
   if(req.method!=='POST'){res.status(405).json({error:'Méthode non autorisée'});return false}
   const origin=String(req.headers.origin||'');
-  let host='';
-  try{host=new URL(origin||'https://invalid.local').hostname}catch{}
-  if(origin&&!ALLOWED_ORIGINS.has(origin)&&!/.vercel.app$/i.test(host)){
+  if(origin&&!isAllowedOrigin(origin)){
     res.status(403).json({error:'Origine non autorisée'});return false;
   }
   if(!process.env.OPENAI_API_KEY){res.status(503).json({error:'AI Planner non configuré'});return false}

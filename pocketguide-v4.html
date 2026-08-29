@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#041316">
+  <meta name="description" content="PocketGuide V4 — compagnon de voyage orchestré par l’IA, avec carte, photos, texte et continuité hors ligne.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PocketGuide V4">
+  <link rel="manifest" href="manifest-v4.webmanifest">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="pocketguide-v4.css?v=4.0.0-preview.1">
+  <script type="importmap">
+    {"imports":{"events":"./vendor/liveavatar/events-browser.mjs"}}
+  </script>
+  <title>PocketGuide V4 · Compagnon cybernétique</title>
+</head>
+<body>
+  <main class="pg4-app" id="pg4App" data-pg-version="4.0.0" data-view="guide" data-presence="ready">
+    <header class="pg4-topbar">
+      <strong id="screenTitle">Compagnon</strong>
+      <span id="screenStatus">PRÊT</span>
+    </header>
+
+    <div class="pg4-panels" id="panelHost">
+      <section class="pg4-panel is-active" data-view-panel="guide" aria-label="Compagnon">
+        <article class="avatar-stage" id="avatarStage" data-presence="ready">
+          <div class="avatar-shell" id="avatarRoot">
+            <span class="avatar-portrait" id="avatarPortrait">
+              <img src="assets/companion/Pocket-Guide-LiveAvatar-1080x1920.jpg" alt="Portrait de Pocket Guide">
+            </span>
+            <span class="avatar-live-host" id="avatar3dHost" aria-live="polite"></span>
+          </div>
+          <span class="presence-pill" id="presencePill">PRÊTE</span>
+          <h1 id="avatarTitle">Bonjour. Je suis avec vous.</h1>
+          <p id="avatarMessage">Parlez-moi naturellement. Je peux créer et afficher votre parcours.</p>
+          <div class="voice-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <button class="primary-action" id="voiceAction" type="button">Parler à ma guide</button>
+          <button class="text-action" id="retryAvatar" type="button" hidden>Réessayer la connexion</button>
+          <small id="avatarModeStatus">LiveAvatar + OpenAI Realtime · prêt</small>
+        </article>
+
+        <section id="guideScene" class="scene-slot">
+          <article class="starter-card">
+            <span class="eyebrow">PREMIÈRE CAPACITÉ V4</span>
+            <h2>Créez une promenade complète</h2>
+            <p>La voix et le toucher exécutent la même action : itinéraire, carte, photos sourcées et texte.</p>
+            <button class="intent-button" id="suggestRoute" type="button">Créer une balade de 2 heures</button>
+          </article>
+        </section>
+      </section>
+
+      <section class="pg4-panel" data-view-panel="map" aria-label="Carte" hidden>
+        <section id="mapScene" class="scene-slot"></section>
+      </section>
+
+      <section class="pg4-panel" data-view-panel="route" aria-label="Parcours" hidden>
+        <section id="routeScene" class="scene-slot"></section>
+      </section>
+
+      <section class="pg4-panel" data-view-panel="create" aria-label="Créer" hidden>
+        <section id="createScene" class="scene-slot">
+          <article class="create-card">
+            <span class="eyebrow">INTENTION</span>
+            <h2>Quel parcours souhaitez-vous ?</h2>
+            <form id="createForm">
+              <label for="createPrompt">Demande</label>
+              <textarea id="createPrompt" rows="4">Crée-moi une promenade de deux heures à Santa Teresa, avec carte, photos et texte.</textarea>
+              <button class="intent-button" type="submit">Créer ce parcours</button>
+            </form>
+          </article>
+        </section>
+      </section>
+    </div>
+
+    <nav class="bottom-navigation" aria-label="Navigation principale">
+      <button class="is-active" data-nav="guide" type="button"><span aria-hidden="true">🎙️</span><small>Guide</small></button>
+      <button data-nav="map" type="button"><span aria-hidden="true">⌖</span><small>Carte</small></button>
+      <button data-nav="route" type="button"><span aria-hidden="true">☷</span><small>Parcours</small><i class="nav-badge" hidden></i></button>
+      <button data-nav="create" type="button"><span aria-hidden="true">＋</span><small>Créer</small></button>
+    </nav>
+  </main>
+
+  <div class="sr-only" id="liveRegion" aria-live="polite"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script type="module" src="js/pg4/bootstrap/app.js?v=4.0.0-preview.1"></script>
+  <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});</script>
+</body>
+</html>
+
