@@ -7,8 +7,20 @@ const html=read('pocketguide-v4.html'),css=read('pocketguide-v4.css'),bootstrap=
 
 test('la coque V4 reprend le blueprint S22 validé',()=>{
   assert.match(html,/data-pg-version="4\.0\.0"/);for(const id of ['avatarStage','avatar3dHost','voiceAction','guideScene','mapScene','routeScene','createScene'])assert.match(html,new RegExp(`id="${id}"`));
-  for(const label of ['Guide','Carte','Parcours','Créer'])assert.match(html,new RegExp(`>${label}<`));assert.match(css,/width:min\(100%,360px\)/);assert.match(css,/height:100dvh/);assert.match(css,/min-height:44px/);assert.match(css,/--mint:#79dccf/);
+  for(const label of ['Guide','Carte','Parcours','Créer'])assert.match(html,new RegExp(`>${label}<`));assert.match(css,/width:min\(100%,360px\)/);assert.match(css,/height:100svh/);assert.match(css,/min-height:44px/);assert.match(css,/--mint:#79dccf/);
   assert.match(html,/id="avatarStage"[^>]+data-pg-version="2\.3\.3"/);assert.match(css,/\.avatar-shell\{position:absolute;inset:0;width:100%;height:100%;border-radius:0/);assert.doesNotMatch(css,/\.avatar-shell\{width:140px/);
+});
+
+test('la navigation S22 reste stable et immédiatement tactile',()=>{
+  assert.match(css,/html,body\{width:100%;height:100%;overflow:hidden/);
+  assert.match(css,/\.pg4-app\[data-view="guide"\] \.pg4-panels\{grid-row:1\/4/);
+  assert.doesNotMatch(css,/min-height:640px/);
+  assert.doesNotMatch(css,/@media\(max-height:700px\)[^}]*\.avatar-shell\{width:/);
+  assert.match(css,/touch-action:manipulation/);
+  assert.match(bootstrap,/state\.patch\(\{view\},\{source:'navigation-touch'\}\)/);
+  assert.match(html,/Votre carte apparaîtra ici/);
+  assert.match(html,/Aucun parcours actif/);
+  assert.match(sw,/V4_VERSION='4\.0\.0-preview\.3'/);
 });
 
 test('Avatar + Audio reste isolé derrière un adaptateur V4',()=>{

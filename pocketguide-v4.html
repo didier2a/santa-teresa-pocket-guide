@@ -12,7 +12,7 @@
   <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="pocketguide-v4.css?v=4.0.0-preview.2">
+  <link rel="stylesheet" href="pocketguide-v4.css?v=4.0.0-preview.3">
   <script type="importmap">
     {"imports":{"events":"./vendor/liveavatar/events-browser.mjs"}}
   </script>
@@ -54,11 +54,25 @@
       </section>
 
       <section class="pg4-panel" data-view-panel="map" aria-label="Carte" hidden>
-        <section id="mapScene" class="scene-slot"></section>
+        <section id="mapScene" class="scene-slot">
+          <article class="empty-card">
+            <span class="eyebrow">CARTE</span>
+            <h2>Votre carte apparaîtra ici</h2>
+            <p>Créez d’abord un parcours pour afficher le tracé et ses étapes.</p>
+            <button class="intent-button" data-nav="create" type="button">Créer un parcours</button>
+          </article>
+        </section>
       </section>
 
       <section class="pg4-panel" data-view-panel="route" aria-label="Parcours" hidden>
-        <section id="routeScene" class="scene-slot"></section>
+        <section id="routeScene" class="scene-slot">
+          <article class="empty-card">
+            <span class="eyebrow">PARCOURS</span>
+            <h2>Aucun parcours actif</h2>
+            <p>Décrivez votre promenade : Pocket Guide préparera les étapes, la carte, les photos et le texte.</p>
+            <button class="intent-button" data-nav="create" type="button">Décrire mon parcours</button>
+          </article>
+        </section>
       </section>
 
       <section class="pg4-panel" data-view-panel="create" aria-label="Créer" hidden>
@@ -86,7 +100,7 @@
 
   <div class="sr-only" id="liveRegion" aria-live="polite"></div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script type="module" src="js/pg4/bootstrap/app.js?v=4.0.0-preview.2"></script>
+  <script type="module" src="js/pg4/bootstrap/app.js?v=4.0.0-preview.3"></script>
   <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});</script>
 </body>
 </html>
