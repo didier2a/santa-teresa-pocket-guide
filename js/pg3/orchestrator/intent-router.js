@@ -32,7 +32,7 @@ export function evaluateIntentProof(intent,result={}){
 }
 
 export class IntentRouter{
-  constructor({delegate=guideCommandRouter,machine=cyberneticStateMachine,bus=eventBus,classifier=classifyPocketGuideCommand,context=defaultContext,autoDelay=3000,verificationDelay=180,logger=console,schedule=setTimeout,cancelSchedule=clearTimeout}={}){
+  constructor({delegate=guideCommandRouter,machine=cyberneticStateMachine,bus=eventBus,classifier=classifyPocketGuideCommand,context=defaultContext,autoDelay=3000,verificationDelay=180,logger=console,schedule=(callback,delay)=>globalThis.setTimeout(callback,delay),cancelSchedule=timer=>globalThis.clearTimeout(timer)}={}){
     this.delegate=delegate;this.machine=machine;this.bus=bus;this.classifier=classifier;this.context=context;this.autoDelay=Math.max(0,Number(autoDelay)||0);this.verificationDelay=Math.max(0,Number(verificationDelay)||0);this.logger=logger;this.schedule=schedule;this.cancelSchedule=cancelSchedule;this.sequence=0;this.active=null;
   }
   summaryFor(intent){return SUMMARIES[intent]||'Exécuter la commande dans PocketGuide';}

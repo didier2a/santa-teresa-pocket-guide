@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 import {EventBus} from '../js/pg16/core/event-bus.js';
 import {CyberneticStateMachine} from '../js/pg3/core/cybernetic-state-machine.js';
 import {IntentRouter,evaluateIntentProof} from '../js/pg3/orchestrator/intent-router.js';
 
+const source=await readFile(new URL('../js/pg3/orchestrator/intent-router.js',import.meta.url),'utf8');
 const logger={info(){},error(){}};
 const createRouter=({intent='show_map',result={ok:true,intent:'show_map',speech:'Carte ouverte.',execution:{ok:true}},delegate}={})=>{
   const bus=new EventBus(),machine=new CyberneticStateMachine({bus,logger});
@@ -42,4 +44,9 @@ test('la preuve typée distingue attente, permission et succès',()=>{
   assert.equal(evaluateIntentProof('create_itinerary',{ok:true,awaiting:'destination'}).state,'blocked');
   assert.equal(evaluateIntentProof('start_guidance',{ok:true}).reason,'permission-required');
   assert.equal(evaluateIntentProof('route_status',{ok:true,speech:'Étape 2'}).state,'succeeded');
+});
+
+test('les minuteurs navigateur conservent le receveur global requis par Chrome',()=>{
+  assert.match(source,/schedule=\(callback,delay\)=>globalThis\.setTimeout\(callback,delay\)/);
+  assert.match(source,/cancelSchedule=timer=>globalThis\.clearTimeout\(timer\)/);
 });
