@@ -1,4 +1,5 @@
 import {cleanJson,cors,outputText} from './_util.js';
+import {validateRoutePack} from '../engine/routepack.js';
 
 export default async function handler(req,res){
   cors(req,res);
@@ -20,7 +21,9 @@ export default async function handler(req,res){
     if(status!=='completed')return res.status(202).json({status});
     const text=outputText(payload);if(!text)return res.status(502).json({error:'Réponse structurée vide'});
     const pack=cleanJson(text);
-    pack.meta={...pack.meta,createdBy:'PocketGuide Studio V1.4.6',generator:'openai-ai-planner-v1.4.6',sourcesCheckedAt:new Date().toISOString()};
+    const report=validateRoutePack(pack);if(!report.valid)return res.status(502).json({error:`RoutePack généré invalide : ${report.errors.map(item=>item.code).join(', ')}`});
+    if((pack.places||[]).some(place=>!/^https:\/\//.test(place.sourceUrl||'')))return res.status(502).json({error:'RoutePack généré sans source HTTPS vérifiée'});
+    pack.meta={...pack.meta,createdBy:'PocketGuide V4',generator:'openai-ai-planner-v4-base-1.5.2',sourcesCheckedAt:new Date().toISOString()};
     return res.status(200).json({status:'completed',pack,model:payload?.model||process.env.OPENAI_PLANNER_MODEL||'gpt-5.4-mini'});
   }catch(error){console.error('PocketGuide planner status',error?.message||error);return res.status(500).json({error:error?.message||'Impossible de récupérer la génération.'})}
 }

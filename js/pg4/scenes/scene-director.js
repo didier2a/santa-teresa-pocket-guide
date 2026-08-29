@@ -13,7 +13,7 @@ export class SceneDirector{
   constructor({bus,state,documentImpl=globalThis.document}={}){this.bus=bus;this.state=state;this.document=documentImpl;this.nodes={};this.progress={phase:'understanding',completed:0,totalPlaces:0};this.map=null;this.mapKey='';}
   install(){
     const query=selector=>this.document.querySelector(selector);this.nodes={app:query('#pg4App'),title:query('#screenTitle'),status:query('#screenStatus'),live:query('#liveRegion'),guide:query('#guideScene'),map:query('#mapScene'),route:query('#routeScene'),create:query('#createScene')};
-    this.bus.on('pg4.state.changed',payload=>this.renderState(payload.after));this.bus.on('pg4.intent.heard',intent=>this.renderHeard(intent));this.bus.on('pg4.evidence',evidence=>this.renderEvidence(evidence));this.bus.on('pg4.avatar.status',status=>this.renderAvatarStatus(status));
+    this.bus.on('pg4.state.changed',payload=>this.renderState(payload.after));this.bus.on('pg4.intent.heard',intent=>this.renderHeard(intent));this.bus.on('pg4.evidence',evidence=>this.renderEvidence(evidence));this.bus.on('pg4.avatar.status',status=>this.renderAvatarStatus(status));this.bus.on('pg4.proactive.arrival',arrival=>this.renderProactive(arrival));this.bus.on('pg4.layout.orientation',()=>setTimeout(()=>this.map?.invalidateSize?.(),0));
     this.renderState(this.state.get());return this;
   }
   renderState(snapshot){
@@ -46,6 +46,9 @@ export class SceneDirector{
     if(kind==='route-proposal')this.renderProposal(evidence.data.proposal);
     else if(kind==='route-confirmed')this.renderConfirmed(evidence.data);
     else if(kind==='place-story')this.renderStory(evidence.data.place);
+    else if(kind==='route-state')this.renderRouteProgress(evidence.data.snapshot);
+    else if(kind==='offline-route')this.renderOfflineStatus(evidence.data);
+    else if(kind==='sensors-reset')this.announce('Capteurs réinitialisés');
     this.announce(evidence.speech);
   }
   renderPlanning(evidence){
@@ -71,13 +74,16 @@ export class SceneDirector{
   routeCard(proposal,{proposed=false}={}){
     const pack=proposal?.pack||proposal,summary=proposal?.summary||{places:pack?.places?.length||0,durationMinutes:120,distanceKm:proposal?.map?.distanceKm||0};
     const card=el('article',`route-card${proposed?' is-proposed':''}`),head=el('div','card-head');head.append(el('strong','', 'PARCOURS'),el('strong','',proposed?'PROPOSITION':'CONFIRMÉ'));card.append(head,el('h2','',pack?.title||'Parcours sans titre'),el('p','route-meta',`${durationLabel(summary.durationMinutes)} · ${Number(summary.distanceKm||0).toLocaleString('fr-FR')} km · ${summary.places||0} étapes`));
-    const list=el('ol','route-list');placesFor(pack).slice(0,3).forEach((item,index)=>{const row=el('li');row.append(el('b','',String(index+1).padStart(2,'0')),el('span','',item.place?.name||item.event.title));list.append(row);});card.append(list,el('p','route-foot',proposed?'Prête à être confirmée':'Route active · hors ligne préparée'));return card;
+    const list=el('ol','route-list'),items=placesFor(pack);(proposed?items.slice(0,3):items).forEach((item,index)=>{const row=el('li');row.dataset.eventId=item.event.id;row.append(el('b','',String(index+1).padStart(2,'0')),el('span','',item.place?.name||item.event.title));if(!proposed&&item.place){const actions=el('span','route-event-actions'),go=el('button','tool-button','Aller'),focus=el('button','tool-button','AR');go.type=focus.type='button';go.dataset.action='go-to-place';go.dataset.placeId=item.place.id;focus.dataset.action='focus-place';focus.dataset.placeId=item.place.id;actions.append(go,focus);row.append(actions);}list.append(row);});card.append(list,el('p','route-foot',proposed?'Prête à être confirmée':'Route active · hors ligne préparée'));return card;
   }
-  renderConfirmed(data){
+  renderConfirmed(data,{preserveView=false}={}){
     clear(this.nodes.map).append(this.mapCard(data.pack,data.map),this.routeCard({pack:data.pack,summary:data.summary,map:data.map}));
     clear(this.nodes.route).append(this.routeCard({pack:data.pack,summary:data.summary,map:data.map}));
-    this.renderStory(data.pack.places?.[0],{preserveView:true});this.state.patch({view:'map'},{source:'scene-confirmed'});this.document.querySelector('[data-nav="route"] .nav-badge')?.setAttribute('hidden','');
+    this.renderStory(data.pack.places?.[0],{preserveView:true});if(!preserveView)this.state.patch({view:'map'},{source:'scene-confirmed'});this.document.querySelector('[data-nav="route"] .nav-badge')?.setAttribute('hidden','');
   }
+  renderRouteProgress(snapshot){const pack=this.state.select('activeRoute');if(!pack)return;const host=clear(this.nodes.route);host.append(this.routeCard(pack));const foot=host.querySelector('.route-foot');if(foot)foot.textContent=`Progression ${snapshot?.routeRevision||0} · ${(snapshot?.skipped||[]).length} étape(s) sautée(s) · incontournables protégés`;}
+  renderOfflineStatus(data){const status=this.document.querySelector('#offlineStatus');if(status)status.textContent=`Hors ligne prêt · ${data.assetsCached||0}/${data.assetsRequested||0} ressource(s) en cache.`;}
+  renderProactive(arrival){const card=el('article','recovery-banner proactive-banner');card.append(el('strong','',`Vous approchez de ${arrival.place.name}`),el('p','',`${arrival.distanceMeters} m · ${arrival.place.historyShort||arrival.place.description||'Ouvrez la carte ou l’AR pour le repérer.'}`));this.nodes.guide.prepend(card);this.announce(card.textContent);}
   mapCard(pack,mapModel){
     if(this.map){try{this.map.remove()}catch{}this.map=null;}
     const card=el('article','map-stage'),head=el('div','card-head');head.append(el('strong','',navigator.onLine===false?'CARTE HORS LIGNE':'CARTE EN LIGNE'),el('span','route-foot','© OpenStreetMap'));card.append(head);

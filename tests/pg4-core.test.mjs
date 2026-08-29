@@ -19,6 +19,14 @@ test('navigation et confirmation sont des capacités explicites',()=>{
   const router=new IntentRouter();assert.equal(router.parse('Ouvre la carte').capabilityId,'nav.open');assert.equal(router.parse('Je confirme ce parcours').capabilityId,'route.confirmProposal');assert.equal(router.parse('Arrête tout').capabilityId,'operation.cancel');
 });
 
+test('une conversation naturelle LiveAvatar reste dans la boucle V3',()=>{
+  const router=new IntentRouter();
+  assert.equal(router.parse('Bonjour, raconte-moi quelque chose de surprenant.',{source:'liveavatar-voice'}),null);
+  assert.equal(router.parse('Comment allez-vous aujourd’hui ?',{source:'liveavatar-voice'}),null);
+  assert.equal(router.parse('Ouvre la carte',{source:'liveavatar-voice'}).capabilityId,'nav.open');
+  assert.equal(router.parse('Une demande texte libre',{source:'touch'}).capabilityId,'guide.localFallback');
+});
+
 test('aucun succès ne peut être publié sans preuve typée',async()=>{
   const {registry}=runtime();registry.register({id:'broken',execute:async()=>({ok:true}),toEvidence:()=>undefined,toSpeech:()=>''});const evidence=await registry.execute('broken');assert.equal(evidence.status,'failed');assert.match(evidence.error,/preuve typée/);
 });

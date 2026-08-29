@@ -2,7 +2,7 @@
   "name":"PocketGuide V4 · Compagnon cybernétique",
   "short_name":"PocketGuide V4",
   "description":"Guide de voyage orchestré par l’IA avec carte, médias sourcés et continuité hors ligne.",
-  "start_url":"./pocketguide-v4.html?app=4.0.0-preview.4",
+  "start_url":"./pocketguide-v4.html?app=4.0.0-preview.6",
   "scope":"./",
   "display":"standalone",
   "orientation":"any",

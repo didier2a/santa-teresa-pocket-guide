@@ -21,7 +21,7 @@ export class StateStore{
 }
 
 export const initialV4State={
-  version:'4.0.0-preview.4',
+  version:'4.0.0-preview.6',
   presence:'ready',
   view:'guide',
   intent:null,
@@ -30,5 +30,7 @@ export const initialV4State={
   activeRoute:null,
   evidence:null,
   sensors:{microphone:'unknown',gps:'unknown',camera:'unknown',orientation:'unknown'},
+  display:{orientation:'portrait',aspect:'9:16',width:0,height:0},
+  routeProgress:{skipped:[],currentPlaceId:null,focusedPlaceId:null,routeRevision:0,followMap:true,proactiveEnabled:true},
   network:{online:typeof navigator==='undefined'?true:navigator.onLine!==false}
 };

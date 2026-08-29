@@ -12,7 +12,7 @@
   <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="pocketguide-v4.css?v=4.0.0-preview.4">
+  <link rel="stylesheet" href="pocketguide-v4.css?v=4.0.0-preview.6">
   <script type="importmap">
     {"imports":{"events":"./vendor/liveavatar/events-browser.mjs"}}
   </script>
@@ -51,9 +51,30 @@
             <button class="intent-button" id="suggestRoute" type="button">Créer une balade de 2 heures</button>
           </article>
         </section>
+        <section class="field-guide-controls" id="fieldGuideControls" aria-label="Guide terrain">
+          <button class="tool-button" id="proactiveToggle" type="button" aria-pressed="true">● Guide proactif</button>
+          <span id="proactiveStatus">Alertes d’arrivée actives</span>
+        </section>
       </section>
 
       <section class="pg4-panel" data-view-panel="map" aria-label="Carte" hidden>
+        <section class="terrain-tools" aria-label="Outils terrain 1.5.2">
+          <div class="tool-row">
+            <button class="tool-button" id="gpsAction" type="button" aria-pressed="false">⌖ GPS</button>
+            <button class="tool-button" id="arAction" type="button" aria-pressed="false">◎ Geo-AR</button>
+            <button class="tool-button" id="resetSensorsAction" type="button">↻ Capteurs</button>
+          </div>
+          <small id="terrainStatus">GPS — · Caméra — · Boussole —</small>
+          <div class="geo-ar-stage" id="geoArStage" hidden>
+            <video id="geoArCamera" autoplay playsinline muted hidden></video>
+            <div id="geoArLabels" class="geo-ar-labels"></div>
+            <strong id="geoArCompass" class="geo-ar-compass">—</strong>
+            <div id="geoArManual" class="geo-ar-manual" hidden>
+              <button class="tool-button" type="button" data-heading="-15">↶ 15°</button>
+              <button class="tool-button" type="button" data-heading="15">15° ↷</button>
+            </div>
+          </div>
+        </section>
         <section id="mapScene" class="scene-slot">
           <article class="empty-card">
             <span class="eyebrow">CARTE</span>
@@ -65,6 +86,14 @@
       </section>
 
       <section class="pg4-panel" data-view-panel="route" aria-label="Parcours" hidden>
+        <section class="route-toolbox" aria-label="RoutePack et mode hors ligne">
+          <div class="tool-row">
+            <button class="tool-button" id="downloadOfflineAction" type="button">↓ Hors ligne</button>
+            <button class="tool-button" id="exportRouteAction" type="button">⇩ Exporter</button>
+            <button class="tool-button" id="resetRouteAction" type="button">↻ Progression</button>
+          </div>
+          <p id="offlineStatus">Le parcours actif peut être conservé avec sa carte schématique.</p>
+        </section>
         <section id="routeScene" class="scene-slot">
           <article class="empty-card">
             <span class="eyebrow">PARCOURS</span>
@@ -72,6 +101,10 @@
             <p>Décrivez votre promenade : Pocket Guide préparera les étapes, la carte, les photos et le texte.</p>
             <button class="intent-button" data-nav="create" type="button">Décrire mon parcours</button>
           </article>
+        </section>
+        <section class="route-library-card">
+          <div class="card-head"><strong>BIBLIOTHÈQUE 1.5.2</strong><label class="tool-button file-button">Importer<input id="importRouteFile" type="file" accept="application/json" hidden></label></div>
+          <div id="routeLibraryList" class="route-library-list"></div>
         </section>
       </section>
 
@@ -83,8 +116,14 @@
             <form id="createForm">
               <label for="createPrompt">Demande</label>
               <textarea id="createPrompt" rows="4">Crée-moi une promenade de deux heures à Santa Teresa, avec carte, photos et texte.</textarea>
+              <button class="tool-button" id="plannerVoiceAction" type="button" aria-pressed="false">🎙️ Décrire par la voix</button>
+              <small id="plannerVoiceStatus">Dictée vocale prête · navigateur + secours MediaRecorder.</small>
               <button class="intent-button" type="submit">Créer ce parcours</button>
             </form>
+            <div class="compatibility-actions">
+              <button class="tool-button" id="diagnosticAction" type="button">◉ Diagnostic</button>
+              <button class="tool-button" id="resetMediaAction" type="button">↻ Caméra & micro</button>
+            </div>
           </article>
         </section>
       </section>
@@ -98,9 +137,19 @@
     </nav>
   </main>
 
+  <dialog id="diagnosticDialog" class="diagnostic-dialog">
+    <form method="dialog" class="diagnostic-card">
+      <div class="card-head"><strong>DIAGNOSTIC 1.5.2</strong><button class="tool-button" value="close">Fermer</button></div>
+      <h2>Compatibilité terrain</h2>
+      <ul id="diagnosticList" class="diagnostic-list"></ul>
+      <button class="intent-button" id="diagnosticPermissions" type="button">Tester GPS, caméra, micro et boussole</button>
+      <p id="diagnosticDetail">Les demandes d’autorisation sont déclenchées depuis ce geste utilisateur.</p>
+    </form>
+  </dialog>
+
   <div class="sr-only" id="liveRegion" aria-live="polite"></div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script type="module" src="js/pg4/bootstrap/app.js?v=4.0.0-preview.4"></script>
+  <script type="module" src="js/pg4/bootstrap/app.js?v=4.0.0-preview.6"></script>
   <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});</script>
 </body>
 </html>

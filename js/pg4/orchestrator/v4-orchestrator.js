@@ -6,6 +6,11 @@ export class V4Orchestrator{
     const completion=this.execute(intent);
     return{handled:true,id:intent.id,intent:intent.capabilityId,completion};
   }
+  invoke(capabilityId,input={},source='touch'){
+    if(!this.registry.has(capabilityId))throw new Error(`Capacité inconnue: ${capabilityId}`);
+    const intent={id:`intent-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,capabilityId,input,raw:capabilityId,source,confidence:1,at:new Date().toISOString()};
+    this.state.patch({intent},{source:'intent'});this.bus?.emit('pg4.intent.heard',intent);return this.execute(intent);
+  }
   async execute(intent){
     const confirmed=intent.capabilityId==='route.confirmProposal'&&intent.confidence>=.9;
     const evidence=await this.registry.execute(intent.capabilityId,intent.input,{source:intent.source,confirmed});
@@ -14,4 +19,3 @@ export class V4Orchestrator{
   }
   submit(text,options){return this.route(text,options).completion;}
 }
-
