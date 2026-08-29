@@ -20,5 +20,5 @@ test('les secrets restent côté serveur et la preview Vercel est distincte',()=
 
 test('la PWA met en cache le noyau V4 et son entrée',()=>{
   for(const asset of ['pocketguide-v4.html','pocketguide-v4.css','manifest-v4.webmanifest','js/pg4/bootstrap/app.js','js/pg4/core/capability-registry.js','js/pg4/scenes/scene-director.js','liveavatar-realtime-controller.js'])assert.match(sw,new RegExp(asset.replace(/[.]/g,'\\.')));
+  assert.ok(sw.includes("if(url.origin===location.origin&&url.pathname.startsWith('/api/')){event.respondWith(fetch(event.request,{cache:'no-store'}));return}"));
 });
-

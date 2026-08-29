@@ -100,8 +100,8 @@ export class SceneDirector{
     const attribution=place.imageAttribution,source=attribution?.source||place.sourceLabel||'Source non renseignée',license=attribution?.license?` · ${attribution.license}`:'';const sourceLine=el('p','story-source',`${source}${license}`);const href=attribution?.descriptionUrl||place.sourceUrl;if(href){const link=el('a','',sourceLine.textContent);link.href=href;link.target='_blank';link.rel='noopener noreferrer';sourceLine.replaceChildren(link);}card.append(sourceLine);return card;
   }
   renderRecovery(evidence){
+    this.state.patch({action:{id:evidence.capabilityId,status:evidence.status}},{source:'scene-recovery'});
     const target=evidence.capabilityId==='planner.createRoute'?this.nodes.create:this.nodes.guide,card=el('article','recovery-banner');card.append(el('strong','',evidence.status==='cancelled'?'Action arrêtée':'Action indisponible'),el('p','',evidence.error||evidence.speech||'Vous pouvez réessayer sans perdre la route active.'));const retry=el('button','text-action','Réessayer');retry.type='button';retry.dataset.action='retry';card.append(retry);target.prepend(card);this.announce(card.textContent);
   }
   announce(text){if(this.nodes.live)this.nodes.live.textContent=String(text||'');}
 }
-
