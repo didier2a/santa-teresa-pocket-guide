@@ -1,0 +1,13 @@
+.pg152-companion{position:absolute;inset:0;z-index:0;overflow:hidden;background:#06171b}
+.pg152-companion-host,.pg152-companion-host>span,.pg152-companion .liveavatar-realtime-video{display:block;width:100%;height:100%}
+.pg152-companion .liveavatar-realtime-video,.pg152-companion-host img{width:100%;height:100%;object-fit:cover;object-position:center 20%}
+.pg152-companion .liveavatar-realtime-loading,.pg152-companion .liveavatar-realtime-error{position:relative;display:grid;place-items:center;height:100%;overflow:hidden;background:#06171b;color:#fff;text-align:center}
+.pg152-companion .liveavatar-realtime-loading strong,.pg152-companion .liveavatar-realtime-loading small,.pg152-companion .liveavatar-realtime-error strong,.pg152-companion .liveavatar-realtime-error small{position:absolute;z-index:2;left:18px;right:18px;text-shadow:0 2px 16px #000}
+.pg152-companion .liveavatar-realtime-loading strong,.pg152-companion .liveavatar-realtime-error strong{bottom:64px}
+.pg152-companion .liveavatar-realtime-loading small,.pg152-companion .liveavatar-realtime-error small{bottom:40px;color:#d8e5e2}
+.pg152-companion .liveavatar-realtime-loading:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 48%,rgba(3,14,17,.86))}
+.pg152-companion-retry{position:absolute;z-index:7;top:68px;left:50%;transform:translateX(-50%);border:1px solid #ffffff55;border-radius:999px;background:#071a1fd9;color:#fff;padding:10px 14px;font-weight:800}
+.pg152-companion-status{display:none}
+.terrain-media[data-companion-presence="listening"] .terrain-gradient,.terrain-media[data-companion-presence="thinking"] .terrain-gradient,.terrain-media[data-companion-presence="speaking"] .terrain-gradient{background:linear-gradient(180deg,rgba(3,14,17,.02),rgba(3,14,17,.12) 42%,rgba(3,14,17,.92) 94%)}
+@media(orientation:portrait){.pg152-companion .liveavatar-realtime-video,.pg152-companion-host img{object-position:center 18%}}
+@media(orientation:landscape){.pg152-companion .liveavatar-realtime-video,.pg152-companion-host img{object-position:center 24%}}
