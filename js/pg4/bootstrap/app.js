@@ -9,7 +9,7 @@ import {registerV4Capabilities} from '../orchestrator/register-capabilities.js';
 import {V4Orchestrator} from '../orchestrator/v4-orchestrator.js';
 import {PlannerAdapter,mapModel} from '../adapters/planner-adapter.js';
 import {OfflineAdapter} from '../adapters/offline-adapter.js';
-import {AvatarAudioAdapter} from '../adapters/avatar-audio-adapter.js?v=4.0.0-preview.3';
+import {AvatarAudioAdapter} from '../adapters/avatar-audio-adapter.js?v=4.0.0-preview.4';
 import {SceneDirector} from '../scenes/scene-director.js';
 
 const $=selector=>document.querySelector(selector);
@@ -48,8 +48,8 @@ avatar.install({
 function submit(text,source='touch'){return orchestrator.submit(text,{source});}
 
 $('#voiceAction').addEventListener('click',async()=>{
-  if(['speaking','thinking'].includes(state.select('presence'))){avatar.interrupt();return;}
-  await avatar.toggleListening();
+  if(['speaking','thinking'].includes(state.select('presence')))await avatar.interrupt();
+  await avatar.startListening();
 });
 $('#suggestRoute').addEventListener('click',()=>void submit('Crée-moi une promenade de deux heures à Santa Teresa, avec carte, photos et texte.','touch'));
 $('#createForm').addEventListener('submit',event=>{event.preventDefault();void submit($('#createPrompt').value,'touch');});
@@ -82,5 +82,5 @@ if(restored){
 }
 if(mockRequested){$('#screenStatus').textContent='SIMULATION';$('#avatarModeStatus').textContent='Simulation Planner · LiveAvatar optionnel';}
 
-globalThis.__POCKETGUIDE_V4__={version:'4.0.0-preview.3',state,bus:v4EventBus,auditLog,evidenceBus,registry,router,planner,offline,avatar,scenes,orchestrator,mockRequested};
-v4EventBus.emit('pg4.runtime.ready',{version:'4.0.0-preview.3',base:'PocketGuide 1.5.2',mockRequested});
+globalThis.__POCKETGUIDE_V4__={version:'4.0.0-preview.4',state,bus:v4EventBus,auditLog,evidenceBus,registry,router,planner,offline,avatar,scenes,orchestrator,mockRequested};
+v4EventBus.emit('pg4.runtime.ready',{version:'4.0.0-preview.4',base:'PocketGuide 1.5.2',mockRequested});

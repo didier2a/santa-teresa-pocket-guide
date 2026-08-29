@@ -1,4 +1,4 @@
-import {LiveAvatarRealtimeController} from '../../pg23/avatar/liveavatar-realtime-controller.js';
+import {LiveAvatarRealtimeController} from '../../pg23/avatar/liveavatar-realtime-controller.js?v=4.0.0-preview.4';
 
 export class AvatarAudioAdapter{
   constructor({bus,fetchImpl=globalThis.fetch,documentImpl=globalThis.document}={}){
@@ -10,6 +10,7 @@ export class AvatarAudioAdapter{
     this.controller.install({root,portrait,host,status,retry,onTurn,onStatus:payload=>{this.statusHandler?.(payload);this.bus?.emit('pg4.avatar.status',payload);},onCommand:(text,meta)=>this.commandHandler?.(text,meta)||{handled:false}});
     return this;
   }
+  startListening(){return this.controller.startListening();}
   toggleListening(){return this.controller.toggleListening();}
   interrupt(){return this.controller.interrupt();}
   async narrateEvidence(evidence){

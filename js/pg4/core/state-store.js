@@ -21,7 +21,7 @@ export class StateStore{
 }
 
 export const initialV4State={
-  version:'4.0.0-preview.3',
+  version:'4.0.0-preview.4',
   presence:'ready',
   view:'guide',
   intent:null,

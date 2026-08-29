@@ -20,11 +20,12 @@ test('la navigation S22 reste stable et immédiatement tactile',()=>{
   assert.match(bootstrap,/state\.patch\(\{view\},\{source:'navigation-touch'\}\)/);
   assert.match(html,/Votre carte apparaîtra ici/);
   assert.match(html,/Aucun parcours actif/);
-  assert.match(sw,/V4_VERSION='4\.0\.0-preview\.3'/);
+  assert.match(sw,/V4_VERSION='4\.0\.0-preview\.4'/);
 });
 
 test('Avatar + Audio reste isolé derrière un adaptateur V4',()=>{
   assert.match(controller,/class LiveAvatarRealtimeController/);assert.match(controller,/voice:'marin'/);assert.match(controller,/session\.attach\(video\)/);assert.match(adapter,/new LiveAvatarRealtimeController/);assert.doesNotMatch(adapter,/liveavatar-session-v4|function v4Fetch/);assert.match(adapter,/diagnostic\(\)\.connected/);assert.doesNotMatch(adapter,/OPENAI_API_KEY|LIVEAVATAR_API_KEY|HEYGEN_API_KEY/);assert.match(bootstrap,/AvatarAudioAdapter/);
+  assert.match(adapter,/startListening\(\)/);assert.match(bootstrap,/await avatar\.startListening\(\)/);assert.doesNotMatch(bootstrap,/await avatar\.toggleListening\(\)/);
 });
 
 test('les secrets restent côté serveur et la preview Vercel est distincte',()=>{
